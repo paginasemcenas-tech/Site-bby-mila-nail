@@ -1,0 +1,1154 @@
+/* =====================================
+   HERO — PRIMEIRA TELA
+===================================== */
+.studio-hero {
+  position: relative;
+  width: 100%;
+  height: min(850px, calc(100svh - 91px));
+  min-height: 0;
+  max-height: 850px;
+  overflow: hidden;
+  background: var(--coffee);
+}
+
+/* =====================================
+   FOTOGRAFIA
+===================================== */
+.hero-photo {
+  position: absolute;
+  z-index: 2;
+
+  top: 0;
+  right: 0;
+
+  width: min(53%, 840px);
+  height: 100%;
+
+  overflow: hidden;
+
+  clip-path: polygon(
+    14% 0,
+    100% 0,
+    100% 100%,
+    0 100%
+  );
+}
+
+.hero-photo img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+  object-position: center 62%;
+}
+
+
+/* =====================================
+   TEXTO DO HERO
+===================================== */
+
+.hero-content {
+  position: relative;
+  z-index: 5;
+
+  width: 50%;
+  height: 100%;
+  padding: 20px 32px 0 clamp(32px, 7.5vw, 120px);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+
+}
+
+/* IDENTIFICAÇÃO STUDIO */
+
+.hero-label {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+
+  margin-bottom: 20px;
+
+  color: var(--bronze);
+
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 4px;
+}
+
+.label-line {
+  width: 72px;
+  height: 1px;
+  background: var(--bronze);
+}
+
+
+/* TÍTULO */
+
+.hero-content h1 {
+  margin-bottom: 19px;
+
+  color: var(--champagne);
+
+  font-family: var(--font-title);
+  font-size: clamp(68px, 7.8vw, 88px);
+  font-weight: 400;
+
+  line-height: 0.82;
+  letter-spacing: -3px;
+}
+
+
+/* TEXTO COMPLEMENTAR */
+
+.hero-content p {
+  margin-bottom: 49px;
+
+  color: var(--champagne);
+
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+
+/* LINK */
+
+.hero-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  padding-bottom: 7px;
+
+  border-bottom: 1px solid var(--bronze);
+
+  color: var(--bronze);
+  text-decoration: none;
+
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+
+  transition: gap 0.3s ease;
+}
+
+.hero-link span {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.hero-link:hover {
+  gap: 20px;
+}
+
+
+/* =====================================
+   RESPONSIVIDADE
+===================================== */
+
+@media (min-width: 1400px) {
+  .hero-content {
+    padding-left: 7.5%;
+  }
+
+  .hero-content h1 {
+    font-size: 110px;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero-content h1 {
+    font-size: 68px;
+  }
+
+  .hero-photo {
+    width: 58%;
+  }
+}
+
+@media (max-width: 820px) {
+  .studio-hero {
+    height: min(850px, calc(100svh - 77px));
+  }
+}
+
+@media (max-width: 650px) {
+  .studio-hero {
+    height: auto;
+    min-height: calc(100svh - 77px);
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-content {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    flex: 0 0 auto;
+    padding: 22px 7% 26px;
+  }
+
+  .hero-label {
+    margin-bottom: 12px;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(54px, 12vw, 72px);
+    margin-bottom: 14px;
+  }
+
+  .hero-content p {
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+
+  .desktop-break {
+    display: none;
+  }
+
+  .hero-photo {
+    position: relative;
+    flex: 1 1 0;
+    width: 100%;
+    height: auto;
+    min-height: 200px;
+    clip-path: none;
+  }
+}
+
+
+/* =====================================
+   ESTILOS GERAIS DAS SEÇÕES
+===================================== */
+
+.studio-intro,
+.studio-services,
+.studio-prices,
+.studio-nailart,
+.studio-booking-section,
+.studio-location {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.section-number {
+  display: block;
+  color: var(--bronze);
+  font-size: 11px;
+  letter-spacing: 3px;
+  font-weight: 500;
+  margin-bottom: 28px;
+}
+
+.studio-intro h2,
+.studio-services h2,
+.studio-prices h2,
+.studio-nailart h2,
+.studio-booking-section h2,
+.studio-location h2 {
+  font-family: var(--font-title);
+  font-weight: 400;
+  font-size: clamp(48px, 6vw, 78px);
+  line-height: .95;
+  letter-spacing: -2px;
+}
+
+.studio-intro h2 em,
+.studio-services h2 em,
+.studio-prices h2 em,
+.studio-nailart h2 em,
+.studio-booking-section h2 em,
+.studio-location h2 em {
+  color: var(--bronze);
+  font-weight: 400;
+}
+
+.text-link {
+  display: inline-flex;
+  gap: 15px;
+  align-items: center;
+  color: var(--bronze);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--bronze);
+  transition: gap .3s ease;
+}
+
+.text-link:hover {
+  gap: 23px;
+}
+
+
+/* =====================================
+   01 — APRESENTAÇÃO
+===================================== */
+
+.studio-intro {
+  min-height: clamp(360px, 34vw, 480px);
+  padding: 0;
+  background: var(--cacao);
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  align-items: stretch;
+  gap: 0;
+}
+
+.intro-image {
+  position: relative;
+  min-height: 440px;
+  overflow: hidden;
+}
+
+.intro-image::after {
+  position: absolute;
+  inset: 45% 0 0;
+  background: linear-gradient(transparent, rgba(33, 21, 19, 0.68));
+  content: "";
+}
+
+.intro-image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 46%;
+  display: block;
+}
+
+.intro-image-caption {
+  position: absolute;
+  z-index: 1;
+  bottom: 18px;
+  left: clamp(24px, 5vw, 72px);
+  color: var(--champagne);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+}
+
+.intro-content {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  max-width: none;
+  padding: clamp(38px, 5.4vw, 76px);
+  overflow: hidden;
+}
+
+.intro-content h2 {
+  max-width: 15ch;
+  margin: 0;
+  font-size: clamp(2.5rem, 3.8vw, 3.6rem);
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+}
+
+.intro-content::before {
+  position: absolute;
+  z-index: -1;
+  top: -15%;
+  right: -14%;
+  width: 38%;
+  height: 130%;
+  background: var(--wine);
+  clip-path: polygon(55% 0, 100% 0, 100% 100%, 0 100%);
+  content: "";
+}
+
+.intro-content p {
+  max-width: 36ch;
+  margin: 18px 0 26px;
+  color: var(--champagne-muted);
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+
+/* =====================================
+   PROCEDIMENTOS
+===================================== */
+
+.studio-services {
+  padding: clamp(32px, 4vw, 56px) 4% 10px;
+  background: var(--wine);
+  display: grid;
+  grid-template-columns: minmax(190px, 0.8fr) minmax(0, 2.2fr);
+  column-gap: clamp(20px, 3vw, 42px);
+  align-items: start;
+}
+
+.services-heading {
+  position: static;
+}
+
+.services-heading h2 {
+  margin: 0;
+  font-size: clamp(40px, 4.2vw, 58px);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+}
+
+.services-heading p {
+  max-width: 32ch;
+  margin: 12px 0 0;
+  color: var(--champagne-muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.services-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 1.8vw, 22px);
+}
+
+.service-item {
+  min-width: 0;
+  transition: transform 0.3s ease;
+}
+
+.service-item:hover {
+  transform: translateY(-4px);
+}
+
+.service-image {
+  aspect-ratio: 1;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.service-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.service-item:hover .service-image img {
+  transform: scale(1.05);
+}
+
+.service-item h3 {
+  margin: 0 0 5px;
+  color: var(--champagne);
+  font-family: var(--font-title);
+  font-size: clamp(15px, 1.35vw, 19px);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.service-item p {
+  margin: 0;
+  color: var(--champagne-muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+/* =====================================
+   VALORES
+===================================== */
+
+.studio-prices {
+  padding: 12px 3% 28px;
+  background: var(--wine);
+}
+
+.prices-heading {
+  padding: 0;
+  text-align: left;
+}
+
+.prices-heading::before {
+  display: block;
+  width: 34px;
+  height: 1px;
+  margin-bottom: 10px;
+  background: var(--bronze);
+  content: "";
+}
+
+.prices-heading h2 {
+  margin: 0;
+  font-size: clamp(30px, 3vw, 40px);
+  line-height: 0.98;
+}
+
+.prices-heading h2 em {
+  color: var(--champagne);
+}
+
+.prices-heading p {
+  color: var(--champagne-muted);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  margin: 12px 0 0;
+  text-transform: uppercase;
+}
+
+.prices-layout {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.9fr) repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 24px);
+  max-width: none;
+  margin: 0 auto;
+  padding: 14px 18px;
+  border: 1px solid var(--champagne-line);
+  border-radius: 12px;
+}
+
+.price-group h3 {
+  font-family: var(--font-title);
+  color: var(--champagne);
+  font-size: clamp(18px, 1.8vw, 22px);
+  font-weight: 400;
+  line-height: 1.05;
+  margin: 0 0 8px;
+}
+
+.price-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--champagne-subtle);
+  color: var(--champagne-muted);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.price-row {
+  min-height: 32px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--champagne-subtle);
+  color: var(--champagne);
+  font-size: 10px;
+}
+
+.price-row strong {
+  color: var(--bronze);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.price-note {
+  color: var(--champagne-muted);
+  font-size: 9px;
+  line-height: 1.7;
+  margin: 8px 0 0;
+}
+
+/* =====================================
+   NAIL ART
+===================================== */
+
+.studio-nailart {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+  padding: clamp(60px, 7vw, 100px) clamp(36px, 6vw, 96px);
+  background: var(--coffee);
+}
+
+.nailart-content {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+}
+
+.nailart-heading {
+  margin-bottom: 20px;
+}
+
+.nailart-heading h2 {
+  font-size: clamp(40px, 4.7vw, 64px);
+  line-height: 0.92;
+}
+
+.nailart-label {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--bronze);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+}
+
+.nailart-heading p {
+  max-width: 38ch;
+  margin: 16px 0 0;
+  color: var(--champagne-muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.nailart-gallery {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-areas:
+    "one two three four"
+    "five six seven eight"
+    ". nine ten .";
+  align-items: start;
+  gap: clamp(8px, 1vw, 12px);
+  isolation: isolate;
+  width: 100%;
+  min-width: 0;
+}
+
+.nailart-gallery::before,
+.nailart-gallery::after {
+  position: absolute;
+  z-index: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.nailart-gallery::before {
+  top: 7%;
+  left: 10%;
+  width: 78%;
+  height: 82%;
+  background: var(--wine);
+  clip-path: polygon(16% 0, 100% 11%, 88% 100%, 0 83%);
+  transform: rotate(3deg);
+}
+
+.nailart-gallery::after {
+  right: 7%;
+  bottom: 10%;
+  width: 33%;
+  height: 2px;
+  background: var(--bronze);
+  transform: rotate(-24deg);
+}
+
+.nailart-photo {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 1;
+  filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.18));
+  transition: filter 0.3s ease;
+}
+
+.nailart-photo--one {
+  grid-area: one;
+  align-self: start;
+  margin-top: 8px;
+  transform: rotate(-0.8deg);
+}
+
+.nailart-photo--two {
+  grid-area: two;
+  align-self: end;
+  margin-bottom: 8px;
+  transform: rotate(0.6deg);
+}
+
+.nailart-photo--three {
+  grid-area: three;
+  margin-top: 4px;
+  transform: rotate(-0.5deg);
+}
+
+.nailart-photo--four {
+  grid-area: four;
+  align-self: start;
+  transform: rotate(0.8deg);
+}
+
+.nailart-photo--five {
+  grid-area: five;
+  align-self: center;
+  margin-top: 4px;
+  transform: rotate(0.5deg);
+}
+
+.nailart-photo--six {
+  grid-area: six;
+  align-self: end;
+  margin-bottom: 6px;
+  transform: rotate(-0.6deg);
+}
+
+.nailart-photo--seven {
+  grid-area: seven;
+  margin-top: 8px;
+  transform: rotate(0.8deg);
+}
+
+.nailart-photo--eight {
+  grid-area: eight;
+  align-self: end;
+  margin-bottom: 4px;
+  transform: rotate(-0.5deg);
+}
+
+.nailart-photo--nine {
+  grid-area: nine;
+  align-self: end;
+  margin-bottom: 8px;
+  transform: rotate(-0.7deg);
+}
+
+.nailart-photo--ten {
+  grid-area: ten;
+  margin-top: 4px;
+  transform: rotate(0.5deg);
+}
+
+.nailart-photo:hover {
+  filter: drop-shadow(0 7px 8px rgba(0, 0, 0, 0.26));
+}
+
+.nailart-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform .6s ease;
+}
+
+.nailart-photo--one img,
+.nailart-photo--two img,
+.nailart-photo--three img,
+.nailart-photo--seven img,
+.nailart-photo--eight img,
+.nailart-photo--nine img {
+  object-position: center 54%;
+}
+
+.nailart-photo:hover img {
+  transform: scale(1.06);
+}
+
+.nailart-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 20px;
+  border: 1px solid var(--bronze);
+  color: var(--bronze);
+  text-decoration: none;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  transition: .3s ease;
+}
+
+.nailart-button:hover {
+  background: var(--bronze);
+  color: var(--coffee);
+}
+
+
+/* =====================================
+   05 — AGENDAMENTO
+===================================== */
+
+.studio-booking-section {
+  min-height: 490px;
+  padding: 100px 9%;
+  background: var(--coffee);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.booking-content {
+  max-width: 570px;
+  position: relative;
+  z-index: 2;
+}
+
+.booking-content p {
+  max-width: 420px;
+  color: var(--champagne-muted);
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 25px 0 35px;
+}
+
+.booking-cta {
+  display: inline-flex;
+  gap: 20px;
+  align-items: center;
+  background: var(--wine);
+  color: var(--champagne);
+  text-decoration: none;
+  padding: 18px 25px;
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  transition: background-color .3s ease, color .3s ease, transform .3s ease;
+}
+
+.booking-cta:hover {
+  background: var(--bronze);
+  color: var(--coffee);
+  transform: translateY(-2px);
+}
+
+.booking-note {
+  display: block;
+  color: var(--bronze);
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-top: 25px;
+}
+
+.booking-decoration {
+  width: 300px;
+  height: 300px;
+  border: 1px solid var(--bronze-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-12deg);
+}
+
+.booking-decoration span {
+  font-family: var(--font-title);
+  font-size: 75px;
+  line-height: .75;
+  color: var(--wine);
+  text-align: center;
+}
+
+
+/* =====================================
+   06 — LOCALIZAÇÃO
+===================================== */
+
+.studio-location {
+  padding: 100px 9%;
+  background: var(--cacao);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10%;
+  align-items: center;
+}
+
+.location-address {
+  color: var(--champagne);
+  font-size: 15px;
+  line-height: 2;
+  margin: 35px 0;
+}
+
+.location-side {
+  min-height: 300px;
+  background: var(--wine);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.location-symbol {
+  font-family: var(--font-title);
+  font-size: 130px;
+  color: var(--champagne);
+}
+
+.location-side p {
+  color: var(--champagne);
+  font-size: 9px;
+  letter-spacing: 3px;
+}
+
+
+/* =====================================
+   RODAPÉ
+===================================== */
+
+.studio-footer {
+  min-height: 150px;
+  padding: 35px 8%;
+  background: var(--coffee-dark);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 25px;
+}
+
+.footer-brand {
+  color: var(--champagne);
+  font-family: var(--font-title);
+  font-size: 30px;
+  text-decoration: none;
+}
+
+.footer-brand span {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 9px;
+  letter-spacing: 5px;
+  text-align: center;
+}
+
+.footer-social {
+  display: flex;
+  gap: 25px;
+}
+
+.footer-social a {
+  color: var(--champagne);
+  text-decoration: none;
+  font-size: 12px;
+  transition: color .3s ease;
+}
+
+.footer-social a:hover {
+  color: var(--bronze);
+}
+
+.footer-copy {
+  width: 100%;
+  color: var(--champagne-muted);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-align: center;
+}
+
+
+/* =====================================
+   RESPONSIVIDADE
+===================================== */
+
+@media (max-width: 800px) {
+
+  .studio-intro {
+    grid-template-columns: 1fr;
+    padding: 0;
+    gap: 0;
+  }
+
+  .intro-image {
+    height: 380px;
+    min-height: 380px;
+  }
+
+  .intro-content {
+    min-height: 360px;
+    padding: 56px 7%;
+  }
+
+  .studio-services {
+    grid-template-columns: 1fr;
+    padding: 42px 5% 10px;
+    gap: 22px;
+  }
+
+  .services-heading {
+    position: static;
+  }
+
+  .services-list {
+    gap: 14px;
+  }
+
+  .studio-prices {
+    padding: 10px 5% 24px;
+  }
+
+  .prices-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .prices-heading {
+    grid-column: 1 / -1;
+  }
+
+  .prices-layout .price-group:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .studio-nailart {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 56px 7%;
+  }
+
+  .nailart-content {
+    max-width: 620px;
+  }
+
+  .nailart-gallery {
+    gap: clamp(8px, 1vw, 12px);
+  }
+
+  .studio-location {
+    grid-template-columns: 1fr;
+    padding: 80px 7%;
+  }
+}
+
+@media (max-width: 550px) {
+
+  .studio-intro h2,
+  .studio-services h2,
+  .studio-prices h2,
+  .studio-nailart h2,
+  .studio-booking-section h2,
+  .studio-location h2 {
+    font-size: 53px;
+  }
+
+  .studio-intro h2 {
+    font-size: clamp(2.3rem, 10vw, 3rem);
+  }
+
+  .services-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 12px;
+  }
+
+  .studio-services {
+    gap: 16px;
+    padding: 32px 5% 8px;
+  }
+
+  .services-heading p {
+    margin-top: 8px;
+    font-size: 12px;
+  }
+
+  .service-image {
+    aspect-ratio: 1.15;
+    margin-bottom: 6px;
+  }
+
+  .services-heading h2 {
+    font-size: clamp(32px, 8vw, 42px);
+  }
+
+  .service-item h3 {
+    font-size: 16px;
+  }
+
+  .prices-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .studio-prices {
+    padding-bottom: 20px;
+  }
+
+  .prices-heading {
+    padding: 14px 16px 6px;
+  }
+
+  .prices-heading h2 {
+    font-size: clamp(30px, 8.5vw, 36px);
+  }
+
+  .prices-heading p {
+    margin-top: 6px;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+  }
+
+  .prices-layout {
+    gap: 16px;
+    padding: 12px 14px;
+  }
+
+  .prices-layout .price-group:last-child {
+    grid-column: auto;
+  }
+
+  .intro-image {
+    height: 300px;
+  }
+
+  .price-row {
+    font-size: 11px;
+  }
+
+  .price-row strong {
+    font-size: 11px;
+  }
+
+  .nailart-heading h2 {
+    font-size: clamp(38px, 9vw, 46px);
+  }
+
+  .nailart-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "one two"
+      "three four"
+      "five six"
+      "seven eight"
+      "nine ten";
+    gap: 12px 9px;
+  }
+
+  .nailart-photo--one {
+    margin-top: 5px;
+  }
+
+  .nailart-photo--two {
+    margin-bottom: 5px;
+  }
+
+  .nailart-photo--three {
+    margin-top: 3px;
+  }
+
+  .nailart-photo--four {
+    margin-top: 8px;
+  }
+
+  .nailart-photo--five {
+    margin-top: 4px;
+  }
+
+  .nailart-photo--six {
+    margin-bottom: 4px;
+  }
+
+  .studio-booking-section {
+    min-height: 430px;
+    padding: 75px 7%;
+  }
+
+  .booking-decoration {
+    display: none;
+  }
+
+  .studio-footer {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-social {
+    justify-content: center;
+  }
+}
