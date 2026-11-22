@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#211513">
+  <title>Painel | Bby Mila Nails</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-page">
+  <main class="admin-shell">
+    <a class="admin-brand" href="index.html">Bby Mila <span>Nails</span></a>
+
+    <section id="login-section" class="admin-login" aria-labelledby="admin-title">
+      <span class="admin-eyebrow">ÁREA RESTRITA</span>
+      <h1 id="admin-title">Painel da dona</h1>
+      <form id="login-form" class="admin-login-form">
+        <label class="form-field">
+          <span>E-mail</span>
+          <input name="email" type="email" autocomplete="username" required>
+        </label>
+        <label class="form-field">
+          <span>Senha</span>
+          <input name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="admin-primary-button" type="submit">Entrar</button>
+        <p id="login-error" class="admin-feedback" role="alert" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="dashboard-section" class="admin-dashboard" style="display: none;" aria-labelledby="dashboard-title">
+      <header class="admin-dashboard-header">
+        <div>
+          <span class="admin-eyebrow">BBY MILA NAILS</span>
+          <h1 id="dashboard-title">Agendamentos</h1>
+        </div>
+        <button class="admin-secondary-button" type="button" id="logout-button">Sair (Logout)</button>
+      </header>
+
+      <div class="admin-actions">
+        <div class="admin-month-control">
+          <label for="agenda-month">Mês da agenda</label>
+          <select id="agenda-month" data-agenda-month></select>
+          <p class="admin-open-month-label" data-month-status aria-live="polite"></p>
+        </div>
+        <button class="admin-primary-button" type="button" data-toggle-month>Abrir mês</button>
+      </div>
+
+      <p id="dashboard-feedback" class="admin-feedback" role="status" aria-live="polite"></p>
+      <div class="admin-booking-list" aria-live="polite"></div>
+    </section>
+  </main>
+  <script type="module" src="./admin.js"></script>
+</body>
+</html>

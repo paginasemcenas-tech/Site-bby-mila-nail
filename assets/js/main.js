@@ -36,7 +36,7 @@ if (menuToggle && mainNavigation) {
   });
 
   mainNavigation.addEventListener("click", (event) => {
-    if (isMobileNavigation() && event.target.closest("a")) closeMenu();
+    if (isMobileNavigation() && event.target.closest("a, [data-open-scheduling]")) closeMenu();
   });
 
   document.addEventListener("keydown", (event) => {
@@ -48,3 +48,159 @@ if (menuToggle && mainNavigation) {
 
   window.addEventListener("resize", syncNavigation);
 }
+
+const schedulingDialog = document.createElement("dialog");
+schedulingDialog.className = "scheduling-dialog";
+schedulingDialog.setAttribute("aria-labelledby", "scheduling-title");
+schedulingDialog.innerHTML = `
+  <div class="scheduling-drawer">
+    <button class="scheduling-close" type="button" aria-label="Fechar agendamento">&times;</button>
+
+    <header class="scheduling-header">
+      <span>BBY MILA NAILS</span>
+      <h2 id="scheduling-title">Agendamento</h2>
+    </header>
+
+    <div class="profile-tabs" role="tablist" aria-label="Tipo de cliente">
+      <button type="button" class="profile-tab is-active" role="tab" aria-selected="true" data-profile="new">Sou cliente nova</button>
+      <button type="button" class="profile-tab" role="tab" aria-selected="false" data-profile="existing">Já sou cliente</button>
+    </div>
+
+    <section class="profile-panel" data-panel="new" role="tabpanel">
+      <form class="new-client-form">
+        <div class="field-grid">
+          <label class="form-field">
+            <span>Nome completo</span>
+            <input name="name" type="text" autocomplete="name" required placeholder="Seu nome">
+          </label>
+
+          <label class="form-field">
+            <span>Telefone / WhatsApp</span>
+            <input name="phone" type="tel" autocomplete="tel" required placeholder="(31) 99999-9999">
+          </label>
+
+          <label class="form-field">
+            <span>E-mail <small>(opcional)</small></span>
+            <input name="email" type="email" autocomplete="email" placeholder="voce@email.com">
+          </label>
+
+          <label class="form-field procedure-field">
+            <span>Procedimento</span>
+            <input name="procedure" type="text" list="procedures-list" required placeholder="Selecione ou digite">
+            <datalist id="procedures-list">
+              <option value="Alongamento"></option>
+              <option value="Manutenção"></option>
+              <option value="Blindagem"></option>
+              <option value="Banho em Gel"></option>
+              <option value="Spa dos Pés"></option>
+              <option value="Nail Art"></option>
+              <option value="Remoção"></option>
+            </datalist>
+          </label>
+
+          <label class="form-field">
+            <span>Data preferida</span>
+            <select name="date" required disabled>
+              <option value="">Carregando datas...</option>
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Horário preferido</span>
+            <select name="time" required disabled>
+              <option value="">Selecione uma data primeiro</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="nailart-option" hidden>
+          <strong>Nail Art escolhida</strong>
+          <p>Para criar uma arte exclusiva e confirmar o orçamento, vamos conversar pelo WhatsApp.</p>
+          <button class="whatsapp-schedule" type="button">Conversar no WhatsApp</button>
+        </div>
+
+        <button class="normal-schedule" type="submit">Solicitar agendamento</button>
+        <p class="form-feedback" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="profile-panel" data-panel="existing" role="tabpanel" hidden>
+      <form class="existing-client-login">
+        <label class="form-field">
+          <span>Telefone cadastrado</span>
+          <input name="identifier" type="tel" autocomplete="tel" required placeholder="(31) 99999-9999">
+        </label>
+        <button class="normal-schedule" type="submit">Acessar meus agendamentos</button>
+      </form>
+
+      <div class="client-appointments" hidden>
+        <div class="appointments-heading">
+          <div>
+            <span>MEUS AGENDAMENTOS</span>
+            <h3>Olá, Mila!</h3>
+          </div>
+          <button type="button" class="new-appointment">Novo agendamento</button>
+        </div>
+
+        <p class="appointments-feedback" role="status" aria-live="polite"></p>
+        <div class="appointment-list"></div>
+      </div>
+    </section>
+  </div>
+`;
+
+document.body.appendChild(schedulingDialog);
+
+const openSchedulingButtons = document.querySelectorAll("[data-open-scheduling]");
+const closeSchedulingButton = schedulingDialog.querySelector(".scheduling-close");
+const profileTabs = schedulingDialog.querySelectorAll(".profile-tab");
+const profilePanels = schedulingDialog.querySelectorAll(".profile-panel");
+const newClientForm = schedulingDialog.querySelector(".new-client-form");
+const procedureInput = newClientForm.elements.procedure;
+const nailartOption = schedulingDialog.querySelector(".nailart-option");
+const normalScheduleButton = schedulingDialog.querySelector(".normal-schedule");
+
+openSchedulingButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    if (typeof schedulingDialog.showModal === "function") {
+      schedulingDialog.showModal();
+    } else {
+      schedulingDialog.setAttribute("open", "");
+    }
+    document.dispatchEvent(new CustomEvent("scheduling:open"));
+  });
+});
+
+closeSchedulingButton.addEventListener("click", () => schedulingDialog.close());
+
+schedulingDialog.addEventListener("click", (event) => {
+  if (event.target === schedulingDialog) schedulingDialog.close();
+});
+
+profileTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    profileTabs.forEach((item) => {
+      item.classList.toggle("is-active", item === tab);
+      item.setAttribute("aria-selected", String(item === tab));
+    });
+    profilePanels.forEach((panel) => {
+      panel.hidden = panel.dataset.panel !== tab.dataset.profile;
+    });
+  });
+});
+
+procedureInput.addEventListener("input", () => {
+  const isNailArt = procedureInput.value.trim().toLowerCase() === "nail art";
+  nailartOption.hidden = !isNailArt;
+  normalScheduleButton.hidden = isNailArt;
+});
+
+schedulingDialog.querySelector(".new-appointment").addEventListener("click", () => {
+  profileTabs.forEach((tab) => {
+    tab.classList.toggle("is-active", tab.dataset.profile === "new");
+    tab.setAttribute("aria-selected", String(tab.dataset.profile === "new"));
+  });
+  profilePanels.forEach((panel) => {
+    panel.hidden = panel.dataset.panel !== "new";
+  });
+});
