@@ -3,57 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#211513">
-  <title>Painel | Bby Mila Nails</title>
+  <meta name="theme-color" content="#160A07">
+  <title>Administração | Bby Mila Nails</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="assets/css/admin.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/login.css">
 </head>
-<body class="admin-page">
-  <main class="admin-shell">
-    <a class="admin-brand" href="index.html">Bby Mila <span>Nails</span></a>
+<body class="login-page">
+  <svg class="login-botanical botanical-top" viewBox="0 0 310 240" aria-hidden="true">
+    <path d="M-20 174C45 116 84 77 163 16M28 140C27 96 10 69-5 56M54 116C93 116 120 102 139 79M83 91C79 54 88 34 107 12M104 72C146 78 174 68 198 47M132 50C131 20 142 0 159-17M47 125C77 137 95 158 104 189M75 102C115 113 140 133 152 165"/>
+    <path d="M-5 56C19 63 28 91 28 140M139 79C114 95 84 107 54 116M107 12C90 32 83 59 83 91M198 47C174 68 147 77 104 72M159-17C144 1 134 25 132 50M104 189C100 161 82 139 47 125M152 165C139 138 115 118 75 102"/>
+  </svg>
+  <svg class="login-botanical botanical-bottom" viewBox="0 0 310 240" aria-hidden="true">
+    <path d="M330 68C267 125 226 165 149 228M282 101C284 144 301 170 316 184M256 126C217 126 190 139 171 163M227 151C231 187 222 208 203 230M206 170C164 165 136 175 112 197M178 192C179 222 168 242 151 259M263 117C233 105 215 84 206 53M235 140C195 130 170 109 158 77"/>
+    <path d="M316 184C292 177 283 150 282 101M171 163C196 147 226 135 256 126M203 230C220 210 227 183 227 151M112 197C136 176 163 166 206 170M151 259C166 241 176 217 178 192M206 53C210 81 228 104 263 117M158 77C171 103 195 125 235 140"/>
+  </svg>
+  <div class="login-orbit orbit-top" aria-hidden="true"></div>
+  <div class="login-orbit orbit-bottom" aria-hidden="true"></div>
 
-    <section id="login-section" class="admin-login" aria-labelledby="admin-title">
-      <span class="admin-eyebrow">ÁREA RESTRITA</span>
-      <h1 id="admin-title">Painel da dona</h1>
-      <form id="login-form" class="admin-login-form">
-        <label class="form-field">
+  <main class="login-layout">
+    <section class="login-card" aria-labelledby="login-title">
+      <a class="login-brand" href="index.html" aria-label="Bby Mila Nails, página inicial">
+        <span>Bby Mila</span><small>NAILS</small>
+      </a>
+      <span class="login-brand-rule" aria-hidden="true"></span>
+      <p class="login-eyebrow">ÁREA EXCLUSIVA</p>
+      <h1 id="login-title">Bem-vinda de <em>volta.</em></h1>
+      <p class="login-intro"><span aria-hidden="true">✦</span> Acesse seu painel para gerenciar o Studio.</p>
+
+      <form id="login-form" class="login-form" novalidate>
+        <label class="login-field">
           <span>E-mail</span>
-          <input name="email" type="email" autocomplete="username" required>
+          <span class="login-input-wrap">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
+            <input name="email" type="email" autocomplete="username" placeholder="Seu e-mail administrativo" required>
+          </span>
         </label>
-        <label class="form-field">
+        <label class="login-field">
           <span>Senha</span>
-          <input name="password" type="password" autocomplete="current-password" required>
+          <span class="login-input-wrap">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>
+            <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Sua senha" required>
+            <button class="password-toggle" type="button" aria-label="Mostrar senha" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/><path class="eye-slash" d="m4 4 16 16"/></svg>
+            </button>
+          </span>
         </label>
-        <button class="admin-primary-button" type="submit">Entrar</button>
-        <p id="login-error" class="admin-feedback" role="alert" aria-live="polite"></p>
+        <div class="login-options">
+          <label class="remember-option"><input name="remember" type="checkbox" checked><span>Manter conectado</span></label>
+          <button class="forgot-password" type="button">Esqueci minha senha</button>
+        </div>
+        <p id="login-feedback" class="login-feedback" role="status" aria-live="polite"></p>
+        <button class="login-submit" type="submit">
+          <span>ENTRAR NO DASHBOARD</span><span class="button-arrow" aria-hidden="true">→</span>
+        </button>
       </form>
-    </section>
 
-    <section id="dashboard-section" class="admin-dashboard" style="display: none;" aria-labelledby="dashboard-title">
-      <header class="admin-dashboard-header">
-        <div>
-          <span class="admin-eyebrow">BBY MILA NAILS</span>
-          <h1 id="dashboard-title">Agendamentos</h1>
-        </div>
-        <button class="admin-secondary-button" type="button" id="logout-button">Sair (Logout)</button>
-      </header>
-
-      <div class="admin-actions">
-        <div class="admin-month-control">
-          <label for="agenda-month">Mês da agenda</label>
-          <select id="agenda-month" data-agenda-month></select>
-          <p class="admin-open-month-label" data-month-status aria-live="polite"></p>
-        </div>
-        <button class="admin-primary-button" type="button" data-toggle-month>Abrir mês</button>
-      </div>
-
-      <p id="dashboard-feedback" class="admin-feedback" role="status" aria-live="polite"></p>
-      <div class="admin-booking-list" aria-live="polite"></div>
+      <footer class="login-card-footer">
+        <span class="footer-rule" aria-hidden="true"></span><span aria-hidden="true">✦</span><span class="footer-rule" aria-hidden="true"></span>
+        <p>Acesso restrito à administração Bby Mila Nails</p>
+      </footer>
     </section>
   </main>
-  <script type="module" src="./admin.js"></script>
+  <script type="module" src="assets/js/login.js"></script>
 </body>
 </html>

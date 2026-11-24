@@ -1,0 +1,914 @@
+/* =========================================================
+   VARIÁVEIS E BASE — BBY MILA NAILS (PÁGINA SOBRE)
+   ========================================================= */
+:root {
+  --bg-dark: #1a0c09;
+  --bg-espresso: #21100c;
+  --bg-wine: #3d161a;
+  --bg-wine-deep: #290e11;
+
+  --text-cream: #f5ece6;
+  --text-muted: #c2aba0;
+  --text-soft: #9d8479;
+  --accent-rose: #d4a68e;
+  --border-subtle: rgba(245, 236, 230, 0.14);
+  --border-pill: rgba(212, 166, 142, 0.38);
+
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-script: "Dancing Script", cursive;
+}
+
+.sobre-hero .reveal.is-visible {
+  animation: about-hero-entrance 750ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes about-hero-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg-dark);
+  color: var(--text-cream);
+  font-family: var(--font-sans);
+  scroll-padding-top: 84px;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-cream);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+.brand-logo {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.brand-name {
+  font-family: var(--font-serif);
+  font-size: 1.65rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--text-cream);
+}
+
+.brand-name em {
+  font-style: italic;
+}
+
+.brand-sub {
+  font-family: var(--font-sans);
+  font-size: 0.55rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 2px;
+  align-self: flex-end;
+}
+
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-light {
+  padding: 13px 26px;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  border: 1px solid var(--border-pill);
+  background: rgba(24, 12, 9, 0.35);
+  color: var(--text-cream);
+}
+
+.btn-outline-light:hover {
+  background: rgba(212, 166, 142, 0.14);
+  border-color: var(--accent-rose);
+}
+
+.btn-outline-light .arrow {
+  transition: transform 0.28s ease;
+}
+
+.btn-outline-light:hover .arrow {
+  transform: translateX(5px);
+}
+
+/* =========================================================
+   1. HERO SOBRE
+   ========================================================= */
+.sobre-hero {
+  position: relative;
+  min-height: clamp(300px, 39vw, 600px);
+  display: flex;
+  align-items: center;
+  background: linear-gradient(125deg, #1a0c09 0%, #21100c 58%, #140907 100%);
+  overflow: hidden;
+  padding: 20px 0;
+}
+
+.hero-bg-shape {
+  position: absolute;
+  top: -145px;
+  right: 25%;
+  width: 390px;
+  height: 390px;
+  border-radius: 42% 58% 56% 44%;
+  background: radial-gradient(circle, rgba(92, 26, 34, 0.45) 0%, rgba(92, 26, 34, 0) 72%);
+  pointer-events: none;
+  z-index: 2;
+  transform: rotate(20deg);
+}
+
+.hero-photo-wrapper {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 62%;
+  clip-path: ellipse(100% 125% at 100% 50%);
+  z-index: 1;
+}
+
+.hero-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center right;
+}
+
+.hero-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    #1a0c09 0%,
+    rgba(26, 12, 9, 0.82) 23%,
+    rgba(33, 16, 12, 0.32) 60%,
+    rgba(33, 16, 12, 0.05) 100%
+  );
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 520px;
+}
+
+.eyebrow-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.eyebrow {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent-rose);
+}
+
+.eyebrow-line {
+  display: inline-block;
+  width: 42px;
+  height: 1px;
+  background: rgba(212, 166, 142, 0.38);
+}
+
+.hero-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.8rem, 5vw, 4.25rem);
+  font-weight: 400;
+  line-height: 0.92;
+  color: var(--text-cream);
+  margin-bottom: 18px;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--accent-rose);
+}
+
+.hero-subtitle {
+  max-width: 430px;
+  font-size: 0.84rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 22px;
+}
+
+.hero-story-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 0 5px;
+  border-bottom: 1px solid rgba(212, 166, 142, 0.48);
+  color: var(--accent-rose);
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: color 220ms ease, border-color 220ms ease;
+}
+
+.hero-story-link:hover,
+.hero-story-link:focus-visible {
+  border-color: var(--accent-rose);
+  color: var(--text-cream);
+}
+
+.hero-story-link .arrow {
+  display: inline-block;
+  font-size: 1rem;
+  transition: transform 220ms ease;
+}
+
+.hero-story-link:hover .arrow,
+.hero-story-link:focus-visible .arrow {
+  transform: translateX(4px);
+}
+
+/* =========================================================
+   2. QUEM ESTÁ POR TRÁS: CAMILA
+   ========================================================= */
+.camila-section {
+  position: relative;
+  background-color: var(--bg-espresso);
+  overflow: hidden;
+}
+
+.camila-ambient-shape {
+  position: absolute;
+  top: -105px;
+  right: -100px;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(92, 26, 34, 0.45) 0%, rgba(92, 26, 34, 0) 72%);
+  pointer-events: none;
+}
+
+.camila-grid {
+  display: grid;
+  grid-template-columns: 0.98fr 1.02fr;
+  align-items: center;
+  gap: 0;
+  max-width: 100%;
+  padding: 0 28px 0 0;
+}
+
+.camila-photo-box {
+  position: relative;
+  height: clamp(300px, 38vw, 520px);
+  overflow: hidden;
+}
+
+.camila-photo-box::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(33, 16, 12, 0.02), rgba(33, 16, 12, 0.28)),
+    linear-gradient(0deg, rgba(61, 22, 26, 0.16), rgba(61, 22, 26, 0.04));
+  content: "";
+  pointer-events: none;
+}
+
+.camila-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+  filter: saturate(0.82) brightness(0.92);
+}
+
+.camila-content {
+  max-width: 480px;
+  margin-left: clamp(24px, 5vw, 72px);
+  padding: 24px 12px 24px clamp(28px, 4vw, 56px);
+  border-left: 1px solid rgba(212, 166, 142, 0.46);
+}
+
+.camila-kicker {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.camila-name {
+  font-family: var(--font-serif);
+  font-size: clamp(2.8rem, 4vw, 3.8rem);
+  font-weight: 400;
+  line-height: 0.95;
+  color: var(--accent-rose);
+  margin-bottom: 16px;
+}
+
+.camila-text {
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.camila-signature {
+  font-family: var(--font-script);
+  font-size: 2.1rem;
+  color: var(--accent-rose);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.sig-heart {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+}
+
+/* =========================================================
+   3. NOSSOS PARCEIROS
+   ========================================================= */
+.partners-section {
+  background-color: var(--bg-dark);
+  padding: clamp(16px, 2vw, 28px) 0 clamp(18px, 2.4vw, 32px);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.partners-header {
+  margin-bottom: 14px;
+}
+
+.partners-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.7rem, 3vw, 2.55rem);
+  font-weight: 400;
+  color: var(--text-cream);
+}
+
+.partners-title em {
+  font-style: italic;
+}
+
+.partners-header .eyebrow-row {
+  gap: 18px;
+  margin-bottom: 0;
+}
+
+.partners-header .eyebrow-line {
+  width: clamp(70px, 17vw, 130px);
+  background: rgba(212, 166, 142, 0.48);
+}
+
+.partners-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  margin-top: 4px;
+}
+
+.partners-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr) 1px minmax(0, 1fr) 1px minmax(0, 1fr) 1px minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(6px, 1vw, 12px);
+  padding: 4px 0;
+}
+
+.partner-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.85;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.partner-item:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+.partner-logo-text {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--text-cream);
+  font-size: 0.95rem;
+}
+
+.partner-logo-text small {
+  font-size: 0.45rem;
+  letter-spacing: 0.22em;
+  color: var(--text-soft);
+  margin-top: 3px;
+}
+
+.partner-logo-text.alessandro {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.35rem;
+  letter-spacing: 0.02em;
+}
+
+.partner-logo-text.nati {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.5rem;
+  letter-spacing: 0.03em;
+}
+
+.partner-divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(245, 236, 230, 0.14);
+}
+
+/* =========================================================
+   4. ONDE NOS ENCONTRAR — BELO HORIZONTE
+   ========================================================= */
+.location-section {
+  position: relative;
+  background-color: var(--bg-espresso);
+  padding: 0;
+  overflow: hidden;
+}
+
+.location-wine-curve {
+  position: absolute;
+  left: -8%;
+  bottom: -140px;
+  width: 68%;
+  height: 280px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, rgba(84, 23, 30, 0.55) 0%, rgba(59, 21, 25, 0.25) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.botanical-sketch {
+  position: absolute;
+  left: 16px;
+  bottom: 10px;
+  width: 170px;
+  height: 170px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.location-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  align-items: stretch;
+  gap: 30px;
+}
+
+.location-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.location-kicker {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  margin-bottom: 8px;
+}
+
+.location-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.3rem, 3.6vw, 3.1rem);
+  font-weight: 400;
+  line-height: 1.12;
+  color: var(--text-cream);
+  margin-bottom: 18px;
+}
+
+.location-title em {
+  font-style: italic;
+}
+
+.address-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.pin-icon {
+  color: var(--accent-rose);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.address-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.location-card {
+  position: relative;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+  height: clamp(240px, 31.4vw, 430px);
+}
+
+.location-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 55%;
+}
+
+.location-badge {
+  position: absolute;
+  right: 20px;
+  bottom: 18px;
+  background: rgba(24, 12, 9, 0.72);
+  backdrop-filter: blur(6px);
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.location-badge .brand-name {
+  font-size: 1.25rem;
+}
+
+.location-badge .brand-sub {
+  font-size: 0.45rem;
+}
+
+/* =========================================================
+   5. FOOTER
+   ========================================================= */
+.site-footer {
+  background-color: var(--bg-dark);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 26px 0;
+}
+
+.footer-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-contacts {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.footer-link-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-cream);
+  transition: color 0.25s ease;
+}
+
+.footer-link-item:hover {
+  color: var(--text-cream);
+}
+
+.footer-tagline {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding-left: 34px;
+  border-left: 1px solid var(--border-subtle);
+}
+
+.footer-link-item svg {
+  color: var(--accent-rose);
+  flex: 0 0 auto;
+}
+
+/* =========================================================
+   ANIMAÇÕES (SCROLL REVEAL)
+   ========================================================= */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =========================================================
+   RESPONSIVIDADE
+   ========================================================= */
+@media (max-width: 960px) {
+  .hero-content {
+    max-width: 470px;
+  }
+
+  .camila-grid {
+    grid-template-columns: 0.98fr 1.02fr;
+  }
+
+  .camila-photo-box {
+    height: clamp(300px, 38vw, 440px);
+  }
+
+  .camila-content {
+    margin-left: 24px;
+    padding-left: 28px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .camila-name {
+    margin-bottom: 12px;
+  }
+
+  .camila-text {
+    font-size: 0.76rem;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .location-grid {
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 24px;
+  }
+
+  .partners-bar {
+    gap: 8px;
+  }
+
+  .partner-logo-text {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+  }
+
+  .partner-logo-text.alessandro,
+  .partner-logo-text.nati {
+    font-size: 1.15rem;
+  }
+}
+
+@media (min-width: 681px) and (max-width: 820px) {
+  .site-header .header-shell {
+    width: calc(100% - 40px);
+    height: 53px;
+  }
+
+  .partners-section {
+    padding: 14px 0 17px;
+  }
+
+  .site-header .brand span {
+    font-size: 1.7rem;
+  }
+
+  .site-header .menu-toggle {
+    display: none;
+  }
+
+  .site-header .main-navigation:not([hidden]) {
+    position: relative;
+    inset: auto;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: clamp(5px, 0.8vw, 8px);
+    margin: 0 0 0 10px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .site-header .main-navigation .nav-link:first-child {
+    margin-left: 0;
+  }
+
+  .site-header .main-navigation .nav-link {
+    width: auto;
+    flex: 0 0 auto;
+    padding: 6px 0;
+    border: 0;
+    font-size: clamp(0.62rem, 1.3vw, 0.72rem);
+  }
+
+  .site-header .main-navigation .nav-link::after {
+    right: 0;
+    left: 0;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .site-header .header-cta {
+    position: static;
+    flex: 0 0 auto;
+    width: clamp(74px, 10vw, 84px);
+    height: 34px;
+    margin: 0 0 0 4px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-content {
+    max-width: 440px;
+  }
+
+  .footer-top {
+    gap: 18px;
+  }
+}
+
+@media (max-width: 680px) {
+  .sobre-hero {
+    min-height: 520px;
+    padding: 44px 0;
+  }
+
+  .hero-photo-wrapper {
+    width: 100%;
+    clip-path: none;
+  }
+
+  .hero-gradient-overlay {
+    background: linear-gradient(
+      90deg,
+      rgba(26, 12, 9, 0.94) 0%,
+      rgba(26, 12, 9, 0.82) 45%,
+      rgba(33, 16, 12, 0.24) 100%
+    ), linear-gradient(0deg, rgba(26, 12, 9, 0.72), transparent 70%);
+  }
+
+  .hero-title {
+    font-size: clamp(2.8rem, 8vw, 3.6rem);
+  }
+
+  .camila-grid,
+  .location-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .camila-grid {
+    padding: 0;
+  }
+
+  .camila-photo-box {
+    height: min(96vw, 420px);
+  }
+
+  .camila-content {
+    max-width: none;
+    margin: 0 24px;
+    padding: 28px 0 40px 24px;
+  }
+
+  .partners-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 12px;
+    padding: 0;
+  }
+
+  .partners-section {
+    padding: 28px 0 32px;
+  }
+
+  .partners-header {
+    margin-bottom: 20px;
+  }
+
+  .partner-divider {
+    display: none;
+  }
+
+  .partner-item:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .location-grid {
+    gap: 26px;
+  }
+
+  .location-section {
+    padding: 34px 0 42px;
+  }
+
+  .location-card {
+    aspect-ratio: 4 / 3;
+    height: auto;
+  }
+
+  .footer-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .site-footer {
+    padding: 24px 0;
+  }
+
+  .footer-tagline {
+    padding: 0;
+    border: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-title {
+    font-size: clamp(2.3rem, 10.5vw, 2.8rem);
+  }
+
+  .location-title {
+    font-size: 2.15rem;
+  }
+
+  .footer-contacts {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .sobre-hero .reveal.is-visible {
+    animation: none;
+  }
+}

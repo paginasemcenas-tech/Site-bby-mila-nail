@@ -15,3 +15,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+
+// Replace this value with Camila's UID from Firebase Authentication.
+export const adminUIDs = ["ZzOhMz9Lt0dPTTIl2HPH28MR9v13"];

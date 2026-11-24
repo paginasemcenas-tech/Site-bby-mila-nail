@@ -29,7 +29,19 @@ if (schedulingDialog) {
   let agendaSettings = null;
   let availableTimes = [];
 
-  const normalizePhone = (value) => value.replace(/\D/g, "");
+  const normalizePhone = (value) => {
+    let digits = value.replace(/\D/g, "");
+    if (digits.startsWith("55") && digits.length > 11) digits = digits.slice(2);
+    return digits;
+  };
+  const createRandomCode = () => {
+    if (!window.crypto || typeof window.crypto.getRandomValues !== "function") {
+      throw new Error("Este navegador não oferece geração segura de códigos de reserva.");
+    }
+    return [...window.crypto.getRandomValues(new Uint8Array(32))]
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+  };
   const localDateIso = (year, month, day) =>
     `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
@@ -148,14 +160,13 @@ if (schedulingDialog) {
 
     try {
       const bookingsQuery = query(
-        collection(db, "agendamentos"),
+        collection(db, "horarios_ocupados"),
         where("data", "==", selectedDate)
       );
       const snapshot = await getDocs(bookingsQuery);
       const occupiedTimes = new Set(
         snapshot.docs
           .map((booking) => booking.data())
-          .filter((booking) => !["cancelado", "cancelled"].includes(String(booking.status).toLowerCase()))
           .map((booking) => booking.horario || booking.hora)
       );
 
@@ -215,7 +226,7 @@ if (schedulingDialog) {
     }
 
     const phone = normalizePhone(String(values.get("phone")));
-    if (phone.length < 10) {
+    if (phone.length < 10 || phone.length > 11) {
       feedback.textContent = "Informe um telefone com DDD válido.";
       return;
     }
@@ -224,33 +235,19 @@ if (schedulingDialog) {
     submitButton.textContent = "Enviando...";
 
     try {
-      const slotReference = doc(db, "agendamentos", `${date}_${time.replace(":", "-")}`);
-      const dateBookings = await getDocs(query(
-        collection(db, "agendamentos"),
-        where("data", "==", date)
-      ));
-      const slotIsOccupied = dateBookings.docs.some((booking) => {
-        const data = booking.data();
-        return (data.horario || data.hora) === time
-          && !["cancelado", "cancelled"].includes(String(data.status).toLowerCase());
-      });
-
-      if (slotIsOccupied) {
-        availableTimes = availableTimes.filter((availableTime) => availableTime !== time);
-        setOptions(timeSelect, "Este horário acabou de ser reservado", availableTimes.map((value) => ({
-          value,
-          label: value
-        })));
-        throw new Error("Este horário já foi ocupado. Escolha outro horário.");
-      }
+      const slotId = `${date}_${time.replace(":", "-")}`;
+      const slotReference = doc(db, "horarios_ocupados", slotId);
+      const bookingReference = doc(collection(db, "agendamentos"));
+      const consultationCode = createRandomCode();
+      const consultationReference = doc(db, "consultas_agendamento", consultationCode);
 
       await runTransaction(db, async (transaction) => {
         const slot = await transaction.get(slotReference);
-        if (slot.exists() && !["cancelado", "cancelled"].includes(String(slot.data().status).toLowerCase())) {
+        if (slot.exists()) {
           throw new Error("Este horário acabou de ser reservado. Escolha outro horário.");
         }
 
-        transaction.set(slotReference, {
+        const appointment = {
           nome: String(values.get("name")).trim(),
           telefone: phone,
           email: String(values.get("email") || "").trim() || null,
@@ -258,11 +255,27 @@ if (schedulingDialog) {
           data: date,
           horario: time,
           status: "pendente",
-          criadoEm: serverTimestamp()
+          criadoEm: serverTimestamp(),
+          slotId,
+          codigoConsulta: consultationCode
+        };
+        transaction.set(bookingReference, appointment);
+        transaction.set(slotReference, {
+          data: date,
+          horario: time,
+          status: "ocupado",
+          reservaId: bookingReference.id
+        });
+        transaction.set(consultationReference, {
+          data: date,
+          horario: time,
+          procedimento: appointment.procedimento,
+          status: appointment.status,
+          reservaId: bookingReference.id
         });
       });
 
-      feedback.textContent = "Pedido enviado! O studio confirmará seu agendamento.";
+      feedback.textContent = `Pedido enviado! Guarde este código para consultar sua reserva: ${consultationCode}. O Studio confirmará seu agendamento.`;
       form.reset();
       await loadAgendaSettings();
       setOptions(timeSelect, "Selecione uma data primeiro", []);
@@ -277,9 +290,9 @@ if (schedulingDialog) {
 
   existingForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const identifier = normalizePhone(String(new FormData(existingForm).get("identifier") || ""));
-    if (identifier.length < 10) {
-      appointmentsFeedback.textContent = "Informe o telefone com DDD usado no agendamento.";
+    const code = String(new FormData(existingForm).get("identifier") || "").trim().toLowerCase();
+    if (!/^[a-f0-9]{64}$/.test(code)) {
+      appointmentsFeedback.textContent = "Informe o código de consulta recebido ao solicitar o agendamento.";
       return;
     }
 
@@ -287,60 +300,55 @@ if (schedulingDialog) {
     appointmentsList.replaceChildren();
 
     try {
-      const snapshot = await getDocs(query(
-        collection(db, "agendamentos"),
-        where("telefone", "==", identifier)
-      ));
-
-      const bookings = snapshot.docs
-        .map((booking) => ({ id: booking.id, ...booking.data() }))
-        .sort((a, b) => `${b.data || ""}${b.horario || ""}`.localeCompare(`${a.data || ""}${a.horario || ""}`));
-
-      if (bookings.length === 0) {
-        appointmentsFeedback.textContent = "Não encontramos agendamentos para esse telefone.";
+      const snapshot = await getDoc(doc(db, "consultas_agendamento", code));
+      if (!snapshot.exists()) {
+        appointmentsFeedback.textContent = "Não encontramos uma reserva para esse código.";
         return;
       }
 
       appointmentsFeedback.textContent = "";
-      appointmentsPanel.querySelector(".appointments-heading h3").textContent = `Olá, ${bookings[0].nome || "cliente"}!`;
-
-      bookings.forEach((booking) => {
-        const card = document.createElement("article");
-        card.className = "appointment-card";
-        const date = new Date(`${booking.data}T12:00:00`);
-        const status = String(booking.status || "pendente").toLowerCase();
-        const statusLabel = {
-          pendente: "Pendente",
-          confirmado: "Confirmado",
-          concluido: "Concluído",
-          cancelado: "Cancelado"
-        }[status] || booking.status || "Pendente";
-
-        card.innerHTML = `
-          <time datetime="${booking.data}T${booking.horario || "00:00"}">
-            <strong>${String(date.getDate()).padStart(2, "0")}</strong>
-            <span>${new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(date).replace(".", "").toUpperCase()}</span>
-          </time>
-          <div>
-            <h4></h4>
-            <p></p>
-          </div>
-          <span class="appointment-status"></span>
-        `;
-        card.querySelector("h4").textContent = booking.procedimento || "Procedimento";
-        card.querySelector("p").textContent = `${booking.horario || "Horário a confirmar"} · ${new Intl.DateTimeFormat("pt-BR").format(date)}`;
-        card.querySelector(".appointment-status").textContent = statusLabel;
-        card.querySelector(".appointment-status").classList.add(
-          status === "confirmado" ? "is-confirmed" : "is-completed"
-        );
-        appointmentsList.appendChild(card);
-      });
+      const booking = snapshot.data();
+      const date = new Date(`${booking.data}T12:00:00`);
+      const status = String(booking.status || "pendente").toLowerCase();
+      const card = document.createElement("article");
+      card.className = "appointment-card";
+      card.innerHTML = `
+        <time datetime="${booking.data}T${booking.horario || "00:00"}">
+          <strong></strong>
+          <span></span>
+        </time>
+        <div>
+          <h4></h4>
+          <p></p>
+        </div>
+        <span class="appointment-status"></span>
+      `;
+      card.querySelector("time strong").textContent = String(date.getDate()).padStart(2, "0");
+      card.querySelector("time span").textContent = new Intl.DateTimeFormat("pt-BR", {
+        month: "short"
+      }).format(date).replace(".", "").toUpperCase();
+      card.querySelector("h4").textContent = booking.procedimento || "Procedimento";
+      card.querySelector("p").textContent =
+        `${booking.horario || "Horário a confirmar"} · ${new Intl.DateTimeFormat("pt-BR").format(date)}`;
+      const statusElement = card.querySelector(".appointment-status");
+      statusElement.textContent = {
+        pendente: "Pendente",
+        confirmado: "Confirmado",
+        concluido: "Concluído",
+        cancelado: "Cancelado"
+      }[status] || "Pendente";
+      statusElement.classList.add(
+        status === "confirmado" ? "is-confirmed" :
+          status === "cancelado" ? "is-cancelled" : "is-completed"
+      );
+      appointmentsPanel.querySelector(".appointments-heading h3").textContent = "Sua reserva";
+      appointmentsList.appendChild(card);
 
       existingForm.hidden = true;
       appointmentsPanel.hidden = false;
     } catch (error) {
       appointmentsFeedback.textContent = "Não foi possível consultar os agendamentos. Tente novamente.";
-      console.error("Falha ao consultar agendamentos por telefone:", error);
+      console.error("Falha ao consultar reserva pelo código:", error);
     }
   });
 

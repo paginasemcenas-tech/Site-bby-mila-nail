@@ -11,7 +11,10 @@ if (activePage) {
 }
 
 if (menuToggle && mainNavigation) {
-  const isMobileNavigation = () => window.matchMedia("(max-width: 820px)").matches;
+  const isMobileNavigation = () => {
+    const breakpoint = document.body.dataset.page === "sobre" ? 680 : 820;
+    return window.matchMedia(`(max-width: ${breakpoint}px)`).matches;
+  };
   const closeMenu = () => {
     menuToggle.setAttribute("aria-expanded", "false");
     menuToggle.setAttribute("aria-label", "Abrir menu");
@@ -127,17 +130,18 @@ schedulingDialog.innerHTML = `
     <section class="profile-panel" data-panel="existing" role="tabpanel" hidden>
       <form class="existing-client-login">
         <label class="form-field">
-          <span>Telefone cadastrado</span>
-          <input name="identifier" type="tel" autocomplete="tel" required placeholder="(31) 99999-9999">
+          <span>Código da reserva</span>
+          <input name="identifier" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="64" pattern="[a-fA-F0-9]{64}" required placeholder="Cole o código recebido">
         </label>
-        <button class="normal-schedule" type="submit">Acessar meus agendamentos</button>
+        <p class="booking-code-hint">O código aparece após a solicitação do agendamento. Ele protege os dados pessoais da sua reserva.</p>
+        <button class="normal-schedule" type="submit">Consultar reserva</button>
       </form>
 
       <div class="client-appointments" hidden>
         <div class="appointments-heading">
           <div>
-            <span>MEUS AGENDAMENTOS</span>
-            <h3>Olá, Mila!</h3>
+            <span>CONSULTA DE RESERVA</span>
+            <h3>Sua reserva</h3>
           </div>
           <button type="button" class="new-appointment">Novo agendamento</button>
         </div>
@@ -204,3 +208,47 @@ schedulingDialog.querySelector(".new-appointment").addEventListener("click", () 
     panel.hidden = panel.dataset.panel !== "new";
   });
 });
+
+const bookingProcedureButtons = document.querySelectorAll("[data-booking-procedure]");
+bookingProcedureButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    procedureInput.value = button.dataset.bookingProcedure;
+    procedureInput.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+});
+
+const revealElements = document.querySelectorAll("[data-reveal]");
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const homeHeroContent = document.querySelector(".home-hero [data-reveal]");
+const homeStudioLink = document.querySelector(".home-hero a[href='#studio']");
+const studioSection = document.querySelector("#studio");
+
+if (homeHeroContent && !prefersReducedMotion) {
+  homeHeroContent.classList.add("is-visible", "hero-enter");
+}
+
+if (homeStudioLink && studioSection) {
+  homeStudioLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    studioSection.scrollIntoView({
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+      block: "start"
+    });
+    window.history.replaceState(null, "", "#studio");
+  });
+}
+
+if (revealElements.length && !prefersReducedMotion && "IntersectionObserver" in window) {
+  document.body.classList.add("has-reveal");
+  const revealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-visible");
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.14, rootMargin: "0px 0px -30px 0px" });
+
+  revealElements.forEach((element) => {
+    if (element !== homeHeroContent) revealObserver.observe(element);
+  });
+}

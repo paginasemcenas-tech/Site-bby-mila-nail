@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#160A07">
+  <title>Dashboard | Bby Mila Nails</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body class="dashboard-page">
+  <p id="dashboard-status" class="dashboard-status" role="status" aria-live="polite">Verificando seu acesso...</p>
+
+  <div id="dashboard-app" class="dashboard-shell" hidden>
+    <aside class="sidebar" id="dashboard-sidebar">
+      <a class="sidebar-brand" href="index.html" aria-label="Bby Mila Nails">
+        <span>Bby Mila</span><small>NAILS</small>
+      </a>
+      <div class="profile-block">
+        <img src="assets/images/sobre-hero.jpg" alt="" class="profile-photo">
+        <span class="profile-online" aria-label="Online"></span>
+        <strong id="profile-name">Camila</strong>
+        <small>Administradora</small>
+      </div>
+      <nav class="sidebar-nav" aria-label="Navegação do painel">
+        <button type="button" class="sidebar-link is-active" data-nav="dashboard" aria-current="page">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg><span>Dashboard</span>
+        </button>
+        <button type="button" class="sidebar-link" data-nav="appointments">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h2m4 0h2m-8 3h2"/></svg><span>Agendamentos</span>
+        </button>
+        <button type="button" class="sidebar-link" data-nav="clients">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M17 5a4 4 0 0 1 0 7m2 3a5 5 0 0 1 3 4v2"/></svg><span>Clientes</span>
+        </button>
+        <button type="button" class="sidebar-link" data-nav="services">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9Z"/><path d="m4 7.5 8 4.7 8-4.7M12 12.2V21"/></svg><span>Serviços</span>
+        </button>
+        <button type="button" class="sidebar-link" data-nav="finance">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18M7 15l4-4 3 3 6-7"/><path d="M16 7h4v4"/></svg><span>Financeiro</span>
+        </button>
+        <button type="button" class="sidebar-link" data-nav="content">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/></svg><span>Conteúdo do Site</span>
+        </button>
+        <button type="button" class="sidebar-link" data-nav="settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.5.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.5-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.8L6.9 12l1.4-2.4 1.7.7a8 8 0 0 1 1.5-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.5.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.9Z"/></svg><span>Configurações</span>
+        </button>
+      </nav>
+      <button id="logout-button" class="sidebar-logout" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5m5 5H3m9-9h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/></svg><span>Sair da conta</span>
+      </button>
+      <svg class="sidebar-botanical" viewBox="0 0 180 130" aria-hidden="true">
+        <path d="M-10 118C40 82 66 57 122 8M23 92C20 64 9 48-2 38M43 75c28 2 48-8 63-24M64 57c-1-23 5-38 18-51M35 81c22 9 36 25 43 47M85 39c28 5 47 17 58 38"/>
+        <path d="M-2 38c17 5 25 22 25 54m83-41C89 67 67 75 43 75M82 6c-13 13-19 31-18 51M78 128c-6-21-20-38-43-47m108-4c-12-20-31-32-58-38"/>
+      </svg>
+    </aside>
+
+    <main class="dashboard-main" id="dashboard">
+      <header class="topbar">
+        <button id="mobile-menu-toggle" class="mobile-menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+        <div class="topbar-spacer"></div>
+        <time id="today-label"></time>
+        <button id="notifications-button" class="notification-button" type="button" aria-label="Notificações" aria-expanded="false" aria-controls="notifications-popover">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12a2 2 0 0 0 4 0"/></svg>
+          <span id="notification-count" class="notification-count">0</span>
+        </button>
+        <section id="notifications-popover" class="notification-popover" role="dialog" aria-labelledby="notifications-title" hidden>
+          <header class="notification-popover-heading">
+            <div><span class="section-eyebrow">BBY MILA NAILS</span><h2 id="notifications-title">Notificações</h2></div>
+            <button id="mark-notifications-read" class="mark-read-button" type="button">Marcar todas como lidas</button>
+          </header>
+          <div id="notification-list" class="notification-list" aria-live="polite"></div>
+        </section>
+      </header>
+
+      <div id="demo-banner" class="demo-banner" hidden>
+        <span><strong>Modo demonstração</strong> — dados fictícios apenas nesta tela, sem gravação no Firestore.</span>
+        <button type="button" data-demo-toggle>Voltar aos dados do Firestore</button>
+      </div>
+
+      <section id="view-dashboard" class="dashboard-view" data-view="dashboard">
+      <section class="welcome-banner" aria-labelledby="welcome-title">
+        <div>
+          <span class="section-eyebrow">BBY MILA NAILS</span>
+          <h1 id="welcome-title">Olá, <span id="welcome-name">Camila</span>!</h1>
+          <p>— Aqui está um resumo da sua semana no Studio.</p>
+        </div>
+        <p class="welcome-signature">BELEZA COMO<br>FORMA DE EXPRESSÃO.<span>──────</span></p>
+      </section>
+
+      <section class="metrics-grid" aria-label="Indicadores do mês">
+        <article class="metric-card">
+          <span class="metric-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h2m4 0h2m-8 3h2"/></svg></span>
+          <div class="metric-copy"><strong id="metric-appointments">—</strong><span>Agendamentos este mês</span><small id="metric-appointments-change">Carregando dados</small></div>
+          <svg class="metric-sparkline" viewBox="0 0 80 38" aria-hidden="true"><path d="M2 30c12 0 13-19 25-16s12 14 23 10 14-21 25-15 9 8 16 1"/></svg>
+        </article>
+        <article class="metric-card">
+          <span class="metric-icon wine-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M17 5a4 4 0 0 1 0 7m2 3a5 5 0 0 1 3 4v2"/></svg></span>
+          <div class="metric-copy"><strong id="metric-clients">—</strong><span>Clientes ativas</span><small id="metric-clients-change">Carregando dados</small></div>
+          <svg class="metric-sparkline wine-line" viewBox="0 0 80 38" aria-hidden="true"><path d="M2 27c12-2 14-13 25-10s10 12 21 9 12-17 23-13 11-2 16-9"/></svg>
+        </article>
+        <article class="metric-card">
+          <span class="metric-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 8.5c-.7-.8-1.7-1.2-3-1.2-1.8 0-3 .9-3 2.2 0 3.5 6 1.4 6 4.8 0 1.3-1.2 2.4-3 2.4-1.3 0-2.5-.5-3.3-1.4M12 5v2m0 10v2"/></svg></span>
+          <div class="metric-copy"><strong id="metric-revenue">—</strong><span>Faturamento este mês</span><small id="metric-revenue-change">Carregando dados</small></div>
+          <svg class="metric-sparkline" viewBox="0 0 80 38" aria-hidden="true"><path d="M2 31c12 0 12-8 24-8s11 5 22 1 14-22 24-15 9 9 16-2"/></svg>
+        </article>
+        <article class="metric-card">
+          <span class="metric-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg></span>
+          <div class="metric-copy"><strong id="metric-rating">—</strong><span>Avaliação das clientes</span><small id="metric-rating-description">Sem avaliações cadastradas</small></div>
+          <svg class="metric-sparkline" viewBox="0 0 80 38" aria-hidden="true"><path d="M2 24c12 1 14-7 25-5s11 9 22 6 11-10 22-9 10 2 16-5"/></svg>
+        </article>
+      </section>
+
+      <section class="middle-grid">
+        <article class="panel appointments-panel" id="appointments">
+          <header class="panel-heading">
+            <h2><span class="heading-icon">▦</span> Próximos agendamentos</h2>
+            <button type="button" class="text-action" data-open-list="appointments">Ver todos <span>→</span></button>
+          </header>
+          <div class="appointment-overview">
+            <section class="calendar-wrap" aria-label="Calendário de agendamentos">
+              <div class="calendar-titlebar">
+                <button type="button" class="calendar-arrow" data-calendar-step="-1" aria-label="Mês anterior">‹</button>
+                <h3 id="calendar-month-label"></h3>
+                <button type="button" class="calendar-arrow" data-calendar-step="1" aria-label="Próximo mês">›</button>
+              </div>
+              <div class="calendar-weekdays" aria-hidden="true"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
+              <div id="calendar-days" class="calendar-days"></div>
+            </section>
+            <section class="day-appointments" aria-live="polite">
+              <h3 id="selected-date-label">Agendamentos do dia</h3>
+              <p id="appointments-feedback" class="empty-state">Carregando agendamentos...</p>
+              <div id="day-appointments-list" class="day-appointments-list"></div>
+              <button type="button" class="all-appointments-button" data-open-list="appointments">▦ &nbsp; Ver todos os agendamentos</button>
+            </section>
+          </div>
+        </article>
+
+        <article class="panel quick-panel">
+          <header class="panel-heading"><h2><span class="heading-icon">ϟ</span> Ações rápidas</h2></header>
+          <div class="quick-actions">
+            <button type="button" class="quick-action" data-create="appointment"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h2m4 0h2m-8 3h2"/></svg><span>Novo<br>Agendamento</span></button>
+            <button type="button" class="quick-action" data-create="client"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M17 5a4 4 0 0 1 0 7m2 3a5 5 0 0 1 3 4v2"/></svg><span>Cadastrar<br>Cliente</span></button>
+            <button type="button" class="quick-action" data-create="service"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg><span>Adicionar<br>Serviço</span></button>
+            <button type="button" class="quick-action" data-open-reports><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M8 13h8m-8 4h8"/></svg><span>Ver Relatórios</span></button>
+          </div>
+        </article>
+      </section>
+
+      <section class="bottom-grid">
+        <article class="panel performance-panel" id="performance">
+          <header class="panel-heading"><h2><span class="heading-icon">▥</span> Desempenho do mês</h2><span class="performance-period" id="performance-period"></span></header>
+          <div class="performance-content">
+            <div class="chart-wrap">
+              <div class="chart-y-labels" aria-hidden="true"><span>6k</span><span>4k</span><span>2k</span><span>0</span></div>
+              <svg id="performance-chart" class="performance-chart" viewBox="0 0 460 180" role="img" aria-label="Faturamento semanal do mês">
+                <g class="chart-grid"><path d="M35 20H450M35 62H450M35 104H450M35 146H450"/></g>
+                <path id="chart-area" class="chart-area" d=""></path>
+                <path id="chart-line" class="chart-line" d=""></path>
+                <g id="chart-points" class="chart-points"></g>
+                <g class="chart-x-labels"><text x="55" y="170">Sem 1</text><text x="165" y="170">Sem 2</text><text x="275" y="170">Sem 3</text><text x="385" y="170">Sem 4</text></g>
+              </svg>
+            </div>
+            <div class="performance-total"><strong id="performance-total">R$ 0</strong><span>Total do mês</span><small id="performance-change">Sem histórico anterior</small></div>
+          </div>
+        </article>
+        <article class="brand-card">
+          <img src="assets/images/portfolio-03.jpg" alt="Nail art decorada com detalhes em relevo" loading="lazy">
+          <div class="brand-card-overlay"></div>
+          <div class="brand-card-copy"><span>Bby Mila Nails</span><p>Transformando<br>beleza em autoestima.</p><i></i></div>
+        </article>
+      </section>
+      </section>
+
+      <section id="view-appointments" class="dashboard-view content-view" data-view="appointments" hidden>
+        <header class="view-heading">
+          <div><span class="section-eyebrow">AGENDA DO STUDIO</span><h1>Agendamentos</h1><p>Acompanhe horários, serviços e confirmações.</p></div>
+          <button type="button" class="primary-action" data-create="appointment">+ Novo agendamento</button>
+        </header>
+        <article class="panel data-panel">
+          <div class="table-toolbar">
+            <label class="table-search"><span class="sr-only">Buscar agendamentos</span><input id="appointments-search" type="search" placeholder="Buscar por cliente ou procedimento"></label>
+            <label class="table-filter"><span class="sr-only">Filtrar agendamentos por status</span><select id="appointments-filter"><option value="all">Todos os status</option><option value="pendente">Pendente</option><option value="confirmado">Confirmado</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select></label>
+          </div>
+          <div class="table-scroll"><table class="data-table"><thead><tr><th>Cliente</th><th>Procedimento</th><th>Data e horário</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody id="appointments-table-body"></tbody></table></div>
+          <p id="appointments-table-empty" class="table-empty" hidden>Nenhum agendamento corresponde à busca.</p>
+        </article>
+      </section>
+
+      <section id="view-clients" class="dashboard-view content-view" data-view="clients" hidden>
+        <header class="view-heading">
+          <div><span class="section-eyebrow">RELACIONAMENTO</span><h1>Clientes</h1><p>Contatos, redes sociais e histórico de atendimento.</p></div>
+          <button type="button" class="primary-action" data-create="client">+ Cadastrar cliente</button>
+        </header>
+        <article class="panel data-panel">
+          <div class="table-toolbar"><label class="table-search"><span class="sr-only">Buscar clientes</span><input id="clients-search" type="search" placeholder="Buscar por nome ou contato"></label><span id="clients-total" class="table-summary"></span></div>
+          <div class="table-scroll"><table class="data-table"><thead><tr><th>Cliente</th><th>WhatsApp</th><th>E-mail</th><th>Instagram</th><th>Histórico</th></tr></thead><tbody id="clients-table-body"></tbody></table></div>
+          <p id="clients-table-empty" class="table-empty" hidden>Nenhuma cliente cadastrada.</p>
+        </article>
+      </section>
+
+      <section id="view-services" class="dashboard-view content-view" data-view="services" hidden>
+        <header class="view-heading">
+          <div><span class="section-eyebrow">CATÁLOGO DO STUDIO</span><h1>Serviços</h1><p>Procedimentos, duração e valores cadastrados.</p></div>
+          <button type="button" class="primary-action" data-create="service">+ Adicionar serviço</button>
+        </header>
+        <article class="panel data-panel">
+          <div class="table-scroll"><table class="data-table"><thead><tr><th>Serviço</th><th>Descrição</th><th>Duração</th><th>Valor</th><th>Status</th></tr></thead><tbody id="services-table-body"></tbody></table></div>
+          <p id="services-table-empty" class="table-empty" hidden>Nenhum serviço cadastrado.</p>
+        </article>
+      </section>
+
+      <section id="view-finance" class="dashboard-view content-view" data-view="finance" hidden>
+        <header class="view-heading">
+          <div><span class="section-eyebrow">VISÃO FINANCEIRA</span><h1>Financeiro</h1><p>Receita contabilizada a partir dos atendimentos concluídos.</p></div>
+          <button type="button" class="secondary-action" data-open-reports>Ver relatório detalhado <span>→</span></button>
+        </header>
+        <div class="finance-summary">
+          <article class="panel finance-highlight"><span>Faturamento realizado no mês</span><strong id="finance-total">R$ 0</strong><small id="finance-completed-count">0 atendimentos concluídos</small></article>
+          <article class="panel finance-highlight"><span>Ticket médio realizado</span><strong id="finance-average">R$ 0</strong><small>Considerando apenas atendimentos concluídos</small></article>
+          <article class="panel finance-highlight"><span>Agendamentos pendentes</span><strong id="finance-pending">0</strong><small>Não contabilizados como receita</small></article>
+        </div>
+        <article class="panel performance-panel finance-chart-panel">
+          <header class="panel-heading"><h2><span class="heading-icon">▥</span> Desempenho acumulado por semana</h2><span id="finance-period" class="performance-period"></span></header>
+          <div class="performance-content">
+            <div class="chart-wrap"><div class="chart-y-labels" aria-hidden="true"><span>6k</span><span>4k</span><span>2k</span><span>0</span></div>
+              <svg id="finance-chart" class="performance-chart" viewBox="0 0 460 180" role="img" aria-label="Faturamento acumulado por semana">
+                <g class="chart-grid"><path d="M35 20H450M35 62H450M35 104H450M35 146H450"/></g><path class="chart-area" data-chart-area d=""></path><path class="chart-line" data-chart-line d=""></path><g class="chart-points" data-chart-points></g>
+                <g class="chart-x-labels"><text x="55" y="170">Sem 1</text><text x="165" y="170">Sem 2</text><text x="275" y="170">Sem 3</text><text x="385" y="170">Sem 4</text></g>
+              </svg>
+            </div>
+            <div class="performance-total"><strong id="finance-chart-total">R$ 0</strong><span>Receita realizada</span><small id="finance-chart-change">Sem histórico anterior</small></div>
+          </div>
+        </article>
+        <article class="panel data-panel finance-table-panel">
+          <header class="panel-heading"><h2>Atendimentos concluídos</h2><span id="finance-weekly-summary" class="table-summary"></span></header>
+          <div class="table-scroll"><table class="data-table"><thead><tr><th>Cliente</th><th>Procedimento</th><th>Data</th><th>Valor realizado</th></tr></thead><tbody id="finance-table-body"></tbody></table></div>
+          <p id="finance-table-empty" class="table-empty" hidden>Nenhum atendimento concluído neste mês.</p>
+        </article>
+      </section>
+
+      <section id="view-content" class="dashboard-view content-view" data-view="content" hidden>
+        <header class="view-heading"><div><span class="section-eyebrow">PRESENÇA DIGITAL</span><h1>Conteúdo do Site</h1><p>Acesse e confira as páginas públicas da Bby Mila Nails.</p></div></header>
+        <div class="site-pages-grid">
+          <article class="panel site-page-card"><span class="section-eyebrow">PÁGINA INICIAL</span><h2>Início</h2><p>Apresentação do Studio, Nail Art, serviços e canais de agendamento.</p><a href="index.html" target="_blank" rel="noopener">Visualizar página <span>↗</span></a></article>
+          <article class="panel site-page-card"><span class="section-eyebrow">STUDIO</span><h2>Conheça o Studio</h2><p>Informações sobre o espaço, atendimento e experiência.</p><a href="studio.html" target="_blank" rel="noopener">Visualizar página <span>↗</span></a></article>
+          <article class="panel site-page-card"><span class="section-eyebrow">FORMAÇÃO</span><h2>Academy</h2><p>Cursos, formações e dúvidas frequentes.</p><a href="academy.html" target="_blank" rel="noopener">Visualizar página <span>↗</span></a></article>
+          <article class="panel site-page-card"><span class="section-eyebrow">PROGRAMA</span><h2>Modelos</h2><p>Informações e candidatura ao programa de modelos.</p><a href="modelos.html" target="_blank" rel="noopener">Visualizar página <span>↗</span></a></article>
+          <article class="panel site-page-card"><span class="section-eyebrow">INSTITUCIONAL</span><h2>Sobre</h2><p>A história da Bby Mila Nails, Camila e parceiros.</p><a href="sobre.html" target="_blank" rel="noopener">Visualizar página <span>↗</span></a></article>
+          <article class="panel site-page-card"><span class="section-eyebrow">ATENDIMENTO</span><h2>Contato</h2><p>Canais diretos, localização e formulário de contato.</p><a href="contato.html" target="_blank" rel="noopener">Visualizar página <span>↗</span></a></article>
+        </div>
+        <p class="content-note">As páginas públicas são arquivos estáticos e continuam sendo editadas no código do site. Este painel permite visualizar, mas não publica alterações de conteúdo.</p>
+      </section>
+
+      <section id="view-settings" class="dashboard-view content-view" data-view="settings" hidden>
+        <header class="view-heading"><div><span class="section-eyebrow">PREFERÊNCIAS</span><h1>Configurações</h1><p>Gerencie a agenda e o modo de apresentação do painel.</p></div></header>
+        <div class="settings-grid">
+          <article class="panel settings-card">
+            <span class="section-eyebrow">AGENDA DO STUDIO</span><h2>Disponibilidade para agendamentos</h2>
+            <p>Abra ou feche um mês para controlar os pedidos de horário recebidos pelo site.</p>
+            <label class="dialog-field settings-month-field"><span>Mês</span><select id="agenda-month" required></select></label>
+            <p id="agenda-month-status" class="dialog-hint" aria-live="polite"></p>
+            <button type="button" id="toggle-month-button" class="primary-action">Abrir mês</button>
+            <p id="settings-feedback" class="dialog-feedback" role="status" aria-live="polite"></p>
+          </article>
+          <article class="panel settings-card demo-settings">
+            <span class="section-eyebrow">APRESENTAÇÃO</span><h2>Dados de exemplo</h2>
+            <p>Ative dados fictícios para demonstrar métricas, calendário, notificações e relatórios. Nada será gravado no Firestore.</p>
+            <ul><li>10 agendamentos e clientes de exemplo</li><li>Catálogo de serviços e avaliações fictícias</li><li>Modo interativo: alterações ficam somente em memória</li></ul>
+            <button type="button" class="secondary-action" data-demo-toggle>Popular dados de exemplo <span>→</span></button>
+            <p id="demo-mode-feedback" class="dialog-hint" aria-live="polite"></p>
+          </article>
+        </div>
+      </section>
+
+      <p id="dashboard-toast" class="dashboard-toast" role="status" aria-live="polite"></p>
+    </main>
+  </div>
+
+  <dialog id="record-dialog" class="admin-dialog">
+    <form method="dialog" class="dialog-frame" id="record-form-shell">
+      <button class="dialog-close" type="submit" value="cancel" aria-label="Fechar">×</button>
+      <span class="section-eyebrow">BBY MILA NAILS</span>
+      <h2 id="record-dialog-title"></h2>
+      <div id="record-fields" class="dialog-fields"></div>
+      <p id="record-feedback" class="dialog-feedback" role="status" aria-live="polite"></p>
+      <div class="dialog-actions"><button type="submit" class="dialog-submit">Salvar</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="list-dialog" class="admin-dialog">
+    <section class="dialog-frame">
+      <button class="dialog-close" type="button" data-close-dialog aria-label="Fechar">×</button>
+      <span class="section-eyebrow">BBY MILA NAILS</span>
+      <h2 id="list-dialog-title"></h2>
+      <div id="list-dialog-content" class="dialog-list-content"></div>
+    </section>
+  </dialog>
+
+  <script type="module" src="assets/js/dashboard.js"></script>
+</body>
+</html>

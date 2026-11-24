@@ -14,6 +14,8 @@ Abra `index.html` diretamente no navegador ou utilize uma extensão de servidor 
 - `modelos.html` — Programa de Modelos.
 - `sobre.html` — proposta e identidade da marca.
 - `contato.html` — canais de contato e endereço.
+- `admin.html` — login administrativo.
+- `dashboard.html` — painel da administração.
 
 ## Dados configurados
 
@@ -21,15 +23,31 @@ Abra `index.html` diretamente no navegador ou utilize uma extensão de servidor 
 - Instagram: @bbymilanails
 - Endereço: Avenida Augusto de Lima, 1376 - Barro Preto, Belo Horizonte - MG
 
-## Firebase e agenda
+## Firebase, agendamento e administração
 
-1. Copie os dados do app Web do Firebase para `firebase-config.js`.
-2. Ative Email/Senha no Firebase Authentication e crie a conta da administradora.
-3. Crie `configuracoes/agenda` com `mesesAbertos` (array de meses `AAAA-MM`) e `horariosPadrao` (array de horários `HH:MM`).
-4. Publique o site por um servidor HTTP/HTTPS; os módulos Firebase não funcionam de forma confiável ao abrir o HTML diretamente como `file://`.
-5. Acesse diretamente `<domínio-do-site>/admin.html` para entrar no painel. O endereço não é divulgado nem ligado nas páginas públicas; salve-o nos favoritos da administradora.
-6. Entre com a conta criada no Firebase Authentication. No painel, é possível abrir ou fechar meses e gerenciar os agendamentos.
+O projeto usa Firebase Authentication e Cloud Firestore com SDK modular. O app Web já está centralizado em `firebase-config.js`; os valores Firebase Web são identificadores públicos do app, não substituem regras de segurança. Se usar outro projeto, substitua os valores de `firebaseConfig`.
 
-Os agendamentos são gravados em `agendamentos` com `nome`, `telefone` (somente dígitos), `email`, `procedimento`, `data` (`AAAA-MM-DD`), `horario`, `status` e `criadoEm`.
+### Configuração passo a passo
 
-Antes de publicar, configure regras do Firestore que restrinjam a leitura e alteração de agendamentos e da agenda à administradora. A tela de login protege a interface, mas as regras do Firestore são necessárias para proteger os dados. A consulta pública por disponibilidade e telefone usa a coleção `agendamentos`; expor essas consultas sem uma camada de servidor pode revelar dados pessoais de outras clientes. Para produção, mova essas consultas para Cloud Functions ou mantenha uma coleção pública de disponibilidade sem dados pessoais.
+1. No Firebase Console, abra **Configurações do projeto → Geral → Seus apps → app da Web** e copie o objeto `firebaseConfig` para `firebase-config.js`.
+2. Em **Authentication → Sign-in method**, ative **E-mail/senha**. Em **Authentication → Users**, adicione a conta administrativa da Camila e copie o UID exibido na linha dessa conta.
+3. Substitua `SUBSTITUA_PELA_UID_DA_CAMILA` pelo UID real nos dois lugares:
+   - `adminUIDs` em `firebase-config.js`.
+   - Lista permitida dentro da função `isAdmin()` em `firestore.rules`.
+4. Em **Firestore Database**, crie o banco em modo produção. Abra a aba **Rules**, cole as regras de `firestore.rules` com o UID real e clique em **Publish**. Não use regras abertas como `allow read, write: if true`.
+5. Crie o documento `configuracoes/agenda` com:
+   - `mesesAbertos`: array, por exemplo `["2026-11", "2026-12"]`.
+   - `horariosPadrao`: array de strings `HH:MM`, por exemplo `["09:00", "10:30", "13:00"]`.
+6. Sirva o site por HTTP/HTTPS (por exemplo, Live Server no VS Code); os módulos ES e o Firebase não funcionam de forma confiável em `file://`.
+7. Abra `/admin.html`, entre com a conta criada e use `/dashboard.html` para o painel. A rota e o conteúdo da tela não substituem as regras do Firestore; a autorização dos dados é feita pelas Rules.
+
+### Coleções e campos
+
+- `agendamentos`: dados completos das reservas; `nome`, `telefone` (somente dígitos), `email`, `procedimento`, `data` (`AAAA-MM-DD`), `horario` (`HH:MM`), `status`, `criadoEm`, `slotId`, `codigoConsulta` e, quando informado no painel, `valor`.
+- `horarios_ocupados`: disponibilidade pública sem dados pessoais; apenas `data`, `horario`, `status` e o identificador aleatório `reservaId`. O agendamento público consulta essa coleção e cria o horário, a reserva e a consulta de forma atômica.
+- `consultas_agendamento`: documento identificado por um código aleatório de 64 caracteres hexadecimais; contém apenas `data`, `horario`, `procedimento`, `status` e `reservaId`. A consulta pública aceita somente a leitura de um documento (`get`) usando esse código; listagem é negada. O código funciona como uma chave privada: a cliente deve guardá-lo.
+- `clientes`: `nome`, `telefone`, `email`, `instagram`, `ativo` e `criadoEm`.
+- `servicos`: `nome`, `descricao`, `valor`, `duracao`, `ativo` e `criadoEm`.
+- `configuracoes/agenda`: `mesesAbertos` e `horariosPadrao`. Esses dados de disponibilidade são públicos; apenas a administradora pode alterá-los. As demais coleções/documentos sem exceção explícita são administrativos e ficam restritos à UID autorizada.
+
+As regras impedem leitura pública dos dados pessoais em `agendamentos`. Por isso, a consulta antiga pelo telefone foi substituída pelo código secreto mostrado após a solicitação. Na primeira abertura do Dashboard autorizado, reservas antigas ativas são sincronizadas com `horarios_ocupados` e recebem um código de consulta que a equipe pode copiar e compartilhar com a cliente. O painel calcula faturamento realizado somando o campo `valor` de agendamentos marcados como concluídos; não cria uma coleção `financeiro` nem inventa avaliações.

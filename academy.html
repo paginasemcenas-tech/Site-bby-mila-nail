@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#211513">
+  <meta name="theme-color" content="#180C09">
   <title>Academy | Bby Mila Nails</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/academy.css">
 </head>
-<body data-page="academy">
+<body class="academy-page" data-page="academy">
   <header class="site-header">
     <div class="header-shell">
       <a class="brand" href="index.html" aria-label="Bby Mila Nails - início"><span>Bby Mila</span><small>Nails</small></a>
@@ -21,12 +22,201 @@
         <a class="nav-link" data-page="home" href="index.html">Início</a>
         <a class="nav-link" data-page="studio" href="studio.html">Studio</a>
         <a class="nav-link" data-page="academy" href="academy.html">Academy</a>
+        <a class="nav-link" data-page="modelos" href="modelos.html">Modelos</a>
         <a class="nav-link" data-page="sobre" href="sobre.html">Sobre</a>
         <a class="nav-link" data-page="contato" href="contato.html">Contato</a>
         <button class="header-cta" type="button" data-open-scheduling>Agendar</button>
       </nav>
     </div>
   </header>
+
+  <main class="academy-main">
+    <section class="academy-hero">
+      <div class="academy-hero-media" aria-hidden="true">
+        <img src="assets/images/studio-hero.jpg" alt="">
+      </div>
+      <div class="academy-container academy-hero-content" data-reveal>
+        <div class="academy-eyebrow"><span>ACADEMY</span><i></i></div>
+        <h1>Aprenda a criar<br>com técnica e <em>identidade.</em></h1>
+        <p>Formação em unhas e Nail Art para desenvolver sua técnica, apurar o olhar e construir um trabalho com a sua assinatura.</p>
+        <a class="academy-button" href="#academy-courses">
+          <span>VER CURSOS</span><span class="academy-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+      <span class="academy-hero-caption" aria-hidden="true">BBY MILA NAILS · FORMAÇÃO</span>
+    </section>
+
+    <section class="academy-courses academy-section" id="academy-courses">
+      <div class="academy-container">
+        <div class="academy-section-heading" data-reveal>
+          <div>
+            <p class="academy-kicker">FORMAÇÃO PROFISSIONAL</p>
+            <h2>Conhecimento para<br><em>ir além.</em></h2>
+          </div>
+          <p>Escolha o tema que combina com o seu momento. Conteúdo, formato, carga horária e próximas turmas são confirmados com a equipe.</p>
+        </div>
+
+        <div class="academy-course-grid">
+          <article class="academy-course-card" data-reveal>
+            <div class="academy-course-image">
+              <img src="assets/images/alongamento-hero.jpg" alt="Detalhe de unhas alongadas" loading="lazy">
+              <span>01 / BASE</span>
+            </div>
+            <div class="academy-course-copy">
+              <p class="academy-card-label">FUNDAMENTOS</p>
+              <h3>Estrutura e alongamento</h3>
+              <p>Fundamentos de preparação, construção, acabamento e manutenção para um resultado bem executado.</p>
+              <ul>
+                <li>Preparação e estrutura</li>
+                <li>Curvatura e acabamento</li>
+                <li>Rotina de manutenção</li>
+              </ul>
+              <a class="academy-text-link" data-course="Fundamentos: estrutura e alongamento" href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
+                <span>QUERO SABER MAIS</span><span class="academy-arrow" aria-hidden="true">→</span>
+              </a>
+            </div>
+          </article>
+
+          <article class="academy-course-card" data-reveal>
+            <div class="academy-course-image">
+              <img src="assets/images/portfolio-03.jpg" alt="Nail Art com detalhes florais" loading="lazy">
+              <span>02 / CRIAÇÃO</span>
+            </div>
+            <div class="academy-course-copy">
+              <p class="academy-card-label">NAIL ART</p>
+              <h3>Arte, textura e 3D</h3>
+              <p>Explore composição, cor e relevo para desenvolver desenhos autorais e acabamentos criativos.</p>
+              <ul>
+                <li>Composição e combinação de cores</li>
+                <li>Traços, efeitos e texturas</li>
+                <li>Elementos em relevo</li>
+              </ul>
+              <a class="academy-text-link" data-course="Nail Art: arte, textura e 3D" href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
+                <span>QUERO SABER MAIS</span><span class="academy-arrow" aria-hidden="true">→</span>
+              </a>
+            </div>
+          </article>
+
+          <article class="academy-course-card" data-reveal>
+            <div class="academy-course-image">
+              <img src="assets/images/portfolio-02.jpg" alt="Unhas com acabamento cromado" loading="lazy">
+              <span>03 / EVOLUÇÃO</span>
+            </div>
+            <div class="academy-course-copy">
+              <p class="academy-card-label">APERFEIÇOAMENTO</p>
+              <h3>Refine sua técnica</h3>
+              <p>Um percurso para revisar processos, aprimorar o acabamento e ganhar mais consistência no atendimento.</p>
+              <ul>
+                <li>Leitura de estrutura</li>
+                <li>Precisão e acabamento</li>
+                <li>Prática orientada</li>
+              </ul>
+              <a class="academy-text-link" data-course="Aperfeiçoamento profissional" href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
+                <span>QUERO SABER MAIS</span><span class="academy-arrow" aria-hidden="true">→</span>
+              </a>
+            </div>
+          </article>
+
+          <article class="academy-course-card" data-reveal>
+            <div class="academy-course-image">
+              <img src="assets/images/hero-bbymila.jpg" alt="Detalhes de uma produção de Nail Art" loading="lazy">
+              <span>04 / ACOMPANHAMENTO</span>
+            </div>
+            <div class="academy-course-copy">
+              <p class="academy-card-label">MENTORIA E PRÁTICA</p>
+              <h3>Aprenda fazendo</h3>
+              <p>Converse com a equipe sobre um acompanhamento direcionado à sua experiência e aos seus objetivos.</p>
+              <ul>
+                <li>Orientação individualizada</li>
+                <li>Exercícios práticos</li>
+                <li>Próximos passos da carreira</li>
+              </ul>
+              <a class="academy-text-link" data-course="Mentoria e prática orientada" href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
+                <span>QUERO SABER MAIS</span><span class="academy-arrow" aria-hidden="true">→</span>
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="academy-method academy-section">
+      <div class="academy-container academy-method-layout">
+        <div class="academy-method-heading" data-reveal>
+          <p class="academy-kicker">O JEITO BBY MILA DE ENSINAR</p>
+          <h2>Técnica com<br><em>olhar autoral.</em></h2>
+          <p>Aprender também é descobrir como transformar conhecimento em um trabalho que tenha a sua identidade.</p>
+          <a class="academy-text-link" href="sobre.html#camila">
+            <span>CONHEÇA A CAMILA</span><span class="academy-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="academy-method-list">
+          <article data-reveal>
+            <span>01</span>
+            <div><h3>Base bem construída</h3><p>Entenda o porquê de cada etapa para trabalhar com mais segurança e consistência.</p></div>
+          </article>
+          <article data-reveal>
+            <span>02</span>
+            <div><h3>Prática com intenção</h3><p>Exercite os fundamentos e aprimore os detalhes que fazem diferença no resultado.</p></div>
+          </article>
+          <article data-reveal>
+            <span>03</span>
+            <div><h3>Expressão própria</h3><p>Desenvolva repertório para criar trabalhos que valorizem o seu olhar e o de cada cliente.</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="academy-faq academy-section">
+      <div class="academy-container academy-faq-layout">
+        <div data-reveal>
+          <p class="academy-kicker">DÚVIDAS FREQUENTES</p>
+          <h2>Antes de<br><em>começar.</em></h2>
+          <p class="academy-faq-intro">Quer entender qual formação combina com você? Fale com a equipe e conte um pouco sobre sua experiência.</p>
+          <a class="academy-button academy-button-quiet" href="https://wa.me/553196809579?text=Ol%C3%A1%21%20Gostaria%20de%20conhecer%20as%20forma%C3%A7%C3%B5es%20da%20Bby%20Mila%20Academy." target="_blank" rel="noopener noreferrer">
+            <span>CONVERSAR PELO WHATSAPP</span><span class="academy-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="academy-faq-list" data-reveal>
+          <article class="academy-faq-item">
+            <h3><button type="button" aria-expanded="false" aria-controls="academy-faq-answer-1">Preciso ter experiência anterior?<span aria-hidden="true">+</span></button></h3>
+            <div class="academy-faq-answer" id="academy-faq-answer-1" hidden><p>Os pré-requisitos variam conforme a formação. Conte à equipe qual é o seu nível para receber a orientação adequada.</p></div>
+          </article>
+          <article class="academy-faq-item">
+            <h3><button type="button" aria-expanded="false" aria-controls="academy-faq-answer-2">Como descubro datas e carga horária?<span aria-hidden="true">+</span></button></h3>
+            <div class="academy-faq-answer" id="academy-faq-answer-2" hidden><p>Turmas, formato, carga horária e investimento são informados pela equipe de acordo com a formação escolhida.</p></div>
+          </article>
+          <article class="academy-faq-item">
+            <h3><button type="button" aria-expanded="false" aria-controls="academy-faq-answer-3">O que preciso levar para a aula?<span aria-hidden="true">+</span></button></h3>
+            <div class="academy-faq-answer" id="academy-faq-answer-3" hidden><p>A lista de materiais depende do conteúdo e do formato da turma. Você recebe as orientações antes da formação.</p></div>
+          </article>
+          <article class="academy-faq-item">
+            <h3><button type="button" aria-expanded="false" aria-controls="academy-faq-answer-4">A formação oferece certificado?<span aria-hidden="true">+</span></button></h3>
+            <div class="academy-faq-answer" id="academy-faq-answer-4" hidden><p>Confirme com a equipe se há certificado para a formação específica que você deseja fazer.</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="academy-footer">
+    <div class="academy-container academy-footer-inner">
+      <a href="index.html" class="academy-footer-brand"><span>Bby Mila</span><small>NAILS</small></a>
+      <div class="academy-footer-links">
+        <a href="https://www.instagram.com/bbymilanails/" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" class="academy-icon-fill"></circle></svg>
+          @bbymilanails
+        </a>
+        <a href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.6a8.4 8.4 0 0 1-12.4 7.4L3 20l1.2-4.8a8.4 8.4 0 1 1 16.3-3.6Z"></path><path d="M8.2 8.1c.3-.6.5-.6.8-.6h.5c.2 0 .4.1.5.4l.7 1.7c.1.2.1.4 0 .5l-.5.6c-.2.2-.2.4 0 .6.4.7 1.1 1.4 1.8 1.8.2.1.4.1.6-.1l.7-.8c.2-.2.4-.2.6-.1l1.6.8c.2.1.3.2.3.4 0 .2-.1.9-.5 1.2-.4.4-1 .6-1.6.5-1.2-.2-2.6-.9-3.7-2-.9-.9-1.7-2.1-1.9-3.1-.2-.9 0-1.5.2-1.8Z"></path></svg>
+          Fale conosco
+        </a>
+      </div>
+      <p class="academy-footer-tagline">Beleza como forma de expressão.</p>
+    </div>
+  </footer>
+
   <script type="module" src="assets/js/script.js"></script>
+  <script src="assets/js/academy.js" defer></script>
 </body>
 </html>
