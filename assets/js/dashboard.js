@@ -24,6 +24,8 @@ const recordFeedback = document.querySelector("#record-feedback");
 const listDialog = document.querySelector("#list-dialog");
 const listTitle = document.querySelector("#list-dialog-title");
 const listContent = document.querySelector("#list-dialog-content");
+const blockDialog = document.querySelector("#block-dialog");
+const blockForm = document.querySelector("#block-form");
 const agendaMonthSelect = document.querySelector("#agenda-month");
 const agendaMonthStatus = document.querySelector("#agenda-month-status");
 const toggleMonthButton = document.querySelector("#toggle-month-button");
@@ -36,14 +38,16 @@ const appointmentsReference = collection(db, "agendamentos");
 const clientsReference = collection(db, "clientes");
 const servicesReference = collection(db, "servicos");
 const reviewsReference = collection(db, "avaliacoes");
+const occupiedSlotsReference = collection(db, "horarios_ocupados");
 const agendaReference = doc(db, "configuracoes", "agenda");
 
 let bookings = [];
 let clients = [];
 let services = [];
 let reviews = [];
-const liveData = { bookings: [], clients: [], services: [], reviews: [] };
-const loadedCollections = { bookings: false, clients: false, services: false, reviews: false };
+let blockedSlots = [];
+const liveData = { bookings: [], clients: [], services: [], reviews: [], blockedSlots: [] };
+const loadedCollections = { bookings: false, clients: false, services: false, reviews: false, blockedSlots: false };
 let isDemoMode = false;
 let demoData = null;
 let manualDemoOverride = null;
@@ -51,14 +55,20 @@ let readNotificationIds = new Set();
 let openMonths = new Set();
 let visibleMonth = new Date();
 let selectedDate = new Date();
+let appointmentsSelectedDate = new Date();
 let currentRecordType = "";
 let toastTimeout;
 let legacyAvailabilitySynced = false;
 let currentListType = "";
 let currentListOptions = {};
+let appointmentsDateRange = "today";
+let forecastHidden = false;
+let editingBookingId = null;
+let appointmentsLoaded = false;
 
 visibleMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1);
 selectedDate.setHours(12, 0, 0, 0);
+appointmentsSelectedDate.setHours(12, 0, 0, 0);
 
 const localDateIso = (date) => [
   date.getFullYear(),
@@ -83,6 +93,13 @@ const currency = (value) => new Intl.NumberFormat("pt-BR", {
   maximumFractionDigits: 0
 }).format(Number.isFinite(value) ? value : 0);
 const amountOf = (booking) => typeof booking.valor === "number" && Number.isFinite(booking.valor) ? booking.valor : 0;
+const forecastAmountOf = (booking) => {
+  if (typeof booking.valor === "number" && Number.isFinite(booking.valor)) return booking.valor;
+  const serviceName = bookingProcedure(booking).trim().toLocaleLowerCase("pt-BR");
+  const service = services.find((item) =>
+    String(item.nome || "").trim().toLocaleLowerCase("pt-BR") === serviceName);
+  return service && Number.isFinite(Number(service.valor)) ? Number(service.valor) : 0;
+};
 const isCancelled = (booking) => ["cancelado", "cancelled"].includes(String(booking.status || "").toLowerCase());
 const statusLabel = (status) => ({
   pendente: "Pendente",
@@ -198,6 +215,7 @@ const setDemoMode = (enabled) => {
     clients = demoData.clients;
     services = demoData.services;
     reviews = demoData.reviews;
+    blockedSlots = [];
     readNotificationIds = new Set();
   } else {
     demoData = null;
@@ -205,6 +223,7 @@ const setDemoMode = (enabled) => {
     clients = liveData.clients;
     services = liveData.services;
     reviews = liveData.reviews;
+    blockedSlots = liveData.blockedSlots;
   }
   updateDemoControls();
   renderAllData();
@@ -221,6 +240,7 @@ const refreshDataMode = () => {
       clients = liveData.clients;
       services = liveData.services;
       reviews = liveData.reviews;
+      blockedSlots = liveData.blockedSlots;
       renderAllData();
     }
   } else if (manualDemoOverride !== isDemoMode) {
@@ -230,6 +250,7 @@ const refreshDataMode = () => {
     clients = liveData.clients;
     services = liveData.services;
     reviews = liveData.reviews;
+    blockedSlots = liveData.blockedSlots;
     renderAllData();
   }
 };
@@ -260,6 +281,165 @@ const bookingsForDate = (date) => {
   return bookings
     .filter((booking) => booking.data === dateKey && !isCancelled(booking))
     .sort((a, b) => String(a.horario || "").localeCompare(String(b.horario || "")));
+};
+
+const normalizeStatus = (booking) => String(booking.status || "pendente").toLowerCase();
+const bookingProcedure = (booking) => booking.procedimento || booking.servico || "Serviço";
+
+const formatPhone = (value) => {
+  let digits = String(value || "").replace(/\D/g, "");
+  if (digits.startsWith("55") && digits.length > 11) digits = digits.slice(2);
+  if (digits.length === 11) return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  if (digits.length === 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return value || "Telefone não informado";
+};
+
+const bookingsInRange = (range, date) => {
+  const dateKey = localDateIso(date);
+  if (range !== "week") return bookings.filter((booking) => booking.data === dateKey);
+  const weekStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+  const weekday = (weekStart.getDay() + 6) % 7;
+  weekStart.setDate(weekStart.getDate() - weekday);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 7);
+  return bookings.filter((booking) => {
+    const appointmentDate = parseDate(booking.data);
+    return appointmentDate && dateInRange(appointmentDate, weekStart, weekEnd);
+  });
+};
+
+const updateAppointmentSummary = () => {
+  const dateKey = localDateIso(appointmentsSelectedDate);
+  const dayBookings = bookings.filter((booking) => booking.data === dateKey && !isCancelled(booking));
+  const now = new Date();
+  const upcoming = dayBookings
+    .filter((booking) => dateKey !== localDateIso(now) || String(booking.horario || "") >=
+      `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`)
+    .sort((a, b) => String(a.horario || "").localeCompare(String(b.horario || "")));
+  const next = upcoming[0];
+  const confirmedForecast = dayBookings
+    .filter((booking) => normalizeStatus(booking) === "confirmado")
+    .reduce((total, booking) => total + forecastAmountOf(booking), 0);
+  const pendingCount = bookings.filter((booking) => normalizeStatus(booking) === "pendente").length;
+  document.querySelector("#appointments-day-count").textContent = String(dayBookings.length);
+  document.querySelector("#appointments-day-label").textContent = formatLongDate(appointmentsSelectedDate);
+  document.querySelector("#appointments-pending-count").textContent = String(pendingCount);
+  document.querySelector("#appointments-next-time").textContent = next ? next.horario || "—" : "—";
+  document.querySelector("#appointments-next-client").textContent = next
+    ? next.nome || "Cliente"
+    : dateKey === localDateIso(now) ? "Nenhum próximo atendimento" : "Sem atendimento previsto";
+  document.querySelector("#appointments-next-service").textContent = next ? bookingProcedure(next) : "";
+  document.querySelector("#appointments-day-forecast").textContent =
+    forecastHidden ? "R$ ••••" : currency(confirmedForecast);
+  const visibilityButton = document.querySelector("#toggle-forecast-visibility");
+  visibilityButton.setAttribute("aria-pressed", String(forecastHidden));
+  visibilityButton.setAttribute("aria-label", forecastHidden ? "Exibir previsão do dia" : "Ocultar previsão do dia");
+  visibilityButton.textContent = forecastHidden ? "◎" : "◉";
+};
+
+const clientIsReturning = (booking) => {
+  const declaredType = String(booking.tipoCliente || "").toLowerCase();
+  if (["antiga", "cliente antiga", "recorrente", "returning"].includes(declaredType)) return true;
+  if (["nova", "cliente nova", "new"].includes(declaredType)) return false;
+  if (clients.some((client) => client.telefone && client.telefone === booking.telefone)) return true;
+  return bookings.filter((item) =>
+    item.telefone && item.telefone === booking.telefone && !isCancelled(item)
+  ).length > 1;
+};
+
+const createTimelineBooking = (booking) => {
+  const card = createElement("article", "timeline-card");
+  const timeBlock = createElement("div", "timeline-time");
+  timeBlock.append(createElement("time", "", booking.horario || "—"));
+  timeBlock.append(createElement("span", "", booking.data ? formatShortDate(booking.data) : "Data não informada"));
+
+  const details = createElement("div", "timeline-details");
+  const customerLine = createElement("div", "timeline-customer-line");
+  customerLine.append(createElement("h3", "", booking.nome || "Cliente"));
+  customerLine.append(createElement("span",
+    `customer-type-badge${clientIsReturning(booking) ? " is-returning" : ""}`,
+    clientIsReturning(booking) ? "Cliente recorrente" : "Cliente nova"));
+  const phone = createElement("a", "timeline-phone", formatPhone(booking.telefone));
+  const phoneDigits = String(booking.telefone || "").replace(/\D/g, "").replace(/^55(?=\d{10,11})/, "");
+  if (phoneDigits.length >= 10 && phoneDigits.length <= 11) {
+    phone.href = `https://wa.me/55${phoneDigits}`;
+    phone.target = "_blank";
+    phone.rel = "noopener noreferrer";
+  } else {
+    phone.removeAttribute("href");
+  }
+  const serviceLine = createElement("div", "timeline-service-line");
+  serviceLine.append(createElement("span", "timeline-service", bookingProcedure(booking)));
+  if (booking.nailArt === true || booking.nailArt === "true" || /nail\s*art/i.test(bookingProcedure(booking))) {
+    serviceLine.append(createElement("span", "nailart-badge", "Nail Art"));
+  }
+  details.append(customerLine, phone, serviceLine);
+  const observations = String(booking.observacoes || booking.observacao || "").trim();
+  if (observations) details.append(createElement("p", "timeline-observations", observations));
+
+  const side = createElement("div", "timeline-side");
+  side.append(badgeForStatus(normalizeStatus(booking)));
+  if (Number.isFinite(Number(booking.valor)) && Number(booking.valor) > 0) {
+    side.append(createElement("strong", "timeline-price", currency(Number(booking.valor))));
+  }
+  card.append(timeBlock, details, side);
+
+  const actions = createElement("div", "timeline-actions");
+  if (phoneDigits.length >= 10 && phoneDigits.length <= 11) {
+    const message = `Olá, ${booking.nome || "tudo bem"}! Passando para falar sobre seu atendimento de ${bookingProcedure(booking)} no dia ${booking.data ? formatShortDate(booking.data) : ""} às ${booking.horario || ""}.`;
+    const whatsapp = createElement("a", "timeline-action is-whatsapp", "WhatsApp");
+    whatsapp.href = `https://wa.me/55${phoneDigits}?text=${encodeURIComponent(message)}`;
+    whatsapp.target = "_blank";
+    whatsapp.rel = "noopener noreferrer";
+    whatsapp.setAttribute("aria-label", `Enviar mensagem para ${booking.nome || "a cliente"} pelo WhatsApp`);
+    actions.append(whatsapp);
+  }
+  const status = normalizeStatus(booking);
+  if (status === "pendente") actions.append(createDialogButton("Confirmar", "confirmado", booking.id, "timeline-action"));
+  if (status === "confirmado") actions.append(createDialogButton("Concluir", "concluido", booking.id, "timeline-action"));
+  if (!isCancelled(booking) && status !== "concluido") {
+    actions.append(createDialogButton("Cancelar", "cancelado", booking.id, "timeline-action is-subtle-danger"));
+  }
+  const edit = createElement("button", "timeline-action", "Reagendar / editar");
+  edit.type = "button";
+  edit.addEventListener("click", () => openRecordDialog("reschedule", booking.id));
+  actions.append(edit);
+  card.append(actions);
+  return card;
+};
+
+const createBlockedSlotCard = (slot) => {
+  const card = createElement("article", "timeline-card is-blocked");
+  const timeBlock = createElement("div", "timeline-time");
+  timeBlock.append(createElement("time", "", slot.horario || "—"));
+  timeBlock.append(createElement("span", "", slot.data ? formatShortDate(slot.data) : "Data não informada"));
+  const details = createElement("div", "timeline-details");
+  details.append(createElement("div", "timeline-customer-line",
+    slot.motivo || "Horário bloqueado"));
+  details.append(createElement("span", "timeline-service", "Indisponível para agendamento online"));
+  const side = createElement("div", "timeline-side");
+  side.append(createElement("span", "status-badge is-cancelled", "Bloqueado"));
+  const actions = createElement("div", "timeline-actions");
+  const unblock = createElement("button", "timeline-action is-subtle-danger", "Desbloquear horário");
+  unblock.type = "button";
+  unblock.addEventListener("click", async () => {
+    try {
+      if (isDemoMode) blockedSlots = blockedSlots.filter((item) => item.id !== slot.id);
+      else await runTransaction(db, async (transaction) => {
+        const reference = doc(db, "horarios_ocupados", slot.id);
+        const snapshot = await transaction.get(reference);
+        if (snapshot.exists() && snapshot.data().bloqueio === true) transaction.delete(reference);
+      });
+      renderAppointmentsTable();
+      showToast("Horário desbloqueado.");
+    } catch (error) {
+      showToast("Não foi possível desbloquear este horário.");
+      console.error("Falha ao desbloquear horário:", error);
+    }
+  });
+  actions.append(unblock);
+  card.append(timeBlock, details, side, actions);
+  return card;
 };
 
 const renderCalendar = () => {
@@ -518,6 +698,9 @@ const syncLegacyAvailability = async () => {
 };
 
 const subscribeToData = () => {
+  appointmentsLoaded = false;
+  document.querySelector("#appointments-loading").hidden = false;
+  document.querySelector("#appointments-table-empty").hidden = true;
   const syncAvailabilityIfNeeded = async () => {
     if (!Object.values(loadedCollections).every(Boolean) || isDemoMode || legacyAvailabilitySynced) return;
     try {
@@ -534,11 +717,18 @@ const subscribeToData = () => {
       .sort((a, b) => `${a.data || ""} ${a.horario || ""}`.localeCompare(`${b.data || ""} ${b.horario || ""}`));
     loadedCollections.bookings = true;
     refreshDataMode();
+    appointmentsLoaded = true;
+    renderAppointmentsTable();
     await syncAvailabilityIfNeeded();
     if (currentListType === "appointments" && listDialog.open) {
       renderList("appointments", currentListOptions);
     }
   }, (error) => {
+    appointmentsLoaded = true;
+    document.querySelector("#appointments-loading").hidden = true;
+    document.querySelector("#appointments-table-empty").hidden = false;
+    document.querySelector("#appointments-table-empty").textContent =
+      "Não foi possível carregar os agendamentos. Verifique a conexão e tente novamente.";
     setDashboardError("Não foi possível carregar os agendamentos. Verifique as regras do Firestore.");
     console.error("Falha ao acompanhar agendamentos:", error);
   });
@@ -576,6 +766,18 @@ const subscribeToData = () => {
     setDashboardError("Não foi possível carregar as avaliações. Verifique as regras do Firestore.");
     console.error("Falha ao acompanhar avaliações:", error);
   });
+
+  onSnapshot(occupiedSlotsReference, async (snapshot) => {
+    liveData.blockedSlots = snapshot.docs
+      .map((item) => ({ id: item.id, ...item.data() }))
+      .filter((slot) => slot.bloqueio === true || slot.status === "bloqueado");
+    loadedCollections.blockedSlots = true;
+    refreshDataMode();
+    await syncAvailabilityIfNeeded();
+  }, (error) => {
+    setDashboardError("Não foi possível carregar os horários bloqueados.");
+    console.error("Falha ao acompanhar horários bloqueados:", error);
+  });
 };
 
 const createElement = (tag, className, text) => {
@@ -607,39 +809,50 @@ const formatShortDate = (dateKey) => {
 };
 
 const renderAppointmentsTable = () => {
-  const body = document.querySelector("#appointments-table-body");
+  const timeline = document.querySelector("#appointments-timeline");
   const search = document.querySelector("#appointments-search").value.trim().toLocaleLowerCase("pt-BR");
+  const searchDigits = search.replace(/\D/g, "");
   const statusFilter = document.querySelector("#appointments-filter").value;
-  const items = [...bookings]
-    .filter((booking) => statusFilter === "all" || String(booking.status || "").toLowerCase() === statusFilter)
-    .filter((booking) => `${booking.nome || ""} ${booking.procedimento || ""}`.toLocaleLowerCase("pt-BR").includes(search))
-    .sort((a, b) => `${b.data || ""} ${b.horario || ""}`.localeCompare(`${a.data || ""} ${a.horario || ""}`));
-  body.replaceChildren();
-  items.forEach((booking) => {
-    const row = document.createElement("tr");
-    appendCell(row, booking.nome || "Cliente");
-    appendCell(row, booking.procedimento || "Serviço");
-    appendCell(row, `${formatShortDate(booking.data)} · ${booking.horario || "—"}`);
-    appendCell(row, currency(amountOf(booking)));
-    const statusCell = document.createElement("td");
-    statusCell.append(badgeForStatus(booking.status));
-    row.append(statusCell);
-    const actionsCell = document.createElement("td");
-    const actions = createElement("div", "table-actions");
-    const normalized = String(booking.status || "").toLowerCase();
-    if (normalized === "pendente") {
-      actions.append(createDialogButton("Confirmar", "confirmado", booking.id, "table-action"));
-    } else if (normalized === "confirmado") {
-      actions.append(createDialogButton("Concluir", "concluido", booking.id, "table-action"));
-    }
-    if (!isCancelled(booking) && normalized !== "concluido") {
-      actions.append(createDialogButton("Cancelar", "cancelado", booking.id, "table-action"));
-    }
-    actionsCell.append(actions);
-    row.append(actionsCell);
-    body.append(row);
-  });
-  document.querySelector("#appointments-table-empty").hidden = items.length > 0;
+  const searchResults = bookingsInRange(appointmentsDateRange, appointmentsSelectedDate)
+    .filter((booking) => statusFilter === "all" || normalizeStatus(booking) === statusFilter)
+    .filter((booking) => {
+      const text = `${booking.nome || ""} ${booking.telefone || ""}`.toLocaleLowerCase("pt-BR");
+      return text.includes(search) || (searchDigits && String(booking.telefone || "").replace(/\D/g, "").includes(searchDigits));
+    })
+    .map((booking) => ({ kind: "booking", date: booking.data, time: booking.horario || "", item: booking }));
+  const slotResults = statusFilter === "all" ? blockedSlots
+    .filter((slot) => appointmentsDateRange === "week"
+      ? (() => {
+        const date = parseDate(slot.data);
+        if (!date) return false;
+        const start = new Date(appointmentsSelectedDate.getFullYear(), appointmentsSelectedDate.getMonth(), appointmentsSelectedDate.getDate(), 12);
+        start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
+        const end = new Date(start);
+        end.setDate(end.getDate() + 7);
+        return dateInRange(date, start, end);
+      })()
+      : slot.data === localDateIso(appointmentsSelectedDate))
+    .map((slot) => ({ kind: "blocked", date: slot.data, time: slot.horario || "", item: slot })) : [];
+  const items = [...searchResults, ...slotResults]
+    .sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
+  timeline.replaceChildren();
+  items.forEach((entry) => timeline.append(
+    entry.kind === "blocked" ? createBlockedSlotCard(entry.item) : createTimelineBooking(entry.item)
+  ));
+  document.querySelector("#appointments-loading").hidden = appointmentsLoaded;
+  const empty = document.querySelector("#appointments-table-empty");
+  empty.hidden = !appointmentsLoaded || items.length > 0;
+  const rangeLabel = appointmentsDateRange === "week"
+    ? "Esta semana"
+    : appointmentsDateRange === "tomorrow"
+      ? "Agenda de amanhã"
+      : appointmentsDateRange === "today"
+        ? "Agenda de hoje"
+        : `Agenda de ${formatShortDate(localDateIso(appointmentsSelectedDate))}`;
+  document.querySelector("#appointments-list-heading").textContent = rangeLabel;
+  document.querySelector("#appointments-list-count").textContent =
+    `${items.length} ${items.length === 1 ? "item" : "itens"}`;
+  updateAppointmentSummary();
 };
 
 const renderClientsTable = () => {
@@ -930,12 +1143,32 @@ const fieldMarkup = ({ label, name, type = "text", required = false, wide = fals
   return `<label class="${classes}"><span>${label}</span><input name="${name}" type="${type}" value="${value}" placeholder="${placeholder}" ${requiredAttribute} ${minAttribute} ${stepAttribute}></label>`;
 };
 
-const openRecordDialog = (type) => {
+const openRecordDialog = (type, bookingId = null) => {
   currentRecordType = type;
+  editingBookingId = bookingId;
   recordFeedback.textContent = "";
   recordFields.replaceChildren();
   const now = new Date();
   const today = localDateIso(now);
+  const existingBooking = bookingId ? bookings.find((booking) => booking.id === bookingId) : null;
+  const appointmentType = type === "appointment" || type === "reschedule";
+  if (type === "reschedule" && !existingBooking) {
+    showToast("Este agendamento não está mais disponível para edição.");
+    return;
+  }
+  const fieldValue = (name, fallback = "") => existingBooking && existingBooking[name] !== undefined
+    ? String(existingBooking[name])
+    : fallback;
+  const existingHasNailArt = existingBooking && (
+    existingBooking.nailArt === true || existingBooking.nailArt === "true"
+    || /nail\s*art/i.test(bookingProcedure(existingBooking))
+  );
+  const selectedEditStatus = existingBooking && !isCancelled(existingBooking)
+    ? normalizeStatus(existingBooking)
+    : "pendente";
+  const statusOptions = (status) => ["pendente", "confirmado", "concluido", "cancelado"]
+    .map((value) => `<option value="${value}"${value === status ? " selected" : ""}>${statusLabel(value)}</option>`)
+    .join("");
   const templates = {
     appointment: {
       title: "Novo agendamento",
@@ -947,7 +1180,24 @@ const openRecordDialog = (type) => {
         fieldMarkup({ label: "Data", name: "data", type: "date", required: true, value: today }),
         fieldMarkup({ label: "Horário", name: "horario", type: "time", required: true }),
         fieldMarkup({ label: "Valor previsto (R$)", name: "valor", type: "number", min: "0", step: "0.01", placeholder: "0,00" }),
-        fieldMarkup({ label: "Status", name: "status", type: "select", options: '<option value="pendente">Pendente</option><option value="confirmado">Confirmado</option>' })
+        fieldMarkup({ label: "Status", name: "status", type: "select", options: '<option value="pendente" selected>Pendente</option><option value="confirmado">Confirmado</option>' }),
+        fieldMarkup({ label: "Inclui Nail Art?", name: "nailArt", type: "select", options: '<option value="false" selected>Não</option><option value="true">Sim</option>' }),
+        fieldMarkup({ label: "Observações", name: "observacoes", type: "textarea", wide: true, placeholder: "Preferências ou detalhes do atendimento." })
+      ]
+    },
+    reschedule: {
+      title: "Reagendar / editar atendimento",
+      fields: [
+        fieldMarkup({ label: "Nome da cliente", name: "nome", required: true, value: fieldValue("nome") }),
+        fieldMarkup({ label: "WhatsApp", name: "telefone", type: "tel", required: true, value: fieldValue("telefone") }),
+        fieldMarkup({ label: "E-mail (opcional)", name: "email", type: "email", value: fieldValue("email") }),
+        fieldMarkup({ label: "Procedimento", name: "procedimento", required: true, value: fieldValue("procedimento", fieldValue("servico")) }),
+        fieldMarkup({ label: "Data", name: "data", type: "date", required: true, value: fieldValue("data", today) }),
+        fieldMarkup({ label: "Horário", name: "horario", type: "time", required: true, value: fieldValue("horario") }),
+        fieldMarkup({ label: "Valor previsto (R$)", name: "valor", type: "number", min: "0", step: "0.01", value: fieldValue("valor") }),
+        fieldMarkup({ label: "Status", name: "status", type: "select", options: statusOptions(selectedEditStatus) }),
+        fieldMarkup({ label: "Inclui Nail Art?", name: "nailArt", type: "select", options: `<option value="false"${existingHasNailArt ? "" : " selected"}>Não</option><option value="true"${existingHasNailArt ? " selected" : ""}>Sim</option>` }),
+        fieldMarkup({ label: "Observações", name: "observacoes", type: "textarea", wide: true, placeholder: "Preferências ou detalhes do atendimento.", value: fieldValue("observacoes", fieldValue("observacao")) })
       ]
     },
     client: {
@@ -971,8 +1221,16 @@ const openRecordDialog = (type) => {
   };
   const template = templates[type];
   if (!template) return;
+  if (type === "reschedule") currentRecordType = "reschedule";
+  if (appointmentType && existingBooking) currentRecordType = type;
   recordTitle.textContent = template.title;
   recordFields.innerHTML = template.fields.join("");
+  if (existingBooking) {
+    const nailArtField = recordFields.querySelector('[name="nailArt"]');
+    if (nailArtField) nailArtField.value = String(Boolean(existingHasNailArt));
+    const notesField = recordFields.querySelector('[name="observacoes"]');
+    if (notesField) notesField.value = existingBooking.observacoes || existingBooking.observacao || "";
+  }
   const phoneField = recordFields.querySelector('[name="telefone"]');
   if (phoneField) {
     phoneField.addEventListener("input", () => {
@@ -995,30 +1253,105 @@ const saveAppointment = async (values) => {
   const data = String(values.get("data") || "");
   const horario = String(values.get("horario") || "");
   const procedimento = String(values.get("procedimento") || "").trim();
+  const nailArt = values.get("nailArt") === "true" || /nail\s*art/i.test(procedimento);
+  const observacoes = String(values.get("observacoes") || "").trim();
+  const status = String(values.get("status") || "pendente");
+  const valor = Number(values.get("valor")) || 0;
   if (!parseDate(data) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(horario)) {
     throw new Error("Informe uma data e um horário válidos.");
   }
 
+  const originalBooking = editingBookingId
+    ? bookings.find((booking) => booking.id === editingBookingId)
+    : null;
+  if (editingBookingId && !originalBooking) throw new Error("Este agendamento não existe mais.");
+
   if (isDemoMode) {
-    if (bookings.some((booking) => booking.data === data && booking.horario === horario && !isCancelled(booking))) {
+    const newSlotId = slotDocumentId(data, horario);
+    if (status !== "cancelado" && (bookings.some((booking) => booking.id !== editingBookingId
+      && booking.slotId === newSlotId && !isCancelled(booking))
+      || blockedSlots.some((slot) => slot.id === newSlotId))) {
       throw new Error("Este horário já está ocupado. Escolha outro.");
     }
-    bookings.push({
-      id: `demo-booking-${Date.now()}`,
+    const bookingData = {
       nome,
       telefone,
       email: String(values.get("email") || "").trim() || null,
       procedimento,
       data,
       horario,
-      status: String(values.get("status") || "pendente"),
-      valor: Number(values.get("valor")) || 0,
-      slotId: slotDocumentId(data, horario),
-      codigoConsulta: createRandomCode(),
-      criadoEm: new Date(),
+      status,
+      valor,
+      nailArt,
+      observacoes: observacoes || null,
+      slotId: newSlotId,
       atualizadoEm: new Date()
-    });
+    };
+    if (originalBooking) {
+      Object.assign(originalBooking, bookingData);
+    } else {
+      bookings.push({
+        id: `demo-booking-${Date.now()}`,
+        ...bookingData,
+        codigoConsulta: createRandomCode(),
+        criadoEm: new Date()
+      });
+    }
     renderAllData();
+    return;
+  }
+
+  if (originalBooking) {
+    const bookingReference = doc(db, "agendamentos", originalBooking.id);
+    const oldSlotId = originalBooking.slotId || slotDocumentId(originalBooking.data, originalBooking.horario);
+    const newSlotId = slotDocumentId(data, horario);
+    const oldSlotReference = doc(db, "horarios_ocupados", oldSlotId);
+    const newSlotReference = doc(db, "horarios_ocupados", newSlotId);
+    const lookupReference = originalBooking.codigoConsulta
+      ? doc(db, "consultas_agendamento", originalBooking.codigoConsulta)
+      : null;
+    await runTransaction(db, async (transaction) => {
+      const currentBooking = await transaction.get(bookingReference);
+      if (!currentBooking.exists()) throw new Error("Este agendamento não existe mais.");
+      const targetSlot = await transaction.get(newSlotReference);
+      const previousSlot = oldSlotId === newSlotId
+        ? targetSlot
+        : await transaction.get(oldSlotReference);
+      const lookup = lookupReference ? await transaction.get(lookupReference) : null;
+      if (status !== "cancelado" && targetSlot.exists() && (oldSlotId !== newSlotId
+        || targetSlot.data().reservaId !== originalBooking.id)) {
+        throw new Error("Este horário já está ocupado. Escolha outro.");
+      }
+      transaction.update(bookingReference, {
+        nome,
+        telefone,
+        email: String(values.get("email") || "").trim() || null,
+        procedimento,
+        data,
+        horario,
+        status,
+        valor,
+        nailArt,
+        observacoes: observacoes || null,
+        slotId: newSlotId,
+        atualizadoEm: serverTimestamp()
+      });
+      if ((status === "cancelado" || oldSlotId !== newSlotId) && previousSlot.exists()
+        && previousSlot.data().reservaId === originalBooking.id) {
+        transaction.delete(oldSlotReference);
+      }
+      if (status !== "cancelado") {
+        transaction.set(newSlotReference, {
+          data,
+          horario,
+          status: "ocupado",
+          reservaId: originalBooking.id
+        });
+      }
+      if (lookup && lookup.exists()) {
+        transaction.update(lookupReference, { data, horario, procedimento, status });
+      }
+    });
     return;
   }
 
@@ -1034,8 +1367,10 @@ const saveAppointment = async (values) => {
     procedimento,
     data,
     horario,
-    status: String(values.get("status") || "pendente"),
-    valor: Number(values.get("valor")) || 0,
+    status,
+    valor,
+    nailArt,
+    observacoes: observacoes || null,
     slotId,
     codigoConsulta: code,
     criadoEm: serverTimestamp()
@@ -1056,10 +1391,92 @@ const saveAppointment = async (values) => {
   });
 };
 
+const openBlockDialog = () => {
+  const dateField = blockForm.querySelector('[name="data"]');
+  const timeField = blockForm.querySelector('[name="horario"]');
+  blockForm.reset();
+  dateField.value = localDateIso(appointmentsSelectedDate);
+  timeField.value = "";
+  timeField.required = true;
+  document.querySelector("#block-time-field").hidden = false;
+  document.querySelector("#block-feedback").textContent = "";
+  blockDialog.showModal();
+};
+
+blockForm.querySelector('[name="diaInteiro"]').addEventListener("change", (event) => {
+  const allDay = event.currentTarget.checked;
+  blockForm.querySelector('[name="horario"]').required = !allDay;
+  document.querySelector("#block-time-field").hidden = allDay;
+});
+
+const blockSelectedTime = async (values) => {
+  const data = String(values.get("data") || "");
+  const horario = String(values.get("horario") || "");
+  const motivo = String(values.get("motivo") || "").trim();
+  const allDay = values.get("diaInteiro") === "on";
+  if (!parseDate(data) || (!allDay && !/^([01]\d|2[0-3]):[0-5]\d$/.test(horario))) {
+    throw new Error("Informe uma data e um horário válidos.");
+  }
+  let times = [horario];
+  if (allDay) {
+    if (isDemoMode) {
+      times = Array.from({ length: 10 }, (_, index) => `${String(index + 9).padStart(2, "0")}:00`);
+    } else {
+      const agenda = await getDoc(agendaReference);
+      const configuredTimes = agenda.exists() && Array.isArray(agenda.data().horariosPadrao)
+        ? agenda.data().horariosPadrao
+        : [];
+      times = configuredTimes
+        .map((time) => typeof time === "string" ? time : time.hora || time.time || "")
+        .filter((time) => /^([01]\d|2[0-3]):[0-5]\d$/.test(time));
+      if (!times.length) throw new Error("Configure os horários padrão da agenda antes de bloquear o dia inteiro.");
+    }
+  }
+  const slots = times.map((time) => ({ id: slotDocumentId(data, time), time }));
+  const existingAppointments = bookings.filter((booking) => booking.data === data && !isCancelled(booking));
+  if (allDay && existingAppointments.length) {
+    throw new Error("Há agendamentos neste dia. Reagende ou cancele-os antes de marcar a folga.");
+  }
+  if (isDemoMode) {
+    const occupied = slots.filter(({ id }) =>
+      bookings.some((booking) => booking.slotId === id && !isCancelled(booking))
+      || blockedSlots.some((slot) => slot.id === id));
+    if (occupied.length) {
+      throw new Error(`Já existem horários ocupados: ${occupied.map((slot) => slot.time).join(", ")}.`);
+    }
+    blockedSlots.push(...slots.map(({ id, time }) => ({
+      id, data, horario: time, motivo: motivo || (allDay ? "Folga" : ""), status: "bloqueado", bloqueio: true
+    })));
+    renderAppointmentsTable();
+    return;
+  }
+
+  const slotReferences = slots.map(({ id }) => doc(db, "horarios_ocupados", id));
+  await runTransaction(db, async (transaction) => {
+    const snapshots = await Promise.all(slotReferences.map((reference) => transaction.get(reference)));
+    const occupied = snapshots
+      .map((snapshot, index) => ({ snapshot, time: slots[index].time }))
+      .filter(({ snapshot }) => snapshot.exists());
+    if (occupied.length) {
+      throw new Error(`Já existem horários ocupados: ${occupied.map((slot) => slot.time).join(", ")}.`);
+    }
+    slotReferences.forEach((reference, index) => transaction.set(reference, {
+      data,
+      horario: slots[index].time,
+      status: "bloqueado",
+      bloqueio: true,
+      motivo: motivo || (allDay ? "Folga" : null),
+      criadoEm: serverTimestamp()
+    }));
+  });
+};
+
 const saveRecord = async (values) => {
-  if (currentRecordType === "appointment") {
+  if (currentRecordType === "appointment" || currentRecordType === "reschedule") {
     await saveAppointment(values);
-    return "Agendamento criado e horário reservado.";
+    return currentRecordType === "reschedule"
+      ? "Agendamento atualizado. A disponibilidade do horário foi sincronizada."
+      : "Agendamento criado e horário reservado.";
   }
 
   if (currentRecordType === "client") {
@@ -1216,13 +1633,63 @@ document.querySelectorAll("[data-create]").forEach((button) => {
   button.addEventListener("click", () => openRecordDialog(button.dataset.create));
 });
 
+document.querySelectorAll("[data-open-block]").forEach((button) => {
+  button.addEventListener("click", openBlockDialog);
+});
+
 document.querySelectorAll("[data-open-list]").forEach((button) => {
   button.addEventListener("click", () => openList(button.dataset.openList));
 });
 
-document.querySelector("[data-open-reports]").addEventListener("click", showReport);
-document.querySelector("#notifications-button").addEventListener("click", () =>
-  openList("appointments", { pendingOnly: true }));
+document.querySelectorAll("[data-open-reports]").forEach((button) => {
+  button.addEventListener("click", showReport);
+});
+
+const showView = (view) => {
+  document.querySelectorAll("[data-view]").forEach((section) => {
+    section.hidden = section.dataset.view !== view;
+  });
+  document.querySelectorAll("[data-nav]").forEach((button) => {
+    const active = button.dataset.nav === view;
+    button.classList.toggle("is-active", active);
+    if (active) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
+  });
+  sidebar.classList.remove("is-open");
+  mobileMenuToggle.setAttribute("aria-expanded", "false");
+  if (view === "appointments") renderAppointmentsTable();
+  if (view === "clients") renderClientsTable();
+  if (view === "services") renderServicesTable();
+  if (view === "finance") renderFinanceTable();
+  if (view === "settings") loadAgendaSettings().catch((error) => {
+    console.error("Falha ao carregar configurações da agenda:", error);
+  });
+  document.querySelector("#dashboard").scrollTo({ top: 0, behavior: "smooth" });
+};
+
+notificationsButton.addEventListener("click", (event) => {
+  event.stopPropagation();
+  const willOpen = notificationsPopover.hidden;
+  notificationsPopover.hidden = !willOpen;
+  notificationsButton.setAttribute("aria-expanded", String(willOpen));
+  if (willOpen) renderNotifications();
+});
+
+document.querySelector("#mark-notifications-read").addEventListener("click", () => {
+  getNotifications().forEach((item) => readNotificationIds.add(item.id));
+  renderNotifications();
+});
+
+document.querySelectorAll("[data-demo-toggle]").forEach((button) => {
+  button.addEventListener("click", () => {
+    manualDemoOverride = isDemoMode ? false : true;
+    setDemoMode(manualDemoOverride);
+    showToast(isDemoMode
+      ? "Dados de exemplo ativados nesta demonstração."
+      : "Dados reais do Firestore restaurados.");
+  });
+});
+
 document.querySelector("#logout-button").addEventListener("click", async () => {
   try {
     await signOut(auth);
@@ -1234,21 +1701,7 @@ document.querySelector("#logout-button").addEventListener("click", async () => {
 
 document.querySelectorAll("[data-nav]").forEach((button) => {
   button.addEventListener("click", () => {
-    document.querySelectorAll("[data-nav]").forEach((item) => {
-      item.classList.toggle("is-active", item === button);
-      if (item === button) item.setAttribute("aria-current", "page");
-      else item.removeAttribute("aria-current");
-    });
-    sidebar.classList.remove("is-open");
-    mobileMenuToggle.setAttribute("aria-expanded", "false");
-    const view = button.dataset.nav;
-    if (view === "dashboard") window.scrollTo({ top: 0, behavior: "smooth" });
-    if (view === "appointments") openList("appointments");
-    if (view === "clients") openList("clients");
-    if (view === "services") openList("services");
-    if (view === "finance") document.querySelector("#performance").scrollIntoView({ behavior: "smooth", block: "center" });
-    if (view === "content") openList("content");
-    if (view === "settings") openSettings();
+    showView(button.dataset.nav);
   });
 });
 
@@ -1295,20 +1748,60 @@ document.querySelectorAll("[data-close-dialog]").forEach((button) => {
   button.addEventListener("click", () => listDialog.close());
 });
 
+blockDialog.addEventListener("click", (event) => {
+  if (event.target === blockDialog) blockDialog.close();
+});
+
+blockForm.addEventListener("submit", async (event) => {
+  if (event.submitter && event.submitter.value === "cancel") return;
+  event.preventDefault();
+  if (!blockForm.reportValidity()) return;
+  const submitButton = blockForm.querySelector(".dialog-submit");
+  submitButton.disabled = true;
+  document.querySelector("#block-feedback").textContent = "Bloqueando horário...";
+  try {
+    await blockSelectedTime(new FormData(blockForm));
+    blockDialog.close();
+    showToast("Horário bloqueado e indisponível para novos pedidos.");
+  } catch (error) {
+    document.querySelector("#block-feedback").textContent =
+      error.message || "Não foi possível bloquear esse horário.";
+    console.error("Falha ao bloquear horário:", error);
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
 listDialog.addEventListener("click", (event) => {
   if (event.target === listDialog) listDialog.close();
 });
 recordDialog.addEventListener("click", (event) => {
   if (event.target === recordDialog) recordDialog.close();
 });
-settingsDialog.addEventListener("click", (event) => {
-  if (event.target === settingsDialog) settingsDialog.close();
-});
+notificationsPopover.addEventListener("click", (event) => event.stopPropagation());
 agendaMonthSelect.addEventListener("change", renderAgendaSettings);
 toggleMonthButton.addEventListener("click", updateAgendaMonth);
-settingsForm.addEventListener("submit", (event) => {
-  if (event.submitter && event.submitter.value === "cancel") return;
-  event.preventDefault();
+
+document.addEventListener("click", (event) => {
+  if (!notificationsPopover.hidden
+    && event.target !== notificationsButton
+    && !notificationsButton.contains(event.target)
+    && !notificationsPopover.contains(event.target)) {
+    notificationsPopover.hidden = true;
+    notificationsButton.setAttribute("aria-expanded", "false");
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  if (!notificationsPopover.hidden) {
+    notificationsPopover.hidden = true;
+    notificationsButton.setAttribute("aria-expanded", "false");
+  }
+  [recordDialog, listDialog].forEach((dialog) => {
+    if (dialog.open) dialog.close();
+  });
+  if (blockDialog.open) blockDialog.close();
 });
 
 const setDateLabel = () => {
@@ -1323,6 +1816,48 @@ const setDateLabel = () => {
 setDateLabel();
 renderCalendar();
 renderSelectedDay();
+renderAppointmentsTable();
+renderClientsTable();
+renderServicesTable();
+renderFinanceTable();
+renderNotifications();
+
+const appointmentsDateInput = document.querySelector("#appointments-date");
+appointmentsDateInput.value = localDateIso(appointmentsSelectedDate);
+
+const selectAppointmentsRange = (range, date = new Date()) => {
+  appointmentsSelectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0, 0);
+  appointmentsDateRange = range;
+  appointmentsDateInput.value = localDateIso(appointmentsSelectedDate);
+  document.querySelectorAll("[data-date-range]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.dateRange === range);
+  });
+  renderAppointmentsTable();
+};
+
+document.querySelectorAll("[data-date-range]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const date = new Date();
+    if (button.dataset.dateRange === "tomorrow") date.setDate(date.getDate() + 1);
+    selectAppointmentsRange(button.dataset.dateRange, date);
+  });
+});
+
+appointmentsDateInput.addEventListener("change", () => {
+  const [year, month, day] = appointmentsDateInput.value.split("-").map(Number);
+  if (year && month && day) selectAppointmentsRange("custom", new Date(year, month - 1, day, 12));
+});
+
+document.querySelector("#appointments-search").addEventListener("input", renderAppointmentsTable);
+document.querySelector("#appointments-filter").addEventListener("change", renderAppointmentsTable);
+document.querySelector("#clients-search").addEventListener("input", renderClientsTable);
+document.querySelector("#toggle-forecast-visibility").addEventListener("click", () => {
+  forecastHidden = !forecastHidden;
+  updateAppointmentSummary();
+});
+loadAgendaSettings().catch((error) => {
+  console.error("Falha ao carregar configurações da agenda:", error);
+});
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {

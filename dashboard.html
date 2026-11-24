@@ -177,17 +177,41 @@
 
       <section id="view-appointments" class="dashboard-view content-view" data-view="appointments" hidden>
         <header class="view-heading">
-          <div><span class="section-eyebrow">AGENDA DO STUDIO</span><h1>Agendamentos</h1><p>Acompanhe horários, serviços e confirmações.</p></div>
-          <button type="button" class="primary-action" data-create="appointment">+ Novo agendamento</button>
-        </header>
-        <article class="panel data-panel">
-          <div class="table-toolbar">
-            <label class="table-search"><span class="sr-only">Buscar agendamentos</span><input id="appointments-search" type="search" placeholder="Buscar por cliente ou procedimento"></label>
-            <label class="table-filter"><span class="sr-only">Filtrar agendamentos por status</span><select id="appointments-filter"><option value="all">Todos os status</option><option value="pendente">Pendente</option><option value="confirmado">Confirmado</option><option value="concluido">Concluído</option><option value="cancelado">Cancelado</option></select></label>
+          <div><span class="section-eyebrow">AGENDA DO STUDIO</span><h1>Agendamentos</h1><p>Organize o dia, confirme horários e acompanhe cada atendimento.</p></div>
+          <div class="appointment-header-actions">
+            <button type="button" class="secondary-action" data-open-block>Bloquear horário</button>
+            <button type="button" class="primary-action" data-create="appointment">+ Novo agendamento manual</button>
           </div>
-          <div class="table-scroll"><table class="data-table"><thead><tr><th>Cliente</th><th>Procedimento</th><th>Data e horário</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody id="appointments-table-body"></tbody></table></div>
-          <p id="appointments-table-empty" class="table-empty" hidden>Nenhum agendamento corresponde à busca.</p>
-        </article>
+        </header>
+
+        <section class="appointment-kpis" aria-label="Resumo da agenda selecionada">
+          <article class="panel appointment-kpi"><span>Atendimentos do dia</span><strong id="appointments-day-count">0</strong><small id="appointments-day-label"></small></article>
+          <article class="panel appointment-kpi next-client-kpi"><span>Próxima cliente</span><strong id="appointments-next-time">—</strong><small id="appointments-next-client">Nenhum próximo atendimento</small><small id="appointments-next-service"></small></article>
+          <article class="panel appointment-kpi"><span>Pendentes de confirmação</span><strong id="appointments-pending-count">0</strong><small>Precisam de retorno da equipe</small></article>
+          <article class="panel appointment-kpi forecast-kpi"><div><span>Previsão confirmada do dia</span><button id="toggle-forecast-visibility" class="visibility-toggle" type="button" aria-label="Ocultar previsão do dia" aria-pressed="false">◉</button></div><strong id="appointments-day-forecast">R$ 0</strong><small>Somente atendimentos confirmados</small></article>
+        </section>
+
+        <section class="panel appointment-controls" aria-label="Filtros de agendamento">
+          <div class="appointment-date-controls">
+            <div class="date-shortcuts" role="group" aria-label="Atalhos de data">
+              <button type="button" class="date-shortcut is-active" data-date-range="today">Hoje</button>
+              <button type="button" class="date-shortcut" data-date-range="tomorrow">Amanhã</button>
+              <button type="button" class="date-shortcut" data-date-range="week">Esta semana</button>
+            </div>
+            <label class="date-picker-label"><span>Data</span><input id="appointments-date" type="date"></label>
+          </div>
+          <div class="appointment-filter-controls">
+            <label class="appointment-search"><span class="sr-only">Buscar por nome ou telefone</span><input id="appointments-search" type="search" placeholder="Buscar cliente ou telefone"></label>
+            <label class="appointment-status-filter"><span class="sr-only">Filtrar por status</span><select id="appointments-filter"><option value="all">Todos</option><option value="pendente">Pendentes</option><option value="confirmado">Confirmados</option><option value="concluido">Concluídos</option><option value="cancelado">Cancelados</option></select></label>
+          </div>
+        </section>
+
+        <section class="appointment-timeline-section" aria-live="polite">
+          <header class="timeline-heading"><div><span class="section-eyebrow">ROTINA DO STUDIO</span><h2 id="appointments-list-heading">Agenda de hoje</h2></div><span id="appointments-list-count" class="table-summary"></span></header>
+          <p id="appointments-loading" class="appointment-loading" hidden>Carregando agendamentos...</p>
+          <div id="appointments-timeline" class="appointments-timeline"></div>
+          <p id="appointments-table-empty" class="appointment-empty" hidden>Nenhum agendamento encontrado para esta data.</p>
+        </section>
       </section>
 
       <section id="view-clients" class="dashboard-view content-view" data-view="clients" hidden>
@@ -298,6 +322,23 @@
       <h2 id="list-dialog-title"></h2>
       <div id="list-dialog-content" class="dialog-list-content"></div>
     </section>
+  </dialog>
+
+  <dialog id="block-dialog" class="admin-dialog">
+    <form method="dialog" class="dialog-frame" id="block-form">
+      <button class="dialog-close" type="submit" value="cancel" aria-label="Fechar">×</button>
+      <span class="section-eyebrow">AGENDA DO STUDIO</span>
+      <h2>Bloquear horário</h2>
+      <p class="dialog-hint">O horário ficará indisponível para novos pedidos no site.</p>
+      <div class="dialog-fields">
+        <label class="dialog-field"><span>Data</span><input name="data" type="date" required></label>
+        <label id="block-time-field" class="dialog-field"><span>Horário</span><input name="horario" type="time" required></label>
+        <label class="dialog-field is-wide"><span>Motivo (opcional)</span><input name="motivo" type="text" maxlength="120" placeholder="Ex.: compromisso pessoal"></label>
+        <label class="dialog-field block-dayoff-field is-wide"><span><input name="diaInteiro" type="checkbox"> Bloquear o dia inteiro (folga)</span></label>
+      </div>
+      <p id="block-feedback" class="dialog-feedback" role="status" aria-live="polite"></p>
+      <div class="dialog-actions"><button type="submit" class="dialog-submit">Bloquear horário</button></div>
+    </form>
   </dialog>
 
   <script type="module" src="assets/js/dashboard.js"></script>
