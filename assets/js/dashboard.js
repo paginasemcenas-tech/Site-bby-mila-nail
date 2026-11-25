@@ -41,6 +41,20 @@ const reviewsReference = collection(db, "avaliacoes");
 const occupiedSlotsReference = collection(db, "horarios_ocupados");
 const agendaReference = doc(db, "configuracoes", "agenda");
 
+const siteServices = [
+  { id: "site-aplicacao-pm", nome: "Aplicação P/M", descricao: "Aplicação de alongamento em tamanho pequeno ou médio.", valor: 195 },
+  { id: "site-aplicacao-gg", nome: "Aplicação G/GG", descricao: "Aplicação de alongamento em tamanho grande ou extra grande.", valor: 260 },
+  { id: "site-manutencao-pm", nome: "Manutenção P/M", descricao: "Manutenção de alongamento em tamanho pequeno ou médio.", valor: 165 },
+  { id: "site-manutencao-gg", nome: "Manutenção G/GG", descricao: "Manutenção de alongamento em tamanho grande ou extra grande.", valor: 225 },
+  { id: "site-banho-gel", nome: "Banho em Gel", descricao: "Estrutura e acabamento para as unhas naturais.", valor: 145 },
+  { id: "site-blindagem", nome: "Blindagem", descricao: "Cuidado e reforço das unhas naturais.", valor: 115 },
+  { id: "site-remocao", nome: "Remoção", descricao: "Remoção segura do procedimento.", valor: 70 },
+  { id: "site-unha-quebrada", nome: "Unha quebrada", descricao: "Reparo de unha quebrada.", valor: 12 },
+  { id: "site-manutencao-outra-pm", nome: "Manutenção de outra profissional P/M", descricao: "Manutenção P/M sujeita à remoção e nova aplicação.", valor: 175 },
+  { id: "site-manutencao-outra-gg", nome: "Manutenção de outra profissional G/GG", descricao: "Manutenção G/GG sujeita à remoção e nova aplicação.", valor: 230 },
+  { id: "site-nail-art", nome: "Nail Art", descricao: "Arte exclusiva desenhada para o estilo da cliente.", valor: null }
+];
+
 let bookings = [];
 let clients = [];
 let services = [];
@@ -65,6 +79,7 @@ let appointmentsDateRange = "today";
 let forecastHidden = false;
 let editingBookingId = null;
 let appointmentsLoaded = false;
+let siteServicesSeedStarted = false;
 
 visibleMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1);
 selectedDate.setHours(12, 0, 0, 0);
@@ -133,29 +148,25 @@ const createDemoData = () => {
     email,
     instagram,
     ativo: true,
-    historico: ["Alongamento em Gel", "Nail Art Personalizada 3D"].slice(0, index % 3 + 1),
+    historico: ["Aplicação P/M", "Nail Art"].slice(0, index % 3 + 1),
     criadoEm: dateAt(Math.max(1, Math.min(20, index * 2 + 2))).date
   }));
   const servicesDocs = [
-    ["Alongamento em Gel", "Alongamento com acabamento natural e estrutura personalizada.", 250, 150],
-    ["Banho de Gel", "Reforço e nivelamento para unhas naturais.", 180, 90],
-    ["Blindagem", "Proteção e resistência para as unhas naturais.", 140, 75],
-    ["Nail Art Personalizada 3D", "Arte exclusiva com aplicação de detalhes em relevo.", 350, 180],
-    ["Manutenção", "Manutenção do alongamento e acabamento.", 200, 120]
-  ].map(([nome, descricao, valor, duracao], index) => ({
-    id: `demo-service-${index + 1}`, nome, descricao, valor, duracao, ativo: true
-  }));
+    ...siteServices.map(({ nome, descricao, valor }) => ({
+      nome, descricao, valor, duracao: null, ativo: true
+    }))
+  ].map((service, index) => ({ id: `demo-service-${index + 1}`, ...service }));
   const appointments = [
-    [0, 3, "10:00", "Alongamento em Gel", "concluido", 750],
-    [1, 6, "13:30", "Banho de Gel", "concluido", 640],
+    [0, 3, "10:00", "Aplicação P/M", "concluido", 195],
+    [1, 6, "13:30", "Banho em Gel", "concluido", 145],
     [2, 9, "09:00", "Blindagem", "concluido", 820],
-    [3, 12, "15:00", "Nail Art Personalizada 3D", "concluido", 780],
-    [4, 16, "11:00", "Alongamento em Gel", "concluido", 900],
-    [0, 19, "14:00", "Manutenção", "concluido", 760],
-    [1, 21, "10:30", "Nail Art Personalizada 3D", "concluido", 960],
-    [2, 22, "16:00", "Alongamento em Gel", "concluido", 870],
-    [3, now.getDate(), "15:00", "Banho de Gel", "confirmado", 250],
-    [4, now.getDate() + 1, "11:00", "Nail Art Personalizada 3D", "pendente", 350]
+    [3, 12, "15:00", "Nail Art", "concluido", 780],
+    [4, 16, "11:00", "Aplicação G/GG", "concluido", 260],
+    [0, 19, "14:00", "Manutenção P/M", "concluido", 165],
+    [1, 21, "10:30", "Nail Art", "concluido", 960],
+    [2, 22, "16:00", "Aplicação P/M", "concluido", 195],
+    [3, now.getDate(), "15:00", "Banho em Gel", "confirmado", 145],
+    [4, now.getDate() + 1, "11:00", "Nail Art", "pendente", 350]
   ];
   const bookingsDocs = appointments.map(([clientIndex, day, horario, procedimento, status, valor], index) => {
     const appointmentDate = dateAt(day);
@@ -746,6 +757,26 @@ const subscribeToData = () => {
   });
 
   onSnapshot(servicesReference, async (snapshot) => {
+    if (!siteServicesSeedStarted) {
+      siteServicesSeedStarted = true;
+      const existingNames = new Set(snapshot.docs.map((item) =>
+        String(item.data().nome || "").trim().toLocaleLowerCase("pt-BR")));
+      const missingServices = siteServices.filter((service) =>
+        !existingNames.has(service.nome.toLocaleLowerCase("pt-BR")));
+
+      if (missingServices.length > 0) {
+        try {
+          await Promise.all(missingServices.map((service) => setDoc(
+            doc(servicesReference, service.id),
+            { ...service, duracao: null, ativo: true, criadoEm: serverTimestamp() }
+          )));
+        } catch (error) {
+          setDashboardError("Não foi possível cadastrar os serviços padrão. Verifique as permissões do Firestore.");
+          console.error("Falha ao cadastrar os serviços padrão:", error);
+        }
+      }
+    }
+
     liveData.services = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
       .sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
     loadedCollections.services = true;
@@ -885,7 +916,9 @@ const renderServicesTable = () => {
     appendCell(row, service.nome || "Serviço");
     appendCell(row, service.descricao || "—");
     appendCell(row, service.duracao ? `${service.duracao} min` : "—");
-    appendCell(row, currency(Number(service.valor) || 0));
+    appendCell(row, typeof service.valor === "number" && Number.isFinite(service.valor)
+      ? currency(service.valor)
+      : "Sob consulta");
     const statusCell = document.createElement("td");
     statusCell.append(badgeForStatus(service.ativo === false ? "cancelado" : "confirmado"));
     statusCell.lastElementChild.textContent = service.ativo === false ? "Inativo" : "Ativo";

@@ -124,14 +124,18 @@ textarea:focus-visible {
   text-align: center;
 }
 
-.profile-photo {
+.profile-avatar {
+  display: grid;
   width: 65px;
   height: 65px;
+  place-items: center;
   margin-bottom: 6px;
   border: 1.5px solid var(--dash-gold);
   border-radius: 50%;
-  object-fit: cover;
-  object-position: 50% 30%;
+  background: linear-gradient(145deg, #512329, #25110d);
+  color: var(--dash-cream);
+  font-family: var(--dash-title);
+  font-size: 25px;
 }
 
 .profile-online {
@@ -890,20 +894,16 @@ textarea:focus-visible {
   overflow: hidden;
   border: 1px solid rgba(212, 163, 115, 0.19);
   border-radius: 10px;
-  background: #351518;
+  background:
+    radial-gradient(ellipse at 78% 20%, rgba(212, 163, 115, 0.2), transparent 42%),
+    linear-gradient(135deg, #4a1b20, #21100c 78%);
 }
 
-.brand-card img,
 .brand-card-overlay {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-}
-
-.brand-card img {
-  object-fit: cover;
-  object-position: 61% 50%;
 }
 
 .brand-card-overlay {
@@ -2148,10 +2148,11 @@ body {
   margin: 22px 0 25px;
 }
 
-.profile-photo {
+.profile-avatar {
   width: 78px;
   height: 78px;
   margin-bottom: 9px;
+  font-size: 29px;
 }
 
 .profile-online {

@@ -11,7 +11,6 @@ Abra `index.html` diretamente no navegador ou utilize uma extensão de servidor 
 - `index.html` — apresentação resumida da marca.
 - `studio.html` — procedimentos, preços, nail art e portfólio.
 - `academy.html` — cursos Duo e Nail Art.
-- `modelos.html` — Programa de Modelos.
 - `sobre.html` — proposta e identidade da marca.
 - `contato.html` — canais de contato e endereço.
 - `admin.html` — login administrativo.

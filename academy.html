@@ -7,7 +7,7 @@
   <title>Academy | Bby Mila Nails</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/academy.css">
 </head>
@@ -22,9 +22,9 @@
         <a class="nav-link" data-page="home" href="index.html">Início</a>
         <a class="nav-link" data-page="studio" href="studio.html">Studio</a>
         <a class="nav-link" data-page="academy" href="academy.html">Academy</a>
-        <a class="nav-link" data-page="modelos" href="modelos.html">Modelos</a>
         <a class="nav-link" data-page="sobre" href="sobre.html">Sobre</a>
         <a class="nav-link" data-page="contato" href="contato.html">Contato</a>
+        <a class="nav-link" href="cliente-dashboard.html">Área da cliente</a>
         <button class="header-cta" type="button" data-open-scheduling>Agendar</button>
       </nav>
     </div>
@@ -32,107 +32,92 @@
 
   <main class="academy-main">
     <section class="academy-hero">
-      <div class="academy-hero-media" aria-hidden="true">
-        <img src="assets/images/studio-hero.jpg" alt="">
-      </div>
       <div class="academy-container academy-hero-content" data-reveal>
-        <div class="academy-eyebrow"><span>ACADEMY</span><i></i></div>
-        <h1>Aprenda a criar<br>com técnica e <em>identidade.</em></h1>
-        <p>Formação em unhas e Nail Art para desenvolver sua técnica, apurar o olhar e construir um trabalho com a sua assinatura.</p>
-        <a class="academy-button" href="#academy-courses">
-          <span>VER CURSOS</span><span class="academy-arrow" aria-hidden="true">→</span>
+        <div class="academy-eyebrow"><span>BBY MILA ACADEMY</span><i></i></div>
+        <h1>Aprenda com quem<br>é <em>referência.</em></h1>
+        <p>Formações presenciais completas com teoria, prática em mesa, kit aluna e certificado para você se destacar no mercado da beleza.</p>
+        <a class="academy-button academy-scroll-link" href="#academy-courses">
+          <span>CONHECER OS CURSOS</span><span class="academy-arrow" aria-hidden="true">↓</span>
         </a>
       </div>
-      <span class="academy-hero-caption" aria-hidden="true">BBY MILA NAILS · FORMAÇÃO</span>
+      <figure class="academy-hero-media">
+        <div class="academy-hero-video-frame">
+          <video
+            class="academy-hero-video"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            aria-label="Aluna praticando uma técnica de unhas na mesa da Academy"
+          >
+            <source src="assets/videos/aluna-pratica-hero.mp4" type="video/mp4">
+            Seu navegador não oferece suporte à reprodução de vídeo.
+          </video>
+          <figcaption>✦ Prática real em mesa <span>•</span> Academy</figcaption>
+        </div>
+      </figure>
     </section>
 
-    <section class="academy-courses academy-section" id="academy-courses">
+    <section class="academy-courses academy-section" id="academy-courses" tabindex="-1">
       <div class="academy-container">
         <div class="academy-section-heading" data-reveal>
           <div>
-            <p class="academy-kicker">FORMAÇÃO PROFISSIONAL</p>
-            <h2>Conhecimento para<br><em>ir além.</em></h2>
+            <p class="academy-kicker">FORMAÇÕES OFICIAIS</p>
+            <h2>Seu próximo passo<br><em>começa aqui.</em></h2>
           </div>
-          <p>Escolha o tema que combina com o seu momento. Conteúdo, formato, carga horária e próximas turmas são confirmados com a equipe.</p>
+          <p>Imersões presenciais para aprender, praticar e desenvolver técnicas valorizadas no mercado da beleza.</p>
         </div>
 
         <div class="academy-course-grid">
-          <article class="academy-course-card" data-reveal>
-            <div class="academy-course-image">
-              <img src="assets/images/alongamento-hero.jpg" alt="Detalhe de unhas alongadas" loading="lazy">
-              <span>01 / BASE</span>
-            </div>
+          <article class="academy-course-card academy-course-card-featured" data-reveal>
             <div class="academy-course-copy">
-              <p class="academy-card-label">FUNDAMENTOS</p>
-              <h3>Estrutura e alongamento</h3>
-              <p>Fundamentos de preparação, construção, acabamento e manutenção para um resultado bem executado.</p>
-              <ul>
-                <li>Preparação e estrutura</li>
-                <li>Curvatura e acabamento</li>
-                <li>Rotina de manutenção</li>
+              <p class="academy-course-badge">FORMAÇÃO COMPLETA <span>•</span> 2 DIAS</p>
+              <div class="academy-course-title-row">
+                <h3>Curso Duo</h3>
+                <p class="academy-course-price">R$ 1.399,90</p>
+              </div>
+              <p class="academy-course-intro">Uma imersão para dominar alongamento no Molde F1 e Nail Art com as técnicas mais pedidas em mesa.</p>
+              <ul class="academy-course-details">
+                <li><strong>Alongamento no Molde F1</strong><span>Amendoado, Bailarina, Quadrado e Stiletto — os 4 formatos mais pedidos em mesa.</span></li>
+                <li><strong>Nail Art</strong><span>12 técnicas atualizadas e mais pedidas em mesa.</span></li>
+                <li><strong>Estrutura</strong><span>2 dias de imersão com aula teórica e prática.</span></li>
+                <li><strong>Incluso</strong><span>Apostila completa com materiais e técnicas, Kit Aluna e Certificado.</span></li>
               </ul>
-              <a class="academy-text-link" data-course="Fundamentos: estrutura e alongamento" href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
-                <span>QUERO SABER MAIS</span><span class="academy-arrow" aria-hidden="true">→</span>
+              <a class="academy-button academy-course-cta" data-whatsapp-message="Olá! Tenho interesse no Curso Duo (R$ 1.399,90) da Bby Mila Academy e gostaria de saber as próximas datas." href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
+                <span>GARANTIR VAGA NO CURSO DUO</span><span class="academy-arrow" aria-hidden="true">→</span>
               </a>
             </div>
           </article>
 
           <article class="academy-course-card" data-reveal>
-            <div class="academy-course-image">
-              <img src="assets/images/portfolio-03.jpg" alt="Nail Art com detalhes florais" loading="lazy">
-              <span>02 / CRIAÇÃO</span>
-            </div>
             <div class="academy-course-copy">
-              <p class="academy-card-label">NAIL ART</p>
-              <h3>Arte, textura e 3D</h3>
-              <p>Explore composição, cor e relevo para desenvolver desenhos autorais e acabamentos criativos.</p>
-              <ul>
-                <li>Composição e combinação de cores</li>
-                <li>Traços, efeitos e texturas</li>
-                <li>Elementos em relevo</li>
-              </ul>
-              <a class="academy-text-link" data-course="Nail Art: arte, textura e 3D" href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
-                <span>QUERO SABER MAIS</span><span class="academy-arrow" aria-hidden="true">→</span>
-              </a>
-            </div>
-          </article>
-
-          <article class="academy-course-card" data-reveal>
-            <div class="academy-course-image">
-              <img src="assets/images/portfolio-02.jpg" alt="Unhas com acabamento cromado" loading="lazy">
-              <span>03 / EVOLUÇÃO</span>
-            </div>
-            <div class="academy-course-copy">
-              <p class="academy-card-label">APERFEIÇOAMENTO</p>
-              <h3>Refine sua técnica</h3>
-              <p>Um percurso para revisar processos, aprimorar o acabamento e ganhar mais consistência no atendimento.</p>
-              <ul>
-                <li>Leitura de estrutura</li>
-                <li>Precisão e acabamento</li>
-                <li>Prática orientada</li>
-              </ul>
-              <a class="academy-text-link" data-course="Aperfeiçoamento profissional" href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
-                <span>QUERO SABER MAIS</span><span class="academy-arrow" aria-hidden="true">→</span>
-              </a>
-            </div>
-          </article>
-
-          <article class="academy-course-card" data-reveal>
-            <div class="academy-course-image">
-              <img src="assets/images/hero-bbymila.jpg" alt="Detalhes de uma produção de Nail Art" loading="lazy">
-              <span>04 / ACOMPANHAMENTO</span>
-            </div>
-            <div class="academy-course-copy">
-              <p class="academy-card-label">MENTORIA E PRÁTICA</p>
-              <h3>Aprenda fazendo</h3>
-              <p>Converse com a equipe sobre um acompanhamento direcionado à sua experiência e aos seus objetivos.</p>
-              <ul>
-                <li>Orientação individualizada</li>
-                <li>Exercícios práticos</li>
-                <li>Próximos passos da carreira</li>
-              </ul>
-              <a class="academy-text-link" data-course="Mentoria e prática orientada" href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
-                <span>QUERO SABER MAIS</span><span class="academy-arrow" aria-hidden="true">→</span>
+              <p class="academy-course-badge">ESPECIALIZAÇÃO <span>•</span> 1 DIA</p>
+              <div class="academy-course-title-row">
+                <h3>Curso de Nail Art</h3>
+                <p class="academy-course-price">R$ 789,90</p>
+              </div>
+              <p class="academy-course-intro">1 dia de aula teórica e prática. Acompanha Kit Aluna e Certificado.</p>
+              <h4 class="academy-techniques-heading">15 técnicas abordadas</h4>
+              <ol class="academy-technique-list">
+                <li>Cromado espelhado isolado</li>
+                <li>Formas com gel Clear</li>
+                <li>Aura nails sombra</li>
+                <li>Aura nails airbrush</li>
+                <li>Flor 3D simples</li>
+                <li>Flor 3D avançada</li>
+                <li>Ativação de magnético</li>
+                <li>Francesa com animal print</li>
+                <li>Aplicação de charms e pedrarias</li>
+                <li>Line Art com acrílico</li>
+                <li>Croc nails</li>
+                <li>Blooming flower</li>
+                <li>Cromado holográfico</li>
+                <li>Gel sólido com cromado</li>
+                <li>Cromado isolado com cromado</li>
+              </ol>
+              <a class="academy-button academy-course-cta" data-whatsapp-message="Olá! Tenho interesse no Curso de Nail Art (R$ 789,90) da Bby Mila Academy e gostaria de mais informações." href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
+                <span>INSCREVER-SE NO CURSO DE NAIL ART</span><span class="academy-arrow" aria-hidden="true">→</span>
               </a>
             </div>
           </article>
@@ -140,80 +125,184 @@
       </div>
     </section>
 
-    <section class="academy-method academy-section">
-      <div class="academy-container academy-method-layout">
-        <div class="academy-method-heading" data-reveal>
-          <p class="academy-kicker">O JEITO BBY MILA DE ENSINAR</p>
-          <h2>Técnica com<br><em>olhar autoral.</em></h2>
-          <p>Aprender também é descobrir como transformar conhecimento em um trabalho que tenha a sua identidade.</p>
-          <a class="academy-text-link" href="sobre.html#camila">
-            <span>CONHEÇA A CAMILA</span><span class="academy-arrow" aria-hidden="true">→</span>
-          </a>
+    <section class="academy-included academy-section">
+      <div class="academy-container">
+        <div class="academy-section-heading" data-reveal>
+          <div>
+            <p class="academy-kicker">UMA EXPERIÊNCIA COMPLETA</p>
+            <h2>O que está incluso<br><em>na sua formação.</em></h2>
+          </div>
+          <p>Aprendizado acompanhado e recursos para você continuar praticando depois da imersão.</p>
         </div>
-        <div class="academy-method-list">
-          <article data-reveal>
-            <span>01</span>
-            <div><h3>Base bem construída</h3><p>Entenda o porquê de cada etapa para trabalhar com mais segurança e consistência.</p></div>
+        <div class="academy-included-grid">
+          <article class="academy-included-card" data-reveal>
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 26V9l11-5 11 5v17M10 26v-8h12v8M10 11h.01M16 11h.01M22 11h.01"/></svg>
+            <h3>Aula Teórica e Prática</h3>
+            <p>Treinamento real em mesa com acompanhamento próximo da Camila.</p>
           </article>
-          <article data-reveal>
-            <span>02</span>
-            <div><h3>Prática com intenção</h3><p>Exercite os fundamentos e aprimore os detalhes que fazem diferença no resultado.</p></div>
+          <article class="academy-included-card" data-reveal>
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 10 16 4l12 6-12 6-12-6ZM7 12v10l9 6 9-6V12M16 16v12"/></svg>
+            <h3>Kit Aluna Incluso</h3>
+            <p>Materiais selecionados para você praticar durante o curso.</p>
           </article>
-          <article data-reveal>
-            <span>03</span>
-            <div><h3>Expressão própria</h3><p>Desenvolva repertório para criar trabalhos que valorizem o seu olhar e o de cada cliente.</p></div>
+          <article class="academy-included-card" data-reveal>
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 4h12l5 5v19H8zM20 4v6h6M12 16h9M12 21h9"/></svg>
+            <h3>Apostila Completa</h3>
+            <p>Guia detalhado de materiais e técnicas mais pedidas em mesa.</p>
+          </article>
+          <article class="academy-included-card" data-reveal>
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="m16 4 3.2 2.2 3.9-.1 1.3 3.7 3.2 2.2-1.1 3.8 1.1 3.8-3.2 2.2-1.3 3.7-3.9-.1L16 28l-3.2-2.2-3.9.1-1.3-3.7-3.2-2.2 1.1-3.8-1.1-3.8 3.2-2.2 1.3-3.7 3.9.1zM11 16l3.2 3.2L21 12"/></svg>
+            <h3>Certificado Oficial</h3>
+            <p>Certificação Bby Mila Nails de conclusão.</p>
           </article>
         </div>
       </div>
+    </section>
+
+    <section class="academy-student-works academy-section" id="academy-student-works">
+      <div class="academy-container">
+        <div class="academy-section-heading" data-reveal>
+          <div>
+            <p class="academy-kicker">RESULTADOS DAS ALUNAS ────────</p>
+            <h2>O que as alunas<br><em>produzem em mesa.</em></h2>
+          </div>
+          <p>Prática real, criatividade e técnica desenvolvidas durante as formações da Bby Mila Academy.</p>
+        </div>
+
+        <div class="academy-work-filters" role="group" aria-label="Filtrar trabalhos das alunas">
+          <button type="button" data-work-filter="all" aria-pressed="true">Todos</button>
+          <button type="button" data-work-filter="video" aria-pressed="false">Vídeos</button>
+          <button type="button" data-work-filter="duo" aria-pressed="false">Curso Duo</button>
+          <button type="button" data-work-filter="nail-art" aria-pressed="false">Nail Art</button>
+        </div>
+
+        <div class="academy-works-grid">
+          <article class="academy-work-card" data-work-category="duo" data-media-type="image" data-reveal>
+            <figure>
+              <img class="academy-work-media" src="assets/images/resultado 1.jpg" alt="Alongamento em unhas com acabamento rosa claro" loading="lazy">
+            </figure>
+            <div class="academy-work-copy">
+              <span class="academy-work-course">CURSO DUO</span>
+              <h3>Alongamento em gel</h3>
+              <p>Estrutura e acabamento desenvolvidos em mesa.</p>
+              <button type="button" data-open-work aria-label="Ampliar trabalho: Alongamento em gel">Ampliar trabalho <span aria-hidden="true">↗</span></button>
+            </div>
+          </article>
+
+          <article class="academy-work-card" data-work-category="nail-art" data-media-type="image" data-reveal>
+            <figure>
+              <img class="academy-work-media" src="assets/images/resultado 2.jpg" alt="Coleção de desenhos de Nail Art criados para demonstração" loading="lazy">
+            </figure>
+            <div class="academy-work-copy">
+              <span class="academy-work-course">NAIL ART</span>
+              <h3>Técnicas em prática</h3>
+              <p>Uma seleção de cores, formas e acabamentos.</p>
+              <button type="button" data-open-work aria-label="Ampliar trabalho: Técnicas em prática">Ampliar trabalho <span aria-hidden="true">↗</span></button>
+            </div>
+          </article>
+
+          <article class="academy-work-card" data-work-category="nail-art" data-media-type="image" data-reveal>
+            <figure>
+              <img class="academy-work-media" src="assets/images/resultado 3.jpg" alt="Demonstração de esmaltes com efeito magnético" loading="lazy">
+            </figure>
+            <div class="academy-work-copy">
+              <span class="academy-work-course">NAIL ART</span>
+              <h3>Efeito magnético</h3>
+              <p>Reflexos e profundidade criados com gel magnético.</p>
+              <button type="button" data-open-work aria-label="Ampliar trabalho: Efeito magnético">Ampliar trabalho <span aria-hidden="true">↗</span></button>
+            </div>
+          </article>
+
+          <article class="academy-work-card" data-work-category="nail-art" data-media-type="image" data-reveal>
+            <figure>
+              <img class="academy-work-media" src="assets/images/resultado 4.jpg" alt="Mãos com Nail Art autoral em diferentes formatos e cores" loading="lazy">
+            </figure>
+            <div class="academy-work-copy">
+              <span class="academy-work-course">NAIL ART</span>
+              <h3>Nail Art autoral</h3>
+              <p>Composições criativas com detalhes feitos à mão.</p>
+              <button type="button" data-open-work aria-label="Ampliar trabalho: Nail Art autoral">Ampliar trabalho <span aria-hidden="true">↗</span></button>
+            </div>
+          </article>
+
+          <article class="academy-work-card" data-work-category="nail-art" data-media-type="image" data-reveal>
+            <figure>
+              <img class="academy-work-media" src="assets/images/unha-semi-natural 1.jpg" alt="Nail Art em preto e branco com desenhos e detalhes aplicados" loading="lazy">
+            </figure>
+            <div class="academy-work-copy">
+              <span class="academy-work-course">NAIL ART</span>
+              <h3>Arte em preto e branco</h3>
+              <p>Composição gráfica com detalhes feitos à mão.</p>
+              <button type="button" data-open-work aria-label="Ampliar trabalho: Arte em preto e branco">Ampliar trabalho <span aria-hidden="true">↗</span></button>
+            </div>
+          </article>
+        </div>
+        <p class="academy-works-empty" role="status" aria-live="polite" hidden>Ainda não há vídeos de trabalhos das alunas disponíveis. Confira as fotos da galeria enquanto isso.</p>
+      </div>
+
+      <dialog class="academy-work-dialog" aria-labelledby="academy-work-dialog-title">
+        <div class="academy-work-dialog-content">
+          <button class="academy-work-dialog-close" type="button" aria-label="Fechar visualização">&times;</button>
+          <p class="academy-kicker">TRABALHOS DAS ALUNAS</p>
+          <h2 id="academy-work-dialog-title"></h2>
+          <div class="academy-work-dialog-media"></div>
+        </div>
+      </dialog>
     </section>
 
     <section class="academy-faq academy-section">
       <div class="academy-container academy-faq-layout">
         <div data-reveal>
           <p class="academy-kicker">DÚVIDAS FREQUENTES</p>
-          <h2>Antes de<br><em>começar.</em></h2>
-          <p class="academy-faq-intro">Quer entender qual formação combina com você? Fale com a equipe e conte um pouco sobre sua experiência.</p>
-          <a class="academy-button academy-button-quiet" href="https://wa.me/553196809579?text=Ol%C3%A1%21%20Gostaria%20de%20conhecer%20as%20forma%C3%A7%C3%B5es%20da%20Bby%20Mila%20Academy." target="_blank" rel="noopener noreferrer">
+          <h2>Pronta para<br><em>começar?</em></h2>
+          <p class="academy-faq-intro">Tire suas dúvidas com a equipe e encontre a formação ideal para o seu momento.</p>
+          <a class="academy-button academy-button-quiet" data-whatsapp-message="Olá! Gostaria de conhecer as próximas datas e turmas VIP da Bby Mila Academy." href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
             <span>CONVERSAR PELO WHATSAPP</span><span class="academy-arrow" aria-hidden="true">→</span>
           </a>
         </div>
         <div class="academy-faq-list" data-reveal>
           <article class="academy-faq-item">
-            <h3><button type="button" aria-expanded="false" aria-controls="academy-faq-answer-1">Preciso ter experiência anterior?<span aria-hidden="true">+</span></button></h3>
-            <div class="academy-faq-answer" id="academy-faq-answer-1" hidden><p>Os pré-requisitos variam conforme a formação. Conte à equipe qual é o seu nível para receber a orientação adequada.</p></div>
+            <h3><button type="button" aria-expanded="false" aria-controls="academy-faq-answer-1">Quais são os pré-requisitos para fazer os cursos?<span aria-hidden="true">+</span></button></h3>
+            <div class="academy-faq-answer" id="academy-faq-answer-1" hidden><p>Os pré-requisitos podem variar entre o Curso Duo e o Curso de Nail Art. Fale com a equipe pelo WhatsApp para receber orientação de acordo com sua experiência.</p></div>
           </article>
           <article class="academy-faq-item">
-            <h3><button type="button" aria-expanded="false" aria-controls="academy-faq-answer-2">Como descubro datas e carga horária?<span aria-hidden="true">+</span></button></h3>
-            <div class="academy-faq-answer" id="academy-faq-answer-2" hidden><p>Turmas, formato, carga horária e investimento são informados pela equipe de acordo com a formação escolhida.</p></div>
+            <h3><button type="button" aria-expanded="false" aria-controls="academy-faq-answer-2">O que está incluso no Kit Aluna?<span aria-hidden="true">+</span></button></h3>
+            <div class="academy-faq-answer" id="academy-faq-answer-2" hidden><p>O Kit Aluna acompanha as duas formações. Consulte a equipe para conhecer os materiais selecionados para a turma e as orientações para a aula.</p></div>
           </article>
           <article class="academy-faq-item">
-            <h3><button type="button" aria-expanded="false" aria-controls="academy-faq-answer-3">O que preciso levar para a aula?<span aria-hidden="true">+</span></button></h3>
-            <div class="academy-faq-answer" id="academy-faq-answer-3" hidden><p>A lista de materiais depende do conteúdo e do formato da turma. Você recebe as orientações antes da formação.</p></div>
+            <h3><button type="button" aria-expanded="false" aria-controls="academy-faq-answer-3">Como funcionam o pagamento e a reserva da vaga?<span aria-hidden="true">+</span></button></h3>
+            <div class="academy-faq-answer" id="academy-faq-answer-3" hidden><p>As formas de pagamento, condições e confirmação da reserva são informadas pela equipe junto com as próximas datas disponíveis.</p></div>
           </article>
           <article class="academy-faq-item">
-            <h3><button type="button" aria-expanded="false" aria-controls="academy-faq-answer-4">A formação oferece certificado?<span aria-hidden="true">+</span></button></h3>
-            <div class="academy-faq-answer" id="academy-faq-answer-4" hidden><p>Confirme com a equipe se há certificado para a formação específica que você deseja fazer.</p></div>
+            <h3><button type="button" aria-expanded="false" aria-controls="academy-faq-answer-4">Onde acontecem as formações presenciais?<span aria-hidden="true">+</span></button></h3>
+            <div class="academy-faq-answer" id="academy-faq-answer-4" hidden><p>As aulas acontecem na Avenida Augusto de Lima, 1376 — Barro Preto, Belo Horizonte - MG.</p></div>
           </article>
         </div>
       </div>
     </section>
-  </main>
 
-  <footer class="academy-footer">
-    <div class="academy-container academy-footer-inner">
-      <a href="index.html" class="academy-footer-brand"><span>Bby Mila</span><small>NAILS</small></a>
-      <div class="academy-footer-links">
-        <a href="https://www.instagram.com/bbymilanails/" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" class="academy-icon-fill"></circle></svg>
-          @bbymilanails
-        </a>
-        <a href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.6a8.4 8.4 0 0 1-12.4 7.4L3 20l1.2-4.8a8.4 8.4 0 1 1 16.3-3.6Z"></path><path d="M8.2 8.1c.3-.6.5-.6.8-.6h.5c.2 0 .4.1.5.4l.7 1.7c.1.2.1.4 0 .5l-.5.6c-.2.2-.2.4 0 .6.4.7 1.1 1.4 1.8 1.8.2.1.4.1.6-.1l.7-.8c.2-.2.4-.2.6-.1l1.6.8c.2.1.3.2.3.4 0 .2-.1.9-.5 1.2-.4.4-1 .6-1.6.5-1.2-.2-2.6-.9-3.7-2-.9-.9-1.7-2.1-1.9-3.1-.2-.9 0-1.5.2-1.8Z"></path></svg>
-          Fale conosco
+    <section class="academy-final-cta">
+      <div class="academy-container academy-final-cta-inner" data-reveal>
+        <div>
+          <p class="academy-kicker">SUA PRÓXIMA CONQUISTA COMEÇA AQUI</p>
+          <h2>Vamos encontrar sua<br><em>próxima turma?</em></h2>
+        </div>
+        <a class="academy-button" data-whatsapp-message="Olá! Gostaria de consultar as datas disponíveis e as turmas VIP da Bby Mila Academy." href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">
+          <span>CONSULTAR DATAS E TURMAS VIP</span><span class="academy-arrow" aria-hidden="true">→</span>
         </a>
       </div>
-      <p class="academy-footer-tagline">Beleza como forma de expressão.</p>
+    </section>
+  </main>
+
+  <footer class="studio-footer">
+    <a href="index.html" class="footer-brand" aria-label="Bby Mila Nails - início">
+      Bby Mila <span>NAILS</span>
+    </a>
+    <div class="footer-social">
+      <a href="https://www.instagram.com/bbymilanails/" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">WhatsApp</a>
     </div>
+    <span class="footer-copy">© BBY MILA NAILS — TODOS OS DIREITOS RESERVADOS.</span>
   </footer>
 
   <script type="module" src="assets/js/script.js"></script>

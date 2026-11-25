@@ -8,17 +8,17 @@
 
 **Horário de funcionamento:** Atendimento somente com hora marcada.
 
-**Produtos ou serviços oferecidos:** O estabelecimento atua no segmento de beleza, com foco em serviços de manicure, nail art e cuidados estéticos com as unhas. Além dos atendimentos, a Bby Mila Nails também oferece cursos voltados ao aprendizado e aperfeiçoamento de técnicas de nail art, além de contar com um programa para modelos. Os procedimentos, modalidades de cursos e condições de participação deverão ser detalhados conforme as informações disponibilizadas pela profissional.
+**Produtos ou serviços oferecidos:** O estabelecimento atua no segmento de beleza, com foco em serviços de manicure, nail art e cuidados estéticos com as unhas. Além dos atendimentos, a Bby Mila Nails também oferece cursos voltados ao aprendizado e aperfeiçoamento de técnicas de nail art. Os procedimentos e modalidades de cursos deverão ser detalhados conforme as informações disponibilizadas pela profissional.
 
 **Redes sociais:** Instagram – @bbymilanails.
 
-**Público-alvo:** Pessoas interessadas em serviços de manicure, nail art e cuidados com as unhas, que buscam valorizar sua aparência, expressar sua personalidade e encontrar opções de beleza alinhadas ao seu estilo. O público também abrange pessoas interessadas em aprender técnicas de nail art, desenvolver habilidades profissionais ou aperfeiçoar seus conhecimentos na área, além de pessoas que desejam participar do programa para modelos.
+**Público-alvo:** Pessoas interessadas em serviços de manicure, nail art e cuidados com as unhas, que buscam valorizar sua aparência, expressar sua personalidade e encontrar opções de beleza alinhadas ao seu estilo. O público também abrange pessoas interessadas em aprender técnicas de nail art, desenvolver habilidades profissionais ou aperfeiçoar seus conhecimentos na área.
 
 **Principais características e diferenciais da empresa:** A Bby Mila Nails é uma marca do segmento de beleza que utiliza as redes sociais como principal meio de divulgação de seus trabalhos e de comunicação com o público. Sua identidade está associada à valorização da beleza, à feminilidade, à atitude e à expressão da personalidade por meio das unhas.
 
-A nail art permite explorar diferentes estilos, técnicas, cores e acabamentos, tornando cada trabalho uma possibilidade de expressão individual. Além dos serviços de atendimento, a marca amplia sua atuação ao oferecer cursos voltados à formação e ao aperfeiçoamento de pessoas interessadas no universo da nail art, bem como um programa para modelos. Esses serviços representam diferenciais importantes, pois permitem que a empresa atenda tanto pessoas interessadas em cuidados estéticos quanto aquelas que desejam adquirir conhecimentos e experiências na área.
+A nail art permite explorar diferentes estilos, técnicas, cores e acabamentos, tornando cada trabalho uma possibilidade de expressão individual. Além dos serviços de atendimento, a marca amplia sua atuação ao oferecer cursos voltados à formação e ao aperfeiçoamento de pessoas interessadas no universo da nail art. Esses serviços permitem que a empresa atenda tanto pessoas interessadas em cuidados estéticos quanto aquelas que desejam adquirir conhecimentos na área.
 
-**Presença digital:** O estabelecimento possui perfil profissional no Instagram (@bbymilanails), utilizado para divulgar os trabalhos realizados, apresentar conteúdos relacionados à nail art e estabelecer contato com clientes e pessoas interessadas em seus serviços e cursos. Entretanto, não possui site próprio. Dessa forma, o desenvolvimento de um site representa uma oportunidade de ampliar sua presença digital, fortalecer a identidade da marca, organizar a apresentação dos serviços, divulgar os cursos e o programa para modelos e oferecer um canal próprio para consulta de informações e agendamento de horários.
+**Presença digital:** O estabelecimento possui perfil profissional no Instagram (@bbymilanails), utilizado para divulgar os trabalhos realizados, apresentar conteúdos relacionados à nail art e estabelecer contato com clientes e pessoas interessadas em seus serviços e cursos. Entretanto, não possui site próprio. Dessa forma, o desenvolvimento de um site representa uma oportunidade de ampliar sua presença digital, fortalecer a identidade da marca, organizar a apresentação dos serviços, divulgar os cursos e oferecer um canal próprio para consulta de informações e agendamento de horários.
 
 # 3. LEVANTAMENTO DAS NECESSIDADES
 
@@ -36,7 +36,6 @@ Um site permitiria reunir essas informações em um único ambiente, funcionando
 - Processo de agendamento dependente de conversas pelo WhatsApp;
 - Dificuldade para clientes antigas e novas realizarem agendamentos de maneira rápida e organizada;
 - Falta de um espaço centralizado para apresentar os cursos, seus conteúdos e condições de inscrição;
-- Necessidade de organizar e divulgar o programa para modelos;
 - Dificuldade de alcançar pessoas interessadas em aprender e se profissionalizar na área de nail art;
 - Necessidade de fortalecer a identidade visual e profissional da marca no ambiente digital.
 
@@ -52,8 +51,7 @@ Um site permitiria reunir essas informações em um único ambiente, funcionando
 - Endereço e localização do estabelecimento;
 - Informações sobre atendimento, realizado somente com hora marcada;
 - Formas de contato e redes sociais;
-- Cursos disponíveis, conteúdos abordados, modalidades e informações sobre inscrições;
-- Informações sobre o programa para modelos e condições de participação.
+- Cursos disponíveis, conteúdos abordados, modalidades e informações sobre inscrições.
 
 **Como o site poderia ajudar a conquistar novos clientes:**
 
@@ -61,7 +59,7 @@ O site funcionaria como uma vitrine digital, permitindo que pessoas interessadas
 
 Uma apresentação visual bem estruturada, com fotografias de qualidade e uma identidade visual alinhada à personalidade da marca, contribuiria para transmitir profissionalismo, despertar o interesse de novos clientes e fortalecer o reconhecimento do estabelecimento.
 
-Além disso, a disponibilização de um sistema de agendamento online reduziria a necessidade de conversas iniciais pelo WhatsApp, tornando a contratação dos serviços mais prática. A divulgação dos cursos também permitiria alcançar um público interessado em aprender técnicas de nail art, enquanto a apresentação do programa para modelos facilitaria o acesso de pessoas interessadas em participar.
+Além disso, a disponibilização de um sistema de agendamento online reduziria a necessidade de conversas iniciais pelo WhatsApp, tornando a contratação dos serviços mais prática. A divulgação dos cursos também permitiria alcançar um público interessado em aprender técnicas de nail art.
 
 **Recursos importantes para o estabelecimento:**
 
@@ -75,8 +73,6 @@ Além disso, a disponibilização de um sistema de agendamento online reduziria 
 - Confirmação e informações sobre os agendamentos;
 - Página dedicada à apresentação dos cursos;
 - Divulgação de informações, inscrições e condições de participação nos cursos;
-- Página específica para o programa de modelos;
-- Formulário de interesse ou inscrição para o programa de modelos;
 - Área administrativa para gerenciamento dos serviços, cursos, horários, clientes e agendamentos;
 - Botão de contato pelo WhatsApp para dúvidas e situações específicas;
 - Integração com o Instagram;
@@ -96,14 +92,7 @@ O sistema deverá considerar dois perfis de utilização:
 
 A área administrativa deverá permitir que a profissional acompanhe os agendamentos, gerencie os horários disponíveis e atualize os serviços oferecidos.
 
-**Proposta de melhoria para a divulgação dos cursos e do programa para modelos:**
-
-Além do sistema de agendamento, o site deverá disponibilizar espaços específicos para apresentar as oportunidades de aprendizado e participação oferecidas pela Bby Mila Nails.
-
-Na área de cursos, os visitantes poderão consultar as formações disponíveis, conhecer os conteúdos abordados, verificar informações sobre valores e duração e demonstrar interesse ou realizar inscrições, conforme a modalidade oferecida.
-
-Já a área do programa para modelos deverá apresentar sua finalidade, os requisitos para participação e as orientações necessárias para manifestação de interesse, facilitando o acesso de novas participantes.
-
 Dessa maneira, o site deixará de ser apenas um canal de divulgação e passará a funcionar como uma ferramenta de apoio à gestão do estabelecimento, contribuindo para otimizar o atendimento, ampliar as oportunidades de negócio e proporcionar mais autonomia aos clientes e visitantes.
 
 anotações: a camilla n atende sozinha ela possui outras profissionais com ela,como a be
+possui parceria com a marca de produtos kaisa nails, com a brilianailsoficial

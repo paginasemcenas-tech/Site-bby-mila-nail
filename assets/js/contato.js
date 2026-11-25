@@ -72,6 +72,35 @@ document.querySelectorAll("[data-copy]").forEach((button) => {
   });
 });
 
+const contactMapScene = document.querySelector("[data-contact-map-scene]");
+
+if (contactMapScene) {
+  let contactMapZoom = 1;
+
+  document.querySelectorAll("[data-contact-map-zoom]").forEach((button) => {
+    button.addEventListener("click", () => {
+      switch (button.dataset.contactMapZoom) {
+        case "in":
+          contactMapZoom = Math.min(1.8, contactMapZoom + 0.2);
+          break;
+        case "out":
+          contactMapZoom = Math.max(0.8, contactMapZoom - 0.2);
+          break;
+        case "reset":
+          contactMapZoom = 1;
+          break;
+        default:
+          return;
+      }
+
+      contactMapScene.setAttribute(
+        "transform",
+        `translate(320 195) scale(${contactMapZoom}) translate(-320 -195)`
+      );
+    });
+  });
+}
+
 const contactRevealItems = [...document.querySelectorAll(".contact-page [data-reveal]")];
 const contactReduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 

@@ -25,6 +25,7 @@
   height: 100%;
 
   overflow: hidden;
+  background: linear-gradient(135deg, #21100c, #3b1519);
 
   clip-path: polygon(
     14% 0,
@@ -34,7 +35,8 @@
   );
 }
 
-.hero-photo img {
+.hero-photo img,
+.hero-photo video {
   width: 100%;
   height: 100%;
 
@@ -106,7 +108,7 @@
 /* TEXTO COMPLEMENTAR */
 
 .hero-content p {
-  margin-bottom: 49px;
+  margin-bottom: 32px;
 
   color: var(--champagne);
 
@@ -314,9 +316,11 @@
   inset: 45% 0 0;
   background: linear-gradient(transparent, rgba(33, 21, 19, 0.68));
   content: "";
+  pointer-events: none;
 }
 
-.intro-image img {
+.intro-image img,
+.intro-image video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -329,11 +333,12 @@
 .intro-image-caption {
   position: absolute;
   z-index: 1;
-  bottom: 18px;
+  top: 18px;
   left: clamp(24px, 5vw, 72px);
   color: var(--champagne);
   font-size: 0.62rem;
   letter-spacing: 0.18em;
+  pointer-events: none;
 }
 
 .intro-content {
@@ -564,8 +569,8 @@
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   align-items: center;
-  gap: clamp(32px, 5vw, 72px);
-  padding: clamp(60px, 7vw, 100px) clamp(36px, 6vw, 96px);
+  gap: clamp(28px, 4vw, 56px);
+  padding: clamp(48px, 6vw, 80px) clamp(36px, 6vw, 96px);
   background: var(--coffee);
 }
 
@@ -864,61 +869,6 @@
 
 
 /* =====================================
-   RODAPÉ
-===================================== */
-
-.studio-footer {
-  min-height: 150px;
-  padding: 35px 8%;
-  background: var(--coffee-dark);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 25px;
-}
-
-.footer-brand {
-  color: var(--champagne);
-  font-family: var(--font-title);
-  font-size: 30px;
-  text-decoration: none;
-}
-
-.footer-brand span {
-  display: block;
-  font-family: var(--font-body);
-  font-size: 9px;
-  letter-spacing: 5px;
-  text-align: center;
-}
-
-.footer-social {
-  display: flex;
-  gap: 25px;
-}
-
-.footer-social a {
-  color: var(--champagne);
-  text-decoration: none;
-  font-size: 12px;
-  transition: color .3s ease;
-}
-
-.footer-social a:hover {
-  color: var(--bronze);
-}
-
-.footer-copy {
-  width: 100%;
-  color: var(--champagne-muted);
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  text-align: center;
-}
-
-
-/* =====================================
    RESPONSIVIDADE
 ===================================== */
 
@@ -1119,12 +1069,4 @@
     display: none;
   }
 
-  .studio-footer {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .footer-social {
-    justify-content: center;
-  }
 }

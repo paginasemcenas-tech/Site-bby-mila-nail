@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#160A07">
+  <title>Área da Cliente | Bby Mila Nails</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/dashboard.css">
+  <link rel="stylesheet" href="assets/css/cliente-dashboard.css">
+</head>
+<body class="dashboard-page customer-dashboard-page">
+  <p id="customer-status" class="dashboard-status" role="status" aria-live="polite">Verificando seu acesso...</p>
+
+  <main id="customer-auth-view" class="customer-auth-wrap" hidden>
+    <section class="customer-auth-card" aria-labelledby="customer-auth-title">
+      <a class="customer-brand" href="index.html"><span>Bby Mila</span><small>NAILS</small></a>
+      <p class="section-eyebrow">ÁREA EXCLUSIVA DA CLIENTE</p>
+      <h1 id="customer-auth-title">Seu cuidado, <em>sempre por perto.</em></h1>
+      <p class="customer-auth-intro">Entre com o telefone ou e-mail informado no primeiro agendamento e a senha que você criou.</p>
+
+      <form id="customer-auth-form" class="customer-form">
+        <label>Telefone ou e-mail
+          <input name="identifier" type="text" autocomplete="username" required placeholder="Telefone com DDD ou e-mail">
+        </label>
+        <label>Senha
+          <input name="password" type="password" autocomplete="current-password" minlength="6" required placeholder="Mínimo de 6 caracteres">
+        </label>
+        <p id="customer-auth-feedback" class="customer-feedback" role="status" aria-live="polite"></p>
+        <button id="customer-submit" class="primary-action customer-submit" type="submit">Entrar</button>
+      </form>
+
+      <div class="customer-auth-actions">
+        <a class="text-action" href="index.html?agendar=1">Ainda não tem cadastro? Faça seu primeiro agendamento</a>
+        <a class="text-action" href="https://wa.me/553196809579?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20para%20recuperar%20o%20acesso%20%C3%A0%20minha%20%C3%A1rea%20de%20cliente." target="_blank" rel="noopener noreferrer">Esqueci a senha: pedir ajuda pelo WhatsApp</a>
+      </div>
+      <p class="customer-auth-note">Mesmo quando você informa e-mail, esta conta usa um identificador técnico interno no Firebase. A redefinição automática por e-mail não funciona para esse acesso. Para recuperar ou trocar a senha, solicite ajuda pelo WhatsApp; nunca envie sua senha atual.</p>
+      <a class="customer-back-link" href="index.html">Voltar ao site</a>
+    </section>
+  </main>
+
+  <div id="customer-app" class="dashboard-shell" hidden>
+    <aside id="customer-sidebar" class="sidebar">
+      <a class="sidebar-brand" href="index.html" aria-label="Bby Mila Nails">
+        <span>Bby Mila</span><small>NAILS</small>
+      </a>
+      <div class="profile-block customer-side-profile">
+        <span class="customer-avatar" aria-hidden="true">BM</span>
+        <strong id="customer-side-name">Cliente</strong>
+        <small>Área exclusiva</small>
+      </div>
+      <nav class="sidebar-nav" aria-label="Navegação da área da cliente">
+        <a class="sidebar-link is-active" href="#customer-overview"><span aria-hidden="true">✦</span><span>Visão geral</span></a>
+        <a class="sidebar-link" href="#customer-bookings"><span aria-hidden="true">▦</span><span>Meus agendamentos</span></a>
+        <a class="sidebar-link" href="#customer-profile"><span aria-hidden="true">◉</span><span>Meus dados</span></a>
+        <a class="sidebar-link" href="index.html?agendar=1"><span aria-hidden="true">＋</span><span>Novo agendamento</span></a>
+      </nav>
+      <button id="customer-signout" class="sidebar-logout" type="button"><span aria-hidden="true">↗</span><span>Sair da conta</span></button>
+    </aside>
+
+    <main class="dashboard-main">
+      <header class="topbar">
+        <button id="customer-menu-toggle" class="mobile-menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+        <div class="topbar-spacer"></div>
+        <time id="customer-date"></time>
+      </header>
+
+      <section id="customer-overview" class="welcome-banner customer-welcome">
+        <div>
+          <span class="section-eyebrow">BBY MILA NAILS · <span id="customer-status-label">ÁREA DA CLIENTE</span></span>
+          <h1>Olá, <span id="customer-welcome-name">Cliente</span>!</h1>
+          <p>Seu histórico e seus próximos momentos de cuidado, em um só lugar.</p>
+        </div>
+        <span id="customer-vip-badge" class="customer-vip-badge">✦ CLIENTE VIP</span>
+      </section>
+
+      <section id="customer-metrics" class="metrics-grid customer-metrics" aria-label="Resumo dos seus agendamentos">
+        <article class="metric-card">
+          <span class="customer-metric-icon">▦</span>
+          <div class="metric-copy"><strong id="customer-bookings-count">0</strong><span>Agendamentos nos últimos 12 meses</span></div>
+        </article>
+        <article class="metric-card">
+          <span class="customer-metric-icon">◷</span>
+          <div class="metric-copy"><strong id="customer-next-booking">—</strong><span>Próximo horário</span><small id="customer-next-service"></small></div>
+        </article>
+        <article class="metric-card">
+          <span class="customer-metric-icon">✧</span>
+          <div class="metric-copy"><strong id="customer-favorite-service">—</strong><span>Procedimento favorito</span></div>
+        </article>
+      </section>
+
+      <section id="customer-unlocked-message" class="customer-unlocked-message" hidden role="status">
+        <span aria-hidden="true">✦</span>
+        <p>Você desbloqueou o <strong>Acesso Exclusivo de Cliente</strong>. Obrigada por escolher a Bby Mila Nails!</p>
+      </section>
+
+      <section id="customer-locked" class="panel customer-locked" hidden>
+        <span class="section-eyebrow">UM CARINHO A MAIS</span>
+        <h2>Seu painel exclusivo está quase pronto.</h2>
+        <p>Você tem <strong id="customer-remaining-bookings">3</strong> agendamento(s) válido(s) na janela dos últimos 12 meses. Faltam <strong id="customer-bookings-needed">3</strong> para desbloquear o painel completo.</p>
+        <div class="customer-locked-actions">
+          <a class="primary-action" href="index.html?agendar=1">Agendar meu próximo cuidado</a>
+          <a class="secondary-action" href="index.html?consulta=1">Consultar reserva pelo código</a>
+        </div>
+        <small>Contamos reservas não canceladas feitas nos últimos 365 dias e vinculadas à sua conta. Reservas antigas sem vínculo à conta ou e-mail verificado não são associadas somente pelo telefone; fale com o Studio pelo WhatsApp para solicitar uma análise.</small>
+      </section>
+
+      <div id="customer-full-dashboard" hidden>
+        <section id="customer-bookings" class="panel customer-bookings-panel">
+          <header class="panel-heading customer-panel-heading">
+            <div><span class="section-eyebrow">SEU HISTÓRICO</span><h2>Meus agendamentos</h2></div>
+            <a class="secondary-action" href="index.html?agendar=1">+ Novo agendamento</a>
+          </header>
+          <div id="customer-bookings-list" class="customer-bookings-list"></div>
+          <p id="customer-bookings-empty" class="customer-empty" hidden>Nenhum agendamento vinculado à sua conta.</p>
+        </section>
+
+        <section id="customer-profile" class="panel customer-profile-panel">
+          <header class="panel-heading customer-panel-heading">
+            <div><span class="section-eyebrow">SEUS DADOS</span><h2>Meu perfil</h2></div>
+          </header>
+          <form id="customer-profile-form" class="customer-profile-form">
+            <label>Nome completo<input name="nome" required maxlength="120"></label>
+            <label>Telefone / WhatsApp<input name="telefone" type="tel" required readonly placeholder="(31) 99999-9999"></label>
+            <label>E-mail de contato<input name="email" type="email" maxlength="160"></label>
+            <label>Instagram<input name="instagram" maxlength="40" placeholder="@seuusuario"></label>
+            <p class="customer-profile-note">O telefone vinculado ao histórico não pode ser alterado nesta tela. O e-mail é opcional; mudanças no e-mail de contato também atualizam o identificador alternativo de acesso.</p>
+            <p id="customer-profile-feedback" class="customer-feedback" role="status" aria-live="polite"></p>
+            <button class="primary-action customer-save-profile" type="submit">Salvar meus dados</button>
+          </form>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="assets/js/cliente-dashboard.js"></script>
+</body>
+</html>

@@ -24,9 +24,9 @@
         <a class="nav-link" data-page="home" href="index.html">Início</a>
         <a class="nav-link" data-page="studio" href="studio.html">Studio</a>
         <a class="nav-link" data-page="academy" href="academy.html">Academy</a>
-        <a class="nav-link" data-page="modelos" href="modelos.html">Modelos</a>
         <a class="nav-link" data-page="sobre" href="sobre.html">Sobre</a>
         <a class="nav-link" data-page="contato" href="contato.html">Contato</a>
+        <a class="nav-link" href="cliente-dashboard.html">Área da cliente</a>
         <button class="header-cta" type="button" data-open-scheduling>Agendar</button>
       </nav>
     </div>
@@ -34,12 +34,12 @@
   <!-- Conteúdo principal da página Studio -->
   <main>
     <section class="studio-hero">
-      <!-- FOTOGRAFIA -->
+      <!-- VÍDEO -->
       <div class="hero-photo">
-        <img
-          src="assets/images/studio-hero.jpg"
-          alt="Nail Art da Bby Mila Nails"
-        >
+        <video autoplay muted loop playsinline preload="metadata" poster="assets/images/alongamento-hero.jpg" aria-label="Vídeo de apresentação do Studio Bby Mila Nails">
+          <source src="assets/images/studio-inicio.mp4" type="video/mp4">
+          Seu navegador não oferece suporte à reprodução de vídeo.
+        </video>
       </div>
 
       <!-- CONTEÚDO -->
@@ -70,10 +70,10 @@
     <!-- APRESENTAÇÃO DO STUDIO -->
     <section class="studio-intro" id="sobre-studio">
       <div class="intro-image">
-        <img
-          src="assets/images/conheça-studio.jpg"
-          alt="Detalhes do trabalho da Bby Mila Nails"
-        >
+        <video controls playsinline muted loop preload="metadata" aria-label="Vídeo de detalhes do espaço e do trabalho no Studio Bby Mila Nails">
+          <source src="assets/images/studio-detalhes.mp4" type="video/mp4">
+          Seu navegador não oferece suporte à reprodução de vídeo.
+        </video>
         <span class="intro-image-caption">BBY MILA NAILS — STUDIO</span>
       </div>
 
@@ -99,7 +99,7 @@
         <article class="service-item">
           <div class="service-image">
             <img
-              src="assets/images/alongamento-hero.jpg"
+              src="assets/images/conheça-studio.jpg"
               alt="Criação de Nail Art da Bby Mila Nails"
               loading="lazy"
             >
@@ -343,32 +343,17 @@
       </div>
     </section>
 
-<!-- =====================================
-     RODAPÉ
-===================================== -->
-
-<footer class="studio-footer">
-
-  <a href="index.html" class="footer-brand">
-    Bby Mila <span>NAILS</span>
-  </a>
-
-  <div class="footer-social">
-    <a href="https://www.instagram.com/bbymilanails/" target="_blank">
-      Instagram
-    </a>
-
-    <a href="https://wa.me/553196809579" target="_blank">
-      WhatsApp
-    </a>
-  </div>
-
-  <span class="footer-copy">
-    © BBY MILA NAILS — TODOS OS DIREITOS RESERVADOS.
-  </span>
-
-</footer>
   </main>
+  <footer class="studio-footer">
+    <a href="index.html" class="footer-brand" aria-label="Bby Mila Nails - início">
+      Bby Mila <span>NAILS</span>
+    </a>
+    <div class="footer-social">
+      <a href="https://www.instagram.com/bbymilanails/" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="https://wa.me/553196809579" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+    </div>
+    <span class="footer-copy">© BBY MILA NAILS — TODOS OS DIREITOS RESERVADOS.</span>
+  </footer>
   <script type="module" src="assets/js/script.js"></script>
 </body>
 </html>
