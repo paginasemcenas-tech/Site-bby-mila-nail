@@ -338,7 +338,7 @@ procedureInput.addEventListener("input", () => {
   brokenNailOption.hidden = !isMaintenance;
   if (!isMaintenance) brokenNailInput.checked = false;
 
-  const basePrice = Number(selectedOption.dataset.price);
+  const basePrice = Number(selectedOption?.dataset.price);
   bookingPriceSummary.hidden = !procedureInput.value;
   bookingPriceTotal.textContent = Number.isFinite(basePrice)
     ? bookingCurrency.format(basePrice + (isMaintenance && brokenNailInput.checked ? 12 : 0))

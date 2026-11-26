@@ -4,7 +4,7 @@ Site da marca Bby Mila Nails, organizado em páginas independentes.
 
 ## Visualizar
 
-Abra `index.html` diretamente no navegador ou utilize uma extensão de servidor local no VS Code.
+Sirva o projeto por HTTP/HTTPS (por exemplo, com Live Server no VS Code) e abra `index.html` no navegador.
 
 ## Páginas
 

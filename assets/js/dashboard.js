@@ -1476,7 +1476,7 @@ const saveAppointment = async (values) => {
         && previousSlot.data().reservaId === originalBooking.id) {
         transaction.delete(oldSlotReference);
       }
-      if (status !== "cancelado") {
+      if (status !== "cancelado" && !targetSlot.exists()) {
         transaction.set(newSlotReference, {
           data,
           horario,
