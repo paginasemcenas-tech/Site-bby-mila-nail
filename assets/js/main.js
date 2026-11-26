@@ -134,6 +134,13 @@ schedulingDialog.innerHTML = `
           </label>
 
           <label class="form-field">
+            <span>Profissional</span>
+            <select name="professional" required disabled>
+              <option value="">Carregando profissionais...</option>
+            </select>
+          </label>
+
+          <label class="form-field">
             <span>Data preferida</span>
             <select name="date" required disabled>
               <option value="">Carregando datas...</option>
@@ -320,13 +327,17 @@ if (schedulingQuery.has("consulta")) {
 
 procedureInput.addEventListener("input", () => {
   const isNailArt = procedureInput.value.trim().toLowerCase() === "nail art";
+  const selectedOption = procedureInput.selectedOptions[0];
+  const requiresQuote = Boolean(procedureInput.value) && !selectedOption?.dataset.price;
   const isMaintenance = procedureInput.value.trim().toLocaleLowerCase("pt-BR").startsWith("manutenção");
-  nailartOption.hidden = !isNailArt;
-  normalScheduleButton.hidden = isNailArt;
+  nailartOption.hidden = !requiresQuote;
+  nailartOption.querySelector("strong").textContent = isNailArt
+    ? "Nail Art escolhida"
+    : "Orçamento sob consulta";
+  normalScheduleButton.hidden = requiresQuote;
   brokenNailOption.hidden = !isMaintenance;
   if (!isMaintenance) brokenNailInput.checked = false;
 
-  const selectedOption = procedureInput.selectedOptions[0];
   const basePrice = Number(selectedOption.dataset.price);
   bookingPriceSummary.hidden = !procedureInput.value;
   bookingPriceTotal.textContent = Number.isFinite(basePrice)

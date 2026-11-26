@@ -1,4 +1,5 @@
-import { auth, adminUIDs } from "../../firebase-config.js";
+import { auth, db, adminUIDs } from "../../firebase-config.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {
   browserLocalPersistence,
   browserSessionPersistence,
@@ -18,6 +19,11 @@ const rememberInput = loginForm.elements.remember;
 const passwordToggle = document.querySelector(".password-toggle");
 const forgotPasswordButton = document.querySelector(".forgot-password");
 const isConfiguredAdmin = (user) => Array.isArray(adminUIDs) && adminUIDs.includes(user.uid);
+const hasDashboardAccess = async (user) => {
+  if (isConfiguredAdmin(user)) return true;
+  const profile = await getDoc(doc(db, "profissionais", user.uid));
+  return profile.exists() && profile.data().ativo === true;
+};
 
 const setFeedback = (message, kind = "error") => {
   feedback.textContent = message;
@@ -58,11 +64,9 @@ loginForm.addEventListener("submit", async (event) => {
       : browserSessionPersistence);
     const credential = await signInWithEmailAndPassword(auth, email, password);
 
-    if (!isConfiguredAdmin(credential.user)) {
+    if (!await hasDashboardAccess(credential.user)) {
       await signOut(auth);
-      setFeedback(adminUIDs.length
-        ? "Esta conta não está autorizada como administradora."
-        : "Acesse o Firebase Console, copie o UID da Camila e configure adminUIDs em firebase-config.js.");
+      setFeedback("Esta conta não está cadastrada como administradora ou profissional parceira.");
       return;
     }
 
@@ -80,7 +84,7 @@ forgotPasswordButton.addEventListener("click", async () => {
   const email = emailInput.value.trim();
   if (!email) {
     emailInput.focus();
-    setFeedback("Informe seu e-mail administrativo para receber o link de recuperação.");
+    setFeedback("Informe seu e-mail para receber o link de recuperação.");
     return;
   }
 
@@ -110,10 +114,12 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   try {
+    if (await hasDashboardAccess(user)) {
+      window.location.replace("dashboard.html");
+      return;
+    }
     await signOut(auth);
-    setFeedback(adminUIDs.length
-      ? "Esta conta não está autorizada como administradora."
-      : "Configure o UID da administradora em firebase-config.js antes de acessar o painel.");
+    setFeedback("Esta conta não está cadastrada como administradora ou profissional parceira.");
   } catch (error) {
     setFeedback("Não foi possível validar a conta. Tente novamente.");
     console.error("Falha ao validar a conta administrativa:", error);

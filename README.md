@@ -14,7 +14,8 @@ Abra `index.html` diretamente no navegador ou utilize uma extensão de servidor 
 - `sobre.html` — proposta e identidade da marca.
 - `contato.html` — canais de contato e endereço.
 - `admin.html` — login administrativo.
-- `dashboard.html` — painel da administração.
+- `dashboard.html` — painel da administração e das profissionais parceiras.
+- `cliente-dashboard.html` — painel da cliente e atalho para novo agendamento.
 
 ## Dados configurados
 
@@ -40,13 +41,24 @@ O projeto usa Firebase Authentication e Cloud Firestore com SDK modular. O app W
 6. Sirva o site por HTTP/HTTPS (por exemplo, Live Server no VS Code); os módulos ES e o Firebase não funcionam de forma confiável em `file://`.
 7. Abra `/admin.html`, entre com a conta criada e use `/dashboard.html` para o painel. A rota e o conteúdo da tela não substituem as regras do Firestore; a autorização dos dados é feita pelas Rules.
 
+### Profissionais parceiras
+
+1. Crie uma conta individual para cada profissional em **Authentication → Users**, com e-mail e senha.
+2. Entre no Dashboard como administradora, abra **Configurações → Cadastro de parceiras** e informe o UID e o nome exibido da conta.
+3. A profissional pode entrar em `/admin.html`. O painel mostra apenas os agendamentos, horários e valores daquela profissional; a lista de clientes é compartilhada. Conteúdo do site, catálogo de serviços, configuração mensal da agenda e cadastro da equipe são exclusivos da administradora.
+4. Para suspender ou remover o acesso, use as ações da tabela de parceiras. Isso não exclui a conta de autenticação.
+
+As regras atuais mantêm a UID da administradora em `isAdmin()` e permitem que ela cadastre parceiras pela interface. Publique `firestore.rules` no Console do Firebase após alterar o projeto ou as regras.
+
 ### Coleções e campos
 
-- `agendamentos`: dados completos das reservas; `nome`, `telefone` (somente dígitos), `email`, `procedimento`, `data` (`AAAA-MM-DD`), `horario` (`HH:MM`), `status`, `criadoEm`, `slotId`, `codigoConsulta` e, quando informado no painel, `valor`.
-- `horarios_ocupados`: disponibilidade pública sem dados pessoais; apenas `data`, `horario`, `status` e o identificador aleatório `reservaId`. O agendamento público consulta essa coleção e cria o horário, a reserva e a consulta de forma atômica.
+- `agendamentos`: dados das reservas; `nome`, `telefone`, `email`, `procedimento`, `data` (`AAAA-MM-DD`), `horario`, `status`, `criadoEm`, `slotId`, `codigoConsulta`, `valor`, `profissionalUid` e `profissionalNome`. Reservas públicas também guardam `clienteUid`, `servicoId` e os campos de aceite do Aviso de Privacidade.
+- `horarios_ocupados`: disponibilidade sem dados pessoais. Reservas usam slots identificados por data, horário e UID da profissional; bloqueios podem ser específicos da profissional ou globais. O agendamento público cria o horário, a reserva e a consulta de forma atômica.
 - `consultas_agendamento`: documento identificado por um código aleatório de 64 caracteres hexadecimais; contém apenas `data`, `horario`, `procedimento`, `status` e `reservaId`. A consulta pública aceita somente a leitura de um documento (`get`) usando esse código; listagem é negada. O código funciona como uma chave privada: a cliente deve guardá-lo.
-- `clientes`: `nome`, `telefone`, `email`, `instagram`, `ativo` e `criadoEm`.
-- `servicos`: `nome`, `descricao`, `valor`, `duracao`, `ativo` e `criadoEm`.
-- `configuracoes/agenda`: `mesesAbertos` e `horariosPadrao`. Esses dados de disponibilidade são públicos; apenas a administradora pode alterá-los. As demais coleções/documentos sem exceção explícita são administrativos e ficam restritos à UID autorizada.
+- `clientes`: perfil compartilhado; `nome`, `telefone`, `email`, `instagram`, `ativo` e `criadoEm`. As profissionais podem consultar a lista de clientes, mas cada uma vê apenas seus próprios agendamentos.
+- `servicos`: catálogo com `nome`, `descricao`, `valor`, `duracao` e `ativo`. Serviços ativos alimentam a tabela pública de preços e o formulário de agendamento; alterações aparecem em tempo real nas páginas abertas.
+- `profissionais/{uid}`: cadastro de acesso com `nome`, `ativo` e datas de atualização. Apenas a administradora pode alterar esses perfis.
+- `conteudo_site/{pagina}`: textos e caminhos/URLs de imagens editáveis no Dashboard e publicados nas páginas públicas.
+- `configuracoes/agenda`: `mesesAbertos` e `horariosPadrao`. A disponibilidade é pública; apenas a administradora pode alterá-la. `configuracoes/perfil_studio` guarda os dados do perfil da administradora.
 
-As regras impedem leitura pública dos dados pessoais em `agendamentos`. Por isso, a consulta antiga pelo telefone foi substituída pelo código secreto mostrado após a solicitação. Na primeira abertura do Dashboard autorizado, reservas antigas ativas são sincronizadas com `horarios_ocupados` e recebem um código de consulta que a equipe pode copiar e compartilhar com a cliente. O painel calcula faturamento realizado somando o campo `valor` de agendamentos marcados como concluídos; não cria uma coleção `financeiro` nem inventa avaliações.
+As regras impedem leitura pública dos dados pessoais em `agendamentos`. Por isso, a consulta antiga pelo telefone foi substituída pelo código secreto mostrado após a solicitação. Na primeira abertura do Dashboard administrativo, reservas antigas ativas são sincronizadas com `horarios_ocupados` e recebem um código de consulta que a equipe pode copiar e compartilhar com a cliente. O painel calcula faturamento realizado somando o campo `valor` de agendamentos concluídos; cada profissional vê somente o próprio financeiro.

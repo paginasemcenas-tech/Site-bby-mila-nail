@@ -789,7 +789,7 @@
 
 .academy-works-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -1007,14 +1007,10 @@
 }
 
 @media (max-width: 440px) {
-  .academy-works-grid {
-    grid-template-columns: 1fr;
-  }
-
   .academy-work-card {
     width: 100%;
-    max-width: 380px;
-    margin-inline: auto;
+    max-width: none;
+    margin-inline: 0;
   }
 
   .academy-work-copy {

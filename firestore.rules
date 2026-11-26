@@ -6,6 +6,24 @@ service cloud.firestore {
         && request.auth.uid in ['ZzOhMz9Lt0dPTTIl2HPH28MR9v13'];
     }
 
+    function isProfessional() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/profissionais/$(request.auth.uid))
+        && get(/databases/$(database)/documents/profissionais/$(request.auth.uid)).data.ativo == true;
+    }
+
+    function professionalIsActive(professionalUid) {
+      let professionalPath = /databases/$(database)/documents/profissionais/$(professionalUid);
+      return professionalUid is string
+        && (
+          professionalUid == 'ZzOhMz9Lt0dPTTIl2HPH28MR9v13'
+          || (
+            exists(professionalPath)
+            && get(professionalPath).data.ativo == true
+          )
+        );
+    }
+
     function isVerifiedCustomer() {
       return request.auth != null
         && request.auth.token.email_verified == true
@@ -37,18 +55,14 @@ service cloud.firestore {
         );
     }
 
-    function publicServicePrice(procedure) {
-      return procedure == 'Aplicação P/M' ? 195
-        : procedure == 'Aplicação G/GG' ? 260
-        : procedure == 'Manutenção P/M' ? 165
-        : procedure == 'Manutenção G/GG' ? 225
-        : procedure == 'Banho em Gel' ? 145
-        : procedure == 'Blindagem' ? 115
-        : procedure == 'Remoção' ? 70
-        : procedure == 'Unha quebrada' ? 12
-        : procedure == 'Manutenção de outra profissional P/M' ? 175
-        : procedure == 'Manutenção de outra profissional G/GG' ? 230
-        : -1;
+    function publicServiceAllows(serviceId, procedure, value, brokenNail) {
+      let servicePath = /databases/$(database)/documents/servicos/$(serviceId);
+      return serviceId is string
+        && exists(servicePath)
+        && get(servicePath).data.ativo == true
+        && get(servicePath).data.nome == procedure
+        && get(servicePath).data.valor is number
+        && value == get(servicePath).data.valor + (brokenNail ? 12 : 0);
     }
 
     function publicScheduleAllows(date, time) {
@@ -62,17 +76,50 @@ service cloud.firestore {
     }
 
     match /agendamentos/{appointmentId} {
-      allow get, list: if isAdmin() || ownsAppointment();
+      allow get, list: if isAdmin()
+        || ownsAppointment()
+        || (isProfessional() && resource.data.profissionalUid == request.auth.uid);
 
-      allow create: if isAdmin() || (
+      allow create: if isAdmin()
+        || (
+          isProfessional()
+          && request.resource.data.keys().hasAll([
+            'nome', 'telefone', 'email', 'procedimento', 'profissionalUid',
+            'profissionalNome', 'data', 'horario', 'status', 'valor',
+            'nailArt', 'observacoes', 'slotId', 'codigoConsulta', 'criadoEm'
+          ])
+          && request.resource.data.keys().hasOnly([
+            'nome', 'telefone', 'email', 'procedimento', 'profissionalUid',
+            'profissionalNome', 'data', 'horario', 'status', 'valor',
+            'nailArt', 'observacoes', 'slotId', 'codigoConsulta', 'criadoEm'
+          ])
+          && request.resource.data.profissionalUid == request.auth.uid
+          && request.resource.data.profissionalNome is string
+          && request.resource.data.data.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && request.resource.data.horario.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')
+          && request.resource.data.slotId
+            == request.resource.data.data + '_' + request.resource.data.horario.replace(':', '-')
+              + '_' + request.auth.uid
+          && request.resource.data.status in ['pendente', 'confirmado']
+          && request.resource.data.criadoEm == request.time
+          && existsAfter(
+            /databases/$(database)/documents/horarios_ocupados/$(request.resource.data.slotId)
+          )
+          && getAfter(
+            /databases/$(database)/documents/horarios_ocupados/$(request.resource.data.slotId)
+          ).data.reservaId == appointmentId
+        )
+        || (
         request.resource.data.keys().hasAll([
           'nome', 'telefone', 'email', 'procedimento', 'data', 'horario',
           'status', 'criadoEm', 'slotId', 'codigoConsulta', 'unhaQuebrada', 'valor',
+          'servicoId', 'profissionalUid', 'profissionalNome',
           'aceiteLGPD', 'versaoAvisoPrivacidade', 'aceiteLGPDem', 'clienteUid'
         ])
         && request.resource.data.keys().hasOnly([
           'nome', 'telefone', 'email', 'procedimento', 'data', 'horario',
           'status', 'criadoEm', 'slotId', 'codigoConsulta', 'unhaQuebrada', 'valor',
+          'servicoId', 'profissionalUid', 'profissionalNome',
           'aceiteLGPD', 'versaoAvisoPrivacidade', 'aceiteLGPDem', 'clienteUid'
         ])
         && request.auth != null
@@ -92,9 +139,14 @@ service cloud.firestore {
         && request.resource.data.procedimento.size() <= 120
         && request.resource.data.unhaQuebrada is bool
         && request.resource.data.valor is number
-        && publicServicePrice(request.resource.data.procedimento) >= 0
-        && request.resource.data.valor == publicServicePrice(request.resource.data.procedimento)
-          + (request.resource.data.unhaQuebrada ? 12 : 0)
+        && publicServiceAllows(
+          request.resource.data.servicoId,
+          request.resource.data.procedimento,
+          request.resource.data.valor,
+          request.resource.data.unhaQuebrada
+        )
+        && professionalIsActive(request.resource.data.profissionalUid)
+        && request.resource.data.profissionalNome is string
         && (
           !request.resource.data.unhaQuebrada
           || request.resource.data.procedimento == 'Manutenção P/M'
@@ -106,13 +158,14 @@ service cloud.firestore {
         && request.resource.data.horario.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')
         && request.resource.data.slotId
           == request.resource.data.data + '_' + request.resource.data.horario.replace(':', '-')
+            + '_' + request.resource.data.profissionalUid
         && request.resource.data.status == 'pendente'
         && request.resource.data.criadoEm == request.time
         && request.resource.data.aceiteLGPD == true
         && request.resource.data.versaoAvisoPrivacidade == '2026-11-24'
         && request.resource.data.aceiteLGPDem == request.time
         && customerProfileHasPhone(request.resource.data.telefone)
-        && request.resource.data.slotId.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.slotId.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}_[A-Za-z0-9_-]{1,128}$')
         && request.resource.data.codigoConsulta.matches('^[a-f0-9]{64}$')
         && publicScheduleAllows(request.resource.data.data, request.resource.data.horario)
         && existsAfter(
@@ -129,21 +182,38 @@ service cloud.firestore {
         ).data.reservaId == appointmentId
       );
 
-      allow update, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (
+          isProfessional()
+          && resource.data.profissionalUid == request.auth.uid
+          && request.resource.data.profissionalUid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'nome', 'telefone', 'email', 'procedimento', 'profissionalNome',
+            'data', 'horario', 'status', 'valor', 'nailArt', 'observacoes',
+            'slotId', 'atualizadoEm'
+          ])
+        );
+      allow delete: if isAdmin();
     }
 
     match /horarios_ocupados/{slotId} {
       allow read: if true;
 
       allow create: if isAdmin() || (
-        request.resource.data.keys().hasAll(['data', 'horario', 'status', 'reservaId'])
-        && request.resource.data.keys().hasOnly(['data', 'horario', 'status', 'reservaId'])
+        request.resource.data.keys().hasAll([
+          'data', 'horario', 'status', 'reservaId', 'profissionalUid'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'data', 'horario', 'status', 'reservaId', 'profissionalUid'
+        ])
         && request.resource.data.data.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
         && request.resource.data.horario.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')
         && slotId
           == request.resource.data.data + '_' + request.resource.data.horario.replace(':', '-')
+            + '_' + request.resource.data.profissionalUid
         && request.resource.data.status == 'ocupado'
         && request.resource.data.reservaId is string
+        && professionalIsActive(request.resource.data.profissionalUid)
         && publicScheduleAllows(request.resource.data.data, request.resource.data.horario)
         && existsAfter(
           /databases/$(database)/documents/agendamentos/$(request.resource.data.reservaId)
@@ -157,9 +227,68 @@ service cloud.firestore {
         && getAfter(
           /databases/$(database)/documents/agendamentos/$(request.resource.data.reservaId)
         ).data.horario == request.resource.data.horario
+        && getAfter(
+          /databases/$(database)/documents/agendamentos/$(request.resource.data.reservaId)
+        ).data.profissionalUid == request.resource.data.profissionalUid
       );
 
-      allow update, delete: if isAdmin();
+      allow create: if isProfessional()
+        && request.resource.data.keys().hasAll([
+          'data', 'horario', 'status', 'reservaId', 'profissionalUid'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'data', 'horario', 'status', 'reservaId', 'profissionalUid'
+        ])
+        && request.resource.data.data.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.horario.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')
+        && slotId == request.resource.data.data + '_'
+          + request.resource.data.horario.replace(':', '-') + '_' + request.auth.uid
+        && request.resource.data.status == 'ocupado'
+        && request.resource.data.profissionalUid == request.auth.uid
+        && request.resource.data.reservaId is string
+        && existsAfter(
+          /databases/$(database)/documents/agendamentos/$(request.resource.data.reservaId)
+        )
+        && getAfter(
+          /databases/$(database)/documents/agendamentos/$(request.resource.data.reservaId)
+        ).data.profissionalUid == request.auth.uid
+        && getAfter(
+          /databases/$(database)/documents/agendamentos/$(request.resource.data.reservaId)
+        ).data.slotId == slotId
+        && getAfter(
+          /databases/$(database)/documents/agendamentos/$(request.resource.data.reservaId)
+        ).data.data == request.resource.data.data
+        && getAfter(
+          /databases/$(database)/documents/agendamentos/$(request.resource.data.reservaId)
+        ).data.horario == request.resource.data.horario;
+
+      allow create: if isProfessional()
+        && request.resource.data.keys().hasAll([
+          'data', 'horario', 'status', 'bloqueio', 'profissionalUid'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'data', 'horario', 'status', 'bloqueio', 'profissionalUid',
+          'motivo', 'criadoEm'
+        ])
+        && request.resource.data.data.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.horario.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')
+        && request.resource.data.profissionalUid == request.auth.uid
+        && request.resource.data.status == 'bloqueado'
+        && request.resource.data.bloqueio == true
+        && (
+          !('motivo' in request.resource.data)
+          || request.resource.data.motivo == null
+          || request.resource.data.motivo is string
+        )
+        && (
+          !('criadoEm' in request.resource.data)
+          || request.resource.data.criadoEm == request.time
+        )
+        && slotId == request.resource.data.data + '_'
+          + request.resource.data.horario.replace(':', '-') + '_' + request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin()
+        || (isProfessional() && resource.data.profissionalUid == request.auth.uid);
     }
 
     match /consultas_agendamento/{codigo} {
@@ -167,6 +296,24 @@ service cloud.firestore {
       allow list: if isAdmin();
 
       allow create: if isAdmin() || (
+        isProfessional()
+        && codigo.matches('^[a-f0-9]{64}$')
+        && request.resource.data.keys().hasAll([
+          'data', 'horario', 'procedimento', 'status', 'reservaId'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'data', 'horario', 'procedimento', 'status', 'reservaId'
+        ])
+        && existsAfter(
+          /databases/$(database)/documents/agendamentos/$(request.resource.data.reservaId)
+        )
+        && getAfter(
+          /databases/$(database)/documents/agendamentos/$(request.resource.data.reservaId)
+        ).data.profissionalUid == request.auth.uid
+        && getAfter(
+          /databases/$(database)/documents/agendamentos/$(request.resource.data.reservaId)
+        ).data.codigoConsulta == codigo
+      ) || (
         codigo.matches('^[a-f0-9]{64}$')
         && request.resource.data.keys().hasAll([
           'data', 'horario', 'procedimento', 'status', 'reservaId'
@@ -193,13 +340,21 @@ service cloud.firestore {
         ).data.horario == request.resource.data.horario
       );
 
-      allow update, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (
+          isProfessional()
+          && resource.data.reservaId is string
+          && get(
+            /databases/$(database)/documents/agendamentos/$(resource.data.reservaId)
+          ).data.profissionalUid == request.auth.uid
+        );
+      allow delete: if isAdmin();
     }
 
     match /clientes/{clientId} {
-      allow get: if isAdmin()
+      allow get: if isAdmin() || isProfessional()
         || (request.auth != null && clientId == request.auth.uid);
-      allow list: if isAdmin();
+      allow list: if isAdmin() || isProfessional();
 
       allow create: if isAdmin() || (
         request.auth != null
@@ -307,6 +462,32 @@ service cloud.firestore {
     match /configuracoes/agenda {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    match /configuracoes/perfil_studio {
+      allow read, write: if isAdmin();
+    }
+
+    match /conteudo_site/{pageId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /profissionais/{professionalUid} {
+      allow get: if isAdmin()
+        || (request.auth != null && request.auth.uid == professionalUid)
+        || resource.data.ativo == true;
+      allow list: if isAdmin() || resource.data.ativo == true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /servicos/{serviceId} {
+      allow get, list: if isAdmin() || resource.data.ativo == true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /avaliacoes/{reviewId} {
+      allow read: if isAdmin() || isProfessional();
     }
 
     match /{document=**} {

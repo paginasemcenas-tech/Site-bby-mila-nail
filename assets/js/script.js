@@ -1,4 +1,4 @@
-import { auth, db } from "../../firebase-config.js";
+import { auth, db, adminUIDs } from "../../firebase-config.js";
 import "./main.js?v=14";
 import {
   completeCustomerProfile,
@@ -16,6 +16,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   query,
   serverTimestamp,
   updateDoc,
@@ -26,11 +27,58 @@ import {
 const agendaReference = doc(db, "configuracoes", "agenda");
 const schedulingDialog = document.querySelector(".scheduling-dialog");
 
+const loadPublicSiteContent = async () => {
+  const page = document.body.dataset.page;
+  if (!page) return;
+  const snapshot = await getDoc(doc(db, "conteudo_site", page));
+  if (!snapshot.exists()) return;
+  const content = snapshot.data();
+
+  document.querySelectorAll("[data-site-content]").forEach((element) => {
+    const key = element.dataset.siteContent;
+    if (typeof content[key] !== "string") return;
+    const attribute = element.dataset.siteContentAttribute;
+    if (attribute) {
+      element.setAttribute(attribute, content[key]);
+    } else {
+      element.textContent = content[key];
+      element.style.whiteSpace = "pre-line";
+    }
+  });
+
+  document.querySelectorAll("[data-site-image]").forEach((image) => {
+    const value = content[image.dataset.siteImage];
+    if (typeof value !== "string" || !value.trim()) return;
+    try {
+      const url = new URL(value.trim(), window.location.href);
+      if (url.protocol === "https:" || url.protocol === "http:") image.src = url.href;
+    } catch (error) {
+      console.error(`Endereço de imagem inválido para ${image.dataset.siteImage}:`, error);
+    }
+  });
+
+  document.querySelectorAll("[data-site-href]").forEach((link) => {
+    const value = content[link.dataset.siteHref];
+    if (typeof value !== "string" || !value.trim()) return;
+    try {
+      const url = new URL(value.trim(), window.location.href);
+      if (url.protocol === "https:" || url.protocol === "http:") link.href = url.href;
+    } catch (error) {
+      console.error(`Endereço de link inválido para ${link.dataset.siteHref}:`, error);
+    }
+  });
+};
+
+loadPublicSiteContent().catch((error) => {
+  console.error("Falha ao carregar o conteúdo personalizado do site:", error);
+});
+
 if (schedulingDialog) {
   const form = schedulingDialog.querySelector(".new-client-form");
   const dateSelect = form.elements.date;
   const timeSelect = form.elements.time;
   const procedureInput = form.elements.procedure;
+  const professionalInput = form.elements.professional;
   const feedback = form.querySelector(".form-feedback");
   const nailArtOption = schedulingDialog.querySelector(".nailart-option");
   const submitButton = form.querySelector(".normal-schedule");
@@ -51,6 +99,8 @@ if (schedulingDialog) {
   let agendaSettings = null;
   let availableTimes = [];
   let currentCustomer = null;
+  let bookingServices = [];
+  let bookingProfessionals = [];
   let resolveVipDecision = null;
   let resolveInitialAuthState;
   const initialAuthState = new Promise((resolve) => {
@@ -234,6 +284,70 @@ if (schedulingDialog) {
     select.disabled = values.length === 0;
   };
 
+  const loadBookingOptions = async () => {
+    const professionalSnapshot = await getDocs(
+      query(collection(db, "profissionais"), where("ativo", "==", true))
+    );
+    bookingProfessionals = professionalSnapshot.docs.map((item) => ({
+      id: item.id,
+      nome: String(item.data().nome || "").trim()
+    })).filter((professional) => professional.nome);
+
+    const ownerUid = Array.isArray(adminUIDs) ? adminUIDs[0] : "";
+    if (ownerUid && !bookingProfessionals.some((professional) => professional.id === ownerUid)) {
+      bookingProfessionals.unshift({ id: ownerUid, nome: "Camila" });
+    }
+
+    setOptions(professionalInput, "Selecione uma profissional", bookingProfessionals.map((professional) => ({
+      value: professional.id,
+      label: professional.nome
+    })));
+
+    onSnapshot(
+      query(collection(db, "servicos"), where("ativo", "==", true)),
+      (serviceSnapshot) => {
+        bookingServices = serviceSnapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
+          .filter((service) => typeof service.nome === "string" && service.nome.trim())
+          .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+        procedureInput.replaceChildren(new Option("Selecione um serviço e confira o preço", ""));
+        const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+        bookingServices.forEach((service) => {
+          const hasPrice = typeof service.valor === "number" && Number.isFinite(service.valor);
+          const option = new Option(
+            hasPrice ? `${service.nome} — ${currency.format(service.valor)}` : `${service.nome} — Sob consulta`,
+            service.nome
+          );
+          option.dataset.serviceId = service.id;
+          if (hasPrice) option.dataset.price = String(service.valor);
+          procedureInput.add(option);
+        });
+
+        const priceList = document.querySelector("[data-service-price-list]");
+        if (priceList) {
+          priceList.replaceChildren();
+          bookingServices.forEach((service) => {
+            const row = document.createElement("div");
+            row.className = "price-row";
+            const name = document.createElement("span");
+            name.textContent = service.nome;
+            const price = document.createElement("strong");
+            price.textContent = typeof service.valor === "number" && Number.isFinite(service.valor)
+              ? currency.format(service.valor)
+              : "Sob consulta";
+            row.append(name, price);
+            priceList.append(row);
+          });
+        }
+
+        procedureInput.dispatchEvent(new Event("input", { bubbles: true }));
+      },
+      (error) => {
+        feedback.textContent = "Não foi possível carregar os serviços. Tente novamente mais tarde.";
+        console.error("Falha ao acompanhar o catálogo para agendamento:", error);
+      }
+    );
+  };
+
   const loadAgendaSettings = async () => {
     dateSelect.disabled = true;
     timeSelect.disabled = true;
@@ -296,11 +410,11 @@ if (schedulingDialog) {
     document.dispatchEvent(new CustomEvent("scheduling:open"));
   }
 
-  dateSelect.addEventListener("change", async () => {
+  const loadAvailableTimes = async () => {
     const selectedDate = dateSelect.value;
     setOptions(timeSelect, "Carregando horários...", []);
 
-    if (!selectedDate || !agendaSettings?.dates.includes(selectedDate)) {
+    if (!selectedDate || !agendaSettings?.dates.includes(selectedDate) || !professionalInput.value) {
       setOptions(timeSelect, "Selecione uma data primeiro", []);
       return;
     }
@@ -314,6 +428,8 @@ if (schedulingDialog) {
       const occupiedTimes = new Set(
         snapshot.docs
           .map((booking) => booking.data())
+          .filter((booking) => !booking.profissionalUid
+            || booking.profissionalUid === professionalInput.value)
           .map((booking) => booking.horario || booking.hora)
       );
 
@@ -330,26 +446,34 @@ if (schedulingDialog) {
       feedback.textContent = "Não foi possível verificar os horários ocupados. Tente novamente.";
       console.error("Falha ao consultar horários ocupados:", error);
     }
+  };
+
+  dateSelect.addEventListener("change", loadAvailableTimes);
+  professionalInput.addEventListener("change", () => {
+    timeSelect.value = "";
+    loadAvailableTimes();
   });
 
   procedureInput.addEventListener("input", () => {
-    const isNailArt = procedureInput.value.trim().toLowerCase() === "nail art";
-    nailArtOption.hidden = !isNailArt;
-    submitButton.hidden = isNailArt;
-    dateSelect.required = !isNailArt;
-    timeSelect.required = !isNailArt;
+    const selectedOption = procedureInput.selectedOptions[0];
+    const requiresQuote = Boolean(procedureInput.value) && !selectedOption?.dataset.price;
+    nailArtOption.hidden = !requiresQuote;
+    submitButton.hidden = requiresQuote;
+    dateSelect.required = !requiresQuote;
+    timeSelect.required = !requiresQuote;
   });
 
   schedulingDialog.querySelector(".whatsapp-schedule").addEventListener("click", () => {
     if (!form.reportValidity()) return;
 
     const data = new FormData(form);
+    const procedure = String(data.get("procedure") || "").trim();
     const message = [
-      "Olá! Gostaria de consultar um orçamento de Nail Art.",
+      `Olá! Gostaria de consultar um orçamento de ${procedure}.`,
       `Nome: ${data.get("name")}`,
       `Telefone: ${data.get("phone")}`,
       `E-mail: ${data.get("email") || "Não informado"}`,
-      `Procedimento: ${data.get("procedure")}`
+      `Procedimento: ${procedure}`
     ].join("\n");
 
     window.open(
@@ -417,11 +541,20 @@ if (schedulingDialog) {
     const date = String(values.get("date"));
     const time = String(values.get("time"));
     const unhaQuebrada = values.get("brokenNail") === "true";
-    const basePrice = Number(procedureInput.selectedOptions[0]?.dataset.price);
+    const selectedService = procedureInput.selectedOptions[0];
+    const basePrice = Number(selectedService?.dataset.price);
     const valor = Number.isFinite(basePrice) ? basePrice + (unhaQuebrada ? 12 : 0) : null;
+    const serviceId = selectedService?.dataset.serviceId || "";
+    const professionalUid = professionalInput.value;
+    const professional = bookingProfessionals.find((item) => item.id === professionalUid);
 
     if (valor === null) {
       feedback.textContent = "Não foi possível calcular o preço deste procedimento. Selecione outro serviço ou solicite um orçamento.";
+      return;
+    }
+
+    if (!professional || !bookingServices.some((service) => service.id === serviceId)) {
+      feedback.textContent = "Selecione um serviço e uma profissional disponíveis.";
       return;
     }
 
@@ -513,7 +646,7 @@ if (schedulingDialog) {
         }
       }
 
-      const slotId = `${date}_${time.replace(":", "-")}`;
+      const slotId = `${date}_${time.replace(":", "-")}_${professionalUid}`;
       const slotReference = doc(db, "horarios_ocupados", slotId);
       const bookingReference = doc(collection(db, "agendamentos"));
       const consultationCode = createRandomCode();
@@ -525,6 +658,9 @@ if (schedulingDialog) {
         email: String(values.get("email") || "").trim().toLowerCase() || null,
         clienteUid: customer.uid,
         procedimento: String(values.get("procedure")).trim(),
+        servicoId: serviceId,
+        profissionalUid,
+        profissionalNome: professional.nome,
         unhaQuebrada,
         valor,
         data: date,
@@ -543,6 +679,7 @@ if (schedulingDialog) {
         data: date,
         horario: time,
         status: "ocupado",
+        profissionalUid,
         reservaId: bookingReference.id
       });
       batch.set(consultationReference, {
@@ -589,5 +726,10 @@ if (schedulingDialog) {
       submitButton.disabled = false;
       submitButton.textContent = "Solicitar agendamento";
     }
+  });
+
+  loadBookingOptions().catch((error) => {
+    feedback.textContent = "Não foi possível carregar os serviços e profissionais. Tente novamente mais tarde.";
+    console.error("Falha ao carregar o catálogo para agendamento:", error);
   });
 }

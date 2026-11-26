@@ -34,8 +34,8 @@
     <section class="home-hero" aria-labelledby="home-title">
       <div class="home-hero-content" data-reveal>
         <p class="eyebrow home-hero-eyebrow"><span>BBY MILA NAILS</span></p>
-        <h1 id="home-title"><span>Arte, cuidado</span><span>e expressão.</span></h1>
-        <p class="home-hero-description"><span>Nail Art, alongamento e muito mais,</span><span>em um espaço pensado para você.</span></p>
+        <h1 id="home-title"><span data-site-content="heroTitleFirst">Arte, cuidado</span><span data-site-content="heroTitleSecond">e expressão.</span></h1>
+        <p class="home-hero-description"><span data-site-content="heroDescriptionFirst">Nail Art, alongamento e muito mais,</span><span data-site-content="heroDescriptionSecond">em um espaço pensado para você.</span></p>
         <a class="outline-pill arrow-link" href="#studio">
           <span>Conheça o Studio</span><span class="arrow" aria-hidden="true">→</span>
         </a>
@@ -62,7 +62,7 @@
       <div class="section-heading" data-reveal>
         <div>
           <p class="eyebrow">Nail Art</p>
-          <h2 id="nail-art-title">Suas unhas. <em>Sua expressão.</em></h2>
+          <h2 id="nail-art-title">Suas unhas. <em data-site-content="nailArtHeading">Sua expressão.</em></h2>
         </div>
         <a class="text-link arrow-link" href="studio.html">
           <span>Ver mais</span><span class="arrow" aria-hidden="true">→</span>
@@ -74,26 +74,22 @@
           <img src="assets/images/unha 1.jpg" alt="Mãos com unhas decoradas e detalhes dourados" loading="lazy">
           <span class="art-card-caption">Detalhes em destaque <span aria-hidden="true">↗</span></span>
         </button>
-        <article class="art-card art-card--placeholder" data-image-path="assets/images/home-nail-art-02.jpg">
-          <span class="art-card-placeholder-number">02</span>
-          <strong>Foto pendente</strong>
-          <code>home-nail-art-02.jpg</code>
-        </article>
-        <article class="art-card art-card--placeholder" data-image-path="assets/images/home-nail-art-03.jpg">
-          <span class="art-card-placeholder-number">03</span>
-          <strong>Foto pendente</strong>
-          <code>home-nail-art-03.jpg</code>
-        </article>
-        <article class="art-card art-card--placeholder" data-image-path="assets/images/home-nail-art-04.jpg">
-          <span class="art-card-placeholder-number">04</span>
-          <strong>Foto pendente</strong>
-          <code>home-nail-art-04.jpg</code>
-        </article>
-        <article class="art-card art-card--placeholder" data-image-path="assets/images/home-nail-art-05.jpg">
-          <span class="art-card-placeholder-number">05</span>
-          <strong>Foto pendente</strong>
-          <code>home-nail-art-05.jpg</code>
-        </article>
+        <button class="art-card" type="button" data-open-scheduling data-booking-procedure="Nail Art" aria-label="Agendar Nail Art: cores e detalhes em relevo">
+          <img data-site-image="artImage02" src="assets/images/home-nail-art-02.jpg" alt="Nail art colorida com detalhes em relevo e pedrarias" loading="lazy">
+          <span class="art-card-caption">Cores e detalhes <span aria-hidden="true">↗</span></span>
+        </button>
+        <button class="art-card" type="button" data-open-scheduling data-booking-procedure="Nail Art" aria-label="Agendar Nail Art: desenhos em tons de vermelho">
+          <img data-site-image="artImage03" src="assets/images/home-nail-art-03.jpg" alt="Unhas decoradas com desenhos em tons de vermelho e preto" loading="lazy">
+          <span class="art-card-caption">Arte autoral <span aria-hidden="true">↗</span></span>
+        </button>
+        <button class="art-card" type="button" data-open-scheduling data-booking-procedure="Nail Art" aria-label="Agendar Nail Art: detalhes dourados e azuis">
+          <img data-site-image="artImage04" src="assets/images/home-nail-art-04.jpg" alt="Nail art azul clara com desenhos e detalhes dourados" loading="lazy">
+          <span class="art-card-caption">Detalhes delicados <span aria-hidden="true">↗</span></span>
+        </button>
+        <button class="art-card" type="button" data-open-scheduling data-booking-procedure="Nail Art" aria-label="Agendar Nail Art: acabamento preto e dourado">
+          <img data-site-image="artImage05" src="assets/images/home-nail-art-05.jpg" alt="Unhas pretas e douradas com acabamento brilhante" loading="lazy">
+          <span class="art-card-caption">Brilho e contraste <span aria-hidden="true">↗</span></span>
+        </button>
       </div>
     </section>
 
@@ -104,7 +100,7 @@
         </a>
         <div class="pillar-content">
           <p class="eyebrow">Studio</p>
-          <h2>Mais que um cuidado, uma experiência.</h2>
+          <h2 data-site-content="studioHeading">Mais que um cuidado, uma experiência.</h2>
           <p>Conheça nossos procedimentos e transforme suas unhas.</p>
           <a class="text-link arrow-link" href="studio.html"><span>Saiba mais</span><span class="arrow" aria-hidden="true">→</span></a>
         </div>
@@ -115,7 +111,7 @@
         </a>
         <div class="pillar-content">
           <p class="eyebrow">Academy</p>
-          <h2>Aprenda com quem é referência.</h2>
+          <h2 data-site-content="academyHeading">Aprenda com quem é referência.</h2>
           <p>Cursos completos para você se destacar no mercado da beleza.</p>
           <a class="text-link arrow-link" href="academy.html"><span>Ver cursos</span><span class="arrow" aria-hidden="true">→</span></a>
         </div>
@@ -128,7 +124,7 @@
       </svg>
       <div class="home-cta-copy">
         <p class="eyebrow">Bby Mila Nails</p>
-        <h2 id="home-cta-title">Beleza como forma de expressão.</h2>
+        <h2 id="home-cta-title" data-site-content="closingHeading">Beleza como forma de expressão.</h2>
       </div>
       <a class="outline-pill arrow-link cta-booking" href="https://wa.me/553196809579?text=Ol%C3%A1%21%20Gostaria%20de%20agendar%20um%20hor%C3%A1rio." target="_blank" rel="noopener noreferrer">
         <span>Agende seu horário pelo WhatsApp</span><span class="arrow" aria-hidden="true">↗</span>

@@ -38,6 +38,7 @@
       <div class="hero-photo">
         <img
           src="assets/images/studio-hero.jpg"
+          data-site-image="heroImage"
           alt="Unhas decoradas em uma produção do Studio Bby Mila Nails"
         >
       </div>
@@ -51,13 +52,12 @@
         </div>
 
         <h1>
-          Arte nas<br>
-          suas mãos.
+          <span data-site-content="heroTitleFirst">Arte nas</span><br>
+          <span data-site-content="heroTitleSecond">suas mãos.</span>
         </h1>
 
         <p>
-          Um espaço onde Nail Art se encontra<br class="desktop-break">
-          com identidade, cuidado e expressão.
+          <span data-site-content="heroDescription">Um espaço onde Nail Art se encontra com identidade, cuidado e expressão.</span>
         </p>
 
         <a href="#sobre-studio" class="hero-link">
@@ -78,8 +78,8 @@
       </div>
 
       <div class="intro-content">
-        <h2>Nosso<br><em>espaço.</em></h2>
-        <p>
+        <h2><span data-site-content="introTitleFirst">Nosso</span><br><em data-site-content="introTitleSecond">espaço.</em></h2>
+        <p data-site-content="introDescription">
           Um estúdio de beleza em Belo Horizonte dedicado à excelência em Nail Art e cuidados com as unhas. Na Bby Mila Nails, a equipe transforma cada atendimento em uma experiência exclusiva. Cada criação é pensada para valorizar a sua identidade e expressão.
         </p>
       </div>
@@ -156,85 +156,11 @@
         </div>
 
         <div class="price-group">
-          <h3>Alongamento</h3>
-
-          <div class="price-columns">
-            <span>Procedimento</span>
-            <span>Valor</span>
+          <h3>Serviços disponíveis</h3>
+          <div class="price-columns"><span>Procedimento</span><span>Valor</span></div>
+          <div data-service-price-list aria-live="polite">
+            <p class="price-note">Carregando os valores atualizados...</p>
           </div>
-
-          <div class="price-row">
-            <span>Aplicação P/M</span>
-            <strong>R$ 195,00</strong>
-          </div>
-
-          <div class="price-row">
-            <span>Aplicação G/GG</span>
-            <strong>R$ 260,00</strong>
-          </div>
-
-          <div class="price-row">
-            <span>Manutenção P/M</span>
-            <strong>R$ 165,00</strong>
-          </div>
-
-          <div class="price-row">
-            <span>Manutenção G/GG</span>
-            <strong>R$ 225,00</strong>
-          </div>
-        </div>
-
-        <div class="price-group">
-          <h3>Cuidados e serviços</h3>
-
-          <div class="price-columns">
-            <span>Procedimento</span>
-            <span>Valor</span>
-          </div>
-
-          <div class="price-row">
-            <span>Banho em Gel</span>
-            <strong>R$ 145,00</strong>
-          </div>
-
-          <div class="price-row">
-            <span>Blindagem</span>
-            <strong>R$ 115,00</strong>
-          </div>
-
-          <div class="price-row">
-            <span>Remoção</span>
-            <strong>R$ 70,00</strong>
-          </div>
-
-          <div class="price-row">
-            <span>Unha quebrada</span>
-            <strong>R$ 12,00</strong>
-          </div>
-
-        </div>
-
-        <div class="price-group">
-          <h3>Manutenção de outra profissional</h3>
-
-          <div class="price-columns">
-            <span>Procedimento</span>
-            <span>Valor</span>
-          </div>
-
-          <div class="price-row">
-            <span>P/M</span>
-            <strong>R$ 175,00</strong>
-          </div>
-
-          <div class="price-row">
-            <span>G/GG</span>
-            <strong>R$ 230,00</strong>
-          </div>
-
-          <p class="price-note">
-            Sujeita à remoção e nova aplicação.
-          </p>
         </div>
       </div>
     </section>

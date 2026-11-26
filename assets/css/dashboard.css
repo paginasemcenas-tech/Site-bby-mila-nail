@@ -2647,6 +2647,16 @@ body {
   background: rgba(212, 163, 115, 0.12);
 }
 
+.table-actions button.is-danger {
+  border-color: rgba(227, 120, 110, 0.35);
+  color: #e3a18f;
+}
+
+.table-actions button.is-danger:hover {
+  border-color: #e3a18f;
+  background: rgba(227, 120, 110, 0.1);
+}
+
 .table-empty,
 .table-summary {
   color: var(--dash-muted);

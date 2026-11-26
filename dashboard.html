@@ -22,7 +22,7 @@
         <span class="profile-avatar" aria-hidden="true">CM</span>
         <span class="profile-online" aria-label="Online"></span>
         <strong id="profile-name">Camila</strong>
-        <small>Administradora</small>
+        <small id="profile-role">Administradora</small>
       </div>
       <nav class="sidebar-nav" aria-label="Navegação do painel">
         <button type="button" class="sidebar-link is-active" data-nav="dashboard" aria-current="page">
@@ -34,16 +34,16 @@
         <button type="button" class="sidebar-link" data-nav="clients">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M17 5a4 4 0 0 1 0 7m2 3a5 5 0 0 1 3 4v2"/></svg><span>Clientes</span>
         </button>
-        <button type="button" class="sidebar-link" data-nav="services">
+        <button type="button" class="sidebar-link" data-nav="services" data-admin-only>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9Z"/><path d="m4 7.5 8 4.7 8-4.7M12 12.2V21"/></svg><span>Serviços</span>
         </button>
         <button type="button" class="sidebar-link" data-nav="finance">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18M7 15l4-4 3 3 6-7"/><path d="M16 7h4v4"/></svg><span>Financeiro</span>
         </button>
-        <button type="button" class="sidebar-link" data-nav="content">
+        <button type="button" class="sidebar-link" data-nav="content" data-admin-only>
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/></svg><span>Conteúdo do Site</span>
         </button>
-        <button type="button" class="sidebar-link" data-nav="settings">
+        <button type="button" class="sidebar-link" data-nav="settings" data-admin-only>
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.5.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.5-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.8L6.9 12l1.4-2.4 1.7.7a8 8 0 0 1 1.5-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.5.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.9Z"/></svg><span>Configurações</span>
         </button>
       </nav>
@@ -75,11 +75,6 @@
           <div id="notification-list" class="notification-list" aria-live="polite"></div>
         </section>
       </header>
-
-      <div id="demo-banner" class="demo-banner" hidden>
-        <span><strong>Modo demonstração</strong> — dados fictícios apenas nesta tela, sem gravação no Firestore.</span>
-        <button type="button" data-demo-toggle>Voltar aos dados do Firestore</button>
-      </div>
 
       <section id="view-dashboard" class="dashboard-view" data-view="dashboard">
       <section class="welcome-banner" aria-labelledby="welcome-title">
@@ -225,13 +220,13 @@
         </article>
       </section>
 
-      <section id="view-services" class="dashboard-view content-view" data-view="services" hidden>
+      <section id="view-services" class="dashboard-view content-view" data-view="services" data-admin-only hidden>
         <header class="view-heading">
           <div><span class="section-eyebrow">CATÁLOGO DO STUDIO</span><h1>Serviços</h1><p>Procedimentos, duração e valores cadastrados.</p></div>
           <button type="button" class="primary-action" data-create="service">+ Adicionar serviço</button>
         </header>
         <article class="panel data-panel">
-          <div class="table-scroll"><table class="data-table"><thead><tr><th>Serviço</th><th>Descrição</th><th>Duração</th><th>Valor</th><th>Status</th></tr></thead><tbody id="services-table-body"></tbody></table></div>
+          <div class="table-scroll"><table class="data-table"><thead><tr><th>Serviço</th><th>Descrição</th><th>Duração</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody id="services-table-body"></tbody></table></div>
           <p id="services-table-empty" class="table-empty" hidden>Nenhum serviço cadastrado.</p>
         </article>
       </section>
@@ -265,8 +260,25 @@
         </article>
       </section>
 
-      <section id="view-content" class="dashboard-view content-view" data-view="content" hidden>
-        <header class="view-heading"><div><span class="section-eyebrow">PRESENÇA DIGITAL</span><h1>Conteúdo do Site</h1><p>Acesse e confira as páginas públicas da Bby Mila Nails.</p></div></header>
+      <section id="view-content" class="dashboard-view content-view" data-view="content" data-admin-only hidden>
+        <header class="view-heading"><div><span class="section-eyebrow">PRESENÇA DIGITAL</span><h1>Conteúdo do Site</h1><p>Edite os textos e imagens principais de cada página pública.</p></div></header>
+        <article class="panel site-content-editor">
+          <label class="dialog-field"><span>Página</span>
+            <select id="site-content-page">
+              <option value="home">Início</option>
+              <option value="studio">Studio</option>
+              <option value="academy">Academy</option>
+              <option value="sobre">Sobre</option>
+              <option value="contato">Contato</option>
+            </select>
+          </label>
+          <form id="site-content-form">
+            <div id="site-content-fields" class="dialog-fields"></div>
+            <button type="submit" class="primary-action">Salvar conteúdo</button>
+            <p id="site-content-feedback" class="dialog-feedback" role="status" aria-live="polite"></p>
+          </form>
+          <p class="content-note">As imagens usam endereços de arquivo ou URL HTTPS. Depois de salvar, atualize a página pública para ver a alteração.</p>
+        </article>
         <div class="site-pages-grid">
           <article class="panel site-page-card"><span class="section-eyebrow">PÁGINA INICIAL</span><h2>Início</h2><p>Apresentação do Studio, Nail Art, serviços e canais de agendamento.</p><a href="index.html" target="_blank" rel="noopener">Visualizar página <span>↗</span></a></article>
           <article class="panel site-page-card"><span class="section-eyebrow">STUDIO</span><h2>Conheça o Studio</h2><p>Informações sobre o espaço, atendimento e experiência.</p><a href="studio.html" target="_blank" rel="noopener">Visualizar página <span>↗</span></a></article>
@@ -274,10 +286,9 @@
           <article class="panel site-page-card"><span class="section-eyebrow">INSTITUCIONAL</span><h2>Sobre</h2><p>A história da Bby Mila Nails, Camila e parceiros.</p><a href="sobre.html" target="_blank" rel="noopener">Visualizar página <span>↗</span></a></article>
           <article class="panel site-page-card"><span class="section-eyebrow">ATENDIMENTO</span><h2>Contato</h2><p>Canais diretos, localização e formulário de contato.</p><a href="contato.html" target="_blank" rel="noopener">Visualizar página <span>↗</span></a></article>
         </div>
-        <p class="content-note">As páginas públicas são arquivos estáticos e continuam sendo editadas no código do site. Este painel permite visualizar, mas não publica alterações de conteúdo.</p>
       </section>
 
-      <section id="view-settings" class="dashboard-view content-view" data-view="settings" hidden>
+      <section id="view-settings" class="dashboard-view content-view" data-view="settings" data-admin-only hidden>
         <header class="view-heading"><div><span class="section-eyebrow">PREFERÊNCIAS</span><h1>Configurações</h1><p>Gerencie a agenda e o modo de apresentação do painel.</p></div></header>
         <div class="settings-grid">
           <article class="panel settings-card">
@@ -288,12 +299,27 @@
             <button type="button" id="toggle-month-button" class="primary-action">Abrir mês</button>
             <p id="settings-feedback" class="dialog-feedback" role="status" aria-live="polite"></p>
           </article>
-          <article class="panel settings-card demo-settings">
-            <span class="section-eyebrow">APRESENTAÇÃO</span><h2>Dados de exemplo</h2>
-            <p>Ative dados fictícios para demonstrar métricas, calendário, notificações e relatórios. Nada será gravado no Firestore.</p>
-            <ul><li>10 agendamentos e clientes de exemplo</li><li>Catálogo de serviços e avaliações fictícias</li><li>Modo interativo: alterações ficam somente em memória</li></ul>
-            <button type="button" class="secondary-action" data-demo-toggle>Popular dados de exemplo <span>→</span></button>
-            <p id="demo-mode-feedback" class="dialog-hint" aria-live="polite"></p>
+          <article class="panel settings-card">
+            <span class="section-eyebrow">PERFIL DA ADMINISTRADORA</span><h2>Seus dados</h2>
+            <form id="owner-profile-form" class="settings-form">
+              <label class="dialog-field"><span>Nome</span><input name="nome" required maxlength="120"></label>
+              <label class="dialog-field"><span>Telefone</span><input name="telefone" type="tel" maxlength="20"></label>
+              <label class="dialog-field"><span>E-mail</span><input name="email" type="email" maxlength="160"></label>
+              <button type="submit" class="primary-action">Salvar meus dados</button>
+              <p id="owner-profile-feedback" class="dialog-feedback" role="status" aria-live="polite"></p>
+            </form>
+          </article>
+          <article class="panel settings-card is-wide">
+            <span class="section-eyebrow">EQUIPE DO STUDIO</span><h2>Cadastro de parceiras</h2>
+            <p>Crie primeiro a conta de e-mail e senha da profissional em Firebase Authentication. Depois, informe aqui o UID exibido no Firebase para liberar somente a agenda e o financeiro dela.</p>
+            <form id="professional-form" class="settings-form professional-form">
+              <label class="dialog-field"><span>UID da conta Firebase</span><input name="uid" required maxlength="128" autocomplete="off"></label>
+              <label class="dialog-field"><span>Nome exibido</span><input name="nome" required maxlength="120"></label>
+              <button type="submit" class="primary-action">Cadastrar parceira</button>
+              <p id="professional-feedback" class="dialog-feedback" role="status" aria-live="polite"></p>
+            </form>
+            <div class="table-scroll"><table class="data-table"><thead><tr><th>Profissional</th><th>UID</th><th>Status</th><th>Ações</th></tr></thead><tbody id="professionals-table-body"></tbody></table></div>
+            <p id="professionals-empty" class="table-empty" hidden>Nenhuma parceira cadastrada.</p>
           </article>
         </div>
       </section>
@@ -304,7 +330,7 @@
 
   <dialog id="record-dialog" class="admin-dialog">
     <form method="dialog" class="dialog-frame" id="record-form-shell">
-      <button class="dialog-close" type="submit" value="cancel" aria-label="Fechar">×</button>
+      <button class="dialog-close" type="button" data-close-dialog aria-label="Fechar">×</button>
       <span class="section-eyebrow">BBY MILA NAILS</span>
       <h2 id="record-dialog-title"></h2>
       <div id="record-fields" class="dialog-fields"></div>
@@ -324,13 +350,14 @@
 
   <dialog id="block-dialog" class="admin-dialog">
     <form method="dialog" class="dialog-frame" id="block-form">
-      <button class="dialog-close" type="submit" value="cancel" aria-label="Fechar">×</button>
+      <button class="dialog-close" type="button" data-close-dialog aria-label="Fechar">×</button>
       <span class="section-eyebrow">AGENDA DO STUDIO</span>
       <h2>Bloquear horário</h2>
       <p class="dialog-hint">O horário ficará indisponível para novos pedidos no site.</p>
       <div class="dialog-fields">
         <label class="dialog-field"><span>Data</span><input name="data" type="date" required></label>
         <label id="block-time-field" class="dialog-field"><span>Horário</span><input name="horario" type="time" required></label>
+        <label class="dialog-field"><span>Profissional</span><select name="profissionalUid"></select></label>
         <label class="dialog-field is-wide"><span>Motivo (opcional)</span><input name="motivo" type="text" maxlength="120" placeholder="Ex.: compromisso pessoal"></label>
         <label class="dialog-field block-dayoff-field is-wide"><span><input name="diaInteiro" type="checkbox"> Bloquear o dia inteiro (folga)</span></label>
       </div>

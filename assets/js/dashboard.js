@@ -4,13 +4,17 @@ import {
   arrayRemove,
   arrayUnion,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
   onSnapshot,
+  query,
   runTransaction,
   serverTimestamp,
-  setDoc
+  setDoc,
+  updateDoc,
+  where
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = document.querySelector("#dashboard-app");
@@ -37,6 +41,7 @@ const notificationList = document.querySelector("#notification-list");
 const appointmentsReference = collection(db, "agendamentos");
 const clientsReference = collection(db, "clientes");
 const servicesReference = collection(db, "servicos");
+const professionalsReference = collection(db, "profissionais");
 const reviewsReference = collection(db, "avaliacoes");
 const occupiedSlotsReference = collection(db, "horarios_ocupados");
 const agendaReference = doc(db, "configuracoes", "agenda");
@@ -58,13 +63,10 @@ const siteServices = [
 let bookings = [];
 let clients = [];
 let services = [];
+let professionals = [];
 let reviews = [];
 let blockedSlots = [];
-const liveData = { bookings: [], clients: [], services: [], reviews: [], blockedSlots: [] };
 const loadedCollections = { bookings: false, clients: false, services: false, reviews: false, blockedSlots: false };
-let isDemoMode = false;
-let demoData = null;
-let manualDemoOverride = null;
 let readNotificationIds = new Set();
 let openMonths = new Set();
 let visibleMonth = new Date();
@@ -78,8 +80,12 @@ let currentListOptions = {};
 let appointmentsDateRange = "today";
 let forecastHidden = false;
 let editingBookingId = null;
+let editingServiceId = null;
 let appointmentsLoaded = false;
 let siteServicesSeedStarted = false;
+let currentUserUid = "";
+let currentUserName = "";
+let isAdminSession = false;
 
 visibleMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1);
 selectedDate.setHours(12, 0, 0, 0);
@@ -91,7 +97,8 @@ const localDateIso = (date) => [
   String(date.getDate()).padStart(2, "0")
 ].join("-");
 
-const slotDocumentId = (date, time) => `${date}_${time.replace(":", "-")}`;
+const slotDocumentId = (date, time, professionalUid = "") =>
+  `${date}_${time.replace(":", "-")}${professionalUid ? `_${professionalUid}` : ""}`;
 const parseDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date || "") ? new Date(`${date}T12:00:00`) : null;
 const dateInRange = (value, start, end) => value >= start && value < end;
 const monthStart = (date) => new Date(date.getFullYear(), date.getMonth(), 1);
@@ -123,78 +130,6 @@ const statusLabel = (status) => ({
   cancelado: "Cancelado"
 }[String(status || "").toLowerCase()] || status || "Pendente");
 
-const createDemoData = () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const lastDay = new Date(year, month + 1, 0).getDate();
-  const dateAt = (day) => {
-    const date = new Date(year, month, Math.min(day, lastDay), 12, 0, 0, 0);
-    return { date, iso: localDateIso(date) };
-  };
-  const clientRows = [
-    ["Juliana Santos", "31900000101", "juliana.santos@example.com", "@juliana.demo"],
-    ["Luana Ferreira", "31900000102", "luana.ferreira@example.com", "@luana.demo"],
-    ["Mariana Alves", "31900000103", "mariana.alves@example.com", "@mariana.demo"],
-    ["Beatriz Costa", "31900000104", "beatriz.costa@example.com", "@beatriz.demo"],
-    ["Camila Rocha", "31900000105", "camila.rocha@example.com", "@camila.demo"],
-    ["Isabela Martins", "31900000106", "isabela.martins@example.com", "@isabela.demo"],
-    ["Rafaela Lima", "31900000107", "rafaela.lima@example.com", "@rafaela.demo"]
-  ];
-  const clientDocs = clientRows.map(([nome, telefone, email, instagram], index) => ({
-    id: `demo-client-${index + 1}`,
-    nome,
-    telefone,
-    email,
-    instagram,
-    ativo: true,
-    historico: ["Aplicação P/M", "Nail Art"].slice(0, index % 3 + 1),
-    criadoEm: dateAt(Math.max(1, Math.min(20, index * 2 + 2))).date
-  }));
-  const servicesDocs = [
-    ...siteServices.map(({ nome, descricao, valor }) => ({
-      nome, descricao, valor, duracao: null, ativo: true
-    }))
-  ].map((service, index) => ({ id: `demo-service-${index + 1}`, ...service }));
-  const appointments = [
-    [0, 3, "10:00", "Aplicação P/M", "concluido", 195],
-    [1, 6, "13:30", "Banho em Gel", "concluido", 145],
-    [2, 9, "09:00", "Blindagem", "concluido", 820],
-    [3, 12, "15:00", "Nail Art", "concluido", 780],
-    [4, 16, "11:00", "Aplicação G/GG", "concluido", 260],
-    [0, 19, "14:00", "Manutenção P/M", "concluido", 165],
-    [1, 21, "10:30", "Nail Art", "concluido", 960],
-    [2, 22, "16:00", "Aplicação P/M", "concluido", 195],
-    [3, now.getDate(), "15:00", "Banho em Gel", "confirmado", 145],
-    [4, now.getDate() + 1, "11:00", "Nail Art", "pendente", 350]
-  ];
-  const bookingsDocs = appointments.map(([clientIndex, day, horario, procedimento, status, valor], index) => {
-    const appointmentDate = dateAt(day);
-    const createdAt = new Date(now.getTime() - (index + 1) * 47 * 60 * 1000);
-    return {
-      id: `demo-booking-${String(index + 1).padStart(2, "0")}`,
-      nome: clientRows[clientIndex][0],
-      telefone: clientRows[clientIndex][1],
-      email: clientRows[clientIndex][2],
-      procedimento,
-      data: appointmentDate.iso,
-      horario,
-      status,
-      valor,
-      slotId: slotDocumentId(appointmentDate.iso, horario),
-      codigoConsulta: String(index + 1).padStart(2, "0").repeat(32),
-      criadoEm: createdAt,
-      atualizadoEm: createdAt
-    };
-  });
-  return {
-    bookings: bookingsDocs,
-    clients: clientDocs,
-    services: servicesDocs,
-    reviews: [...Array(17).fill({ nota: 5 }), { nota: 4 }]
-  };
-};
-
 const renderAllData = () => {
   renderMetrics();
   renderAppointmentsTable();
@@ -202,68 +137,6 @@ const renderAllData = () => {
   renderServicesTable();
   renderFinanceTable();
   renderNotifications();
-};
-
-const updateDemoControls = () => {
-  document.querySelector("#demo-banner").hidden = !isDemoMode;
-  document.querySelectorAll("[data-demo-toggle]").forEach((button) => {
-    button.textContent = isDemoMode ? "Voltar aos dados do Firestore" : "Popular dados de exemplo";
-  });
-  const feedback = document.querySelector("#demo-mode-feedback");
-  if (feedback) {
-    feedback.textContent = isDemoMode
-      ? "Demonstração ativa: as alterações ficam somente nesta sessão."
-      : "Dados reais serão carregados do Firestore.";
-  }
-};
-
-const setDemoMode = (enabled) => {
-  if (enabled === isDemoMode && (!enabled || demoData)) return;
-  isDemoMode = enabled;
-  if (enabled) {
-    demoData = createDemoData();
-    bookings = demoData.bookings;
-    clients = demoData.clients;
-    services = demoData.services;
-    reviews = demoData.reviews;
-    blockedSlots = [];
-    readNotificationIds = new Set();
-  } else {
-    demoData = null;
-    bookings = liveData.bookings;
-    clients = liveData.clients;
-    services = liveData.services;
-    reviews = liveData.reviews;
-    blockedSlots = liveData.blockedSlots;
-  }
-  updateDemoControls();
-  renderAllData();
-};
-
-const refreshDataMode = () => {
-  if (Object.values(loadedCollections).some((loaded) => !loaded)) return;
-  if (manualDemoOverride === null) {
-    const collectionsAreEmpty = Object.values(liveData).every((items) => items.length === 0);
-    if (collectionsAreEmpty !== isDemoMode) {
-      setDemoMode(collectionsAreEmpty);
-    } else if (!isDemoMode) {
-      bookings = liveData.bookings;
-      clients = liveData.clients;
-      services = liveData.services;
-      reviews = liveData.reviews;
-      blockedSlots = liveData.blockedSlots;
-      renderAllData();
-    }
-  } else if (manualDemoOverride !== isDemoMode) {
-    setDemoMode(manualDemoOverride);
-  } else if (!isDemoMode) {
-    bookings = liveData.bookings;
-    clients = liveData.clients;
-    services = liveData.services;
-    reviews = liveData.reviews;
-    blockedSlots = liveData.blockedSlots;
-    renderAllData();
-  }
 };
 
 const showToast = (message) => {
@@ -435,8 +308,7 @@ const createBlockedSlotCard = (slot) => {
   unblock.type = "button";
   unblock.addEventListener("click", async () => {
     try {
-      if (isDemoMode) blockedSlots = blockedSlots.filter((item) => item.id !== slot.id);
-      else await runTransaction(db, async (transaction) => {
+      await runTransaction(db, async (transaction) => {
         const reference = doc(db, "horarios_ocupados", slot.id);
         const snapshot = await transaction.get(reference);
         if (snapshot.exists() && snapshot.data().bloqueio === true) transaction.delete(reference);
@@ -623,7 +495,7 @@ const renderMetrics = () => {
     : null;
   document.querySelector("#metric-rating").textContent = averageRating === null ? "—" : averageRating.toFixed(1);
   document.querySelector("#metric-rating-description").textContent = ratingValues.length
-    ? `${ratingValues.length} avaliações${isDemoMode ? " de demonstração" : ""}`
+    ? `${ratingValues.length} avaliações`
     : "Sem avaliações cadastradas";
   document.querySelector("#performance-total").textContent = currency(revenue);
   document.querySelector("#performance-change").textContent = variationLabel(revenue, previousRevenue);
@@ -678,22 +550,59 @@ const syncLegacyAvailability = async () => {
       const currentBooking = await transaction.get(bookingReference);
       if (!currentBooking.exists() || isCancelled(currentBooking.data())) return;
       const booking = currentBooking.data();
-      const slotId = booking.slotId || slotDocumentId(booking.data, booking.horario);
+      const professionalUid = booking.profissionalUid || adminUIDs[0];
+      const slotId = slotDocumentId(booking.data, booking.horario, professionalUid);
+      const legacySlotId = booking.slotId || slotDocumentId(booking.data, booking.horario);
       const code = booking.codigoConsulta || createRandomCode();
       const slotReference = doc(db, "horarios_ocupados", slotId);
+      const legacySlotReference = legacySlotId !== slotId
+        ? doc(db, "horarios_ocupados", legacySlotId)
+        : null;
       const lookupReference = doc(db, "consultas_agendamento", code);
       const slot = await transaction.get(slotReference);
+      const legacySlot = legacySlotReference
+        ? await transaction.get(legacySlotReference)
+        : slot;
       const lookup = await transaction.get(lookupReference);
+      if (slot.exists() && slot.data().reservaId !== appointment.id) {
+        throw new Error(`O horário ${booking.data} às ${booking.horario} já está associado a outra reserva.`);
+      }
+      if (legacySlotReference && legacySlot.exists()
+        && (legacySlot.data().bloqueio === true || legacySlot.data().reservaId !== appointment.id)) {
+        throw new Error(`Não foi possível migrar o horário antigo ${booking.data} às ${booking.horario}: ele está ocupado ou bloqueado.`);
+      }
       if (!slot.exists()) {
         transaction.set(slotReference, {
           data: booking.data,
           horario: booking.horario,
           status: "ocupado",
+          profissionalUid: professionalUid,
+          reservaId: appointment.id
+        });
+      } else if (slot.data().profissionalUid !== professionalUid) {
+        transaction.update(slotReference, {
+          data: booking.data,
+          horario: booking.horario,
+          status: "ocupado",
+          profissionalUid: professionalUid,
           reservaId: appointment.id
         });
       }
-      if (!booking.slotId || !booking.codigoConsulta) {
-        transaction.update(bookingReference, { slotId, codigoConsulta: code });
+      if (legacySlotReference && legacySlot.exists()
+        && legacySlot.data().reservaId === appointment.id
+        && legacySlot.data().bloqueio !== true
+        && legacySlot.data().profissionalUid !== professionalUid) {
+        transaction.update(legacySlotReference, { profissionalUid: professionalUid });
+      }
+      if (booking.slotId !== slotId || !booking.codigoConsulta
+        || !booking.profissionalUid || !booking.profissionalNome) {
+        transaction.update(bookingReference, {
+          slotId,
+          codigoConsulta: code,
+          profissionalUid: professionalUid,
+          profissionalNome: professionals.find((item) => item.id === professionalUid)?.nome
+            || (professionalUid === adminUIDs[0] ? "Camila" : "Profissional")
+        });
       }
       if (!lookup.exists()) {
         transaction.set(lookupReference, {
@@ -713,7 +622,7 @@ const subscribeToData = () => {
   document.querySelector("#appointments-loading").hidden = false;
   document.querySelector("#appointments-table-empty").hidden = true;
   const syncAvailabilityIfNeeded = async () => {
-    if (!Object.values(loadedCollections).every(Boolean) || isDemoMode || legacyAvailabilitySynced) return;
+    if (!isAdminSession || !Object.values(loadedCollections).every(Boolean) || legacyAvailabilitySynced) return;
     try {
       await syncLegacyAvailability();
     } catch (error) {
@@ -722,12 +631,15 @@ const subscribeToData = () => {
     }
   };
 
-  onSnapshot(appointmentsReference, async (snapshot) => {
-    liveData.bookings = snapshot.docs
+  const appointmentFeed = isAdminSession
+    ? appointmentsReference
+    : query(appointmentsReference, where("profissionalUid", "==", currentUserUid));
+  onSnapshot(appointmentFeed, async (snapshot) => {
+    bookings = snapshot.docs
       .map((item) => ({ id: item.id, ...item.data() }))
       .sort((a, b) => `${a.data || ""} ${a.horario || ""}`.localeCompare(`${b.data || ""} ${b.horario || ""}`));
     loadedCollections.bookings = true;
-    refreshDataMode();
+    renderAllData();
     appointmentsLoaded = true;
     renderAppointmentsTable();
     await syncAvailabilityIfNeeded();
@@ -745,10 +657,10 @@ const subscribeToData = () => {
   });
 
   onSnapshot(clientsReference, async (snapshot) => {
-    liveData.clients = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
+    clients = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
       .sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
     loadedCollections.clients = true;
-    refreshDataMode();
+    renderAllData();
     await syncAvailabilityIfNeeded();
     if (currentListType === "clients" && listDialog.open) renderList("clients");
   }, (error) => {
@@ -756,17 +668,15 @@ const subscribeToData = () => {
     console.error("Falha ao acompanhar clientes:", error);
   });
 
-  onSnapshot(servicesReference, async (snapshot) => {
-    if (!siteServicesSeedStarted) {
+  const serviceFeed = isAdminSession
+    ? servicesReference
+    : query(servicesReference, where("ativo", "==", true));
+  onSnapshot(serviceFeed, async (snapshot) => {
+    if (isAdminSession && !siteServicesSeedStarted) {
       siteServicesSeedStarted = true;
-      const existingNames = new Set(snapshot.docs.map((item) =>
-        String(item.data().nome || "").trim().toLocaleLowerCase("pt-BR")));
-      const missingServices = siteServices.filter((service) =>
-        !existingNames.has(service.nome.toLocaleLowerCase("pt-BR")));
-
-      if (missingServices.length > 0) {
+      if (snapshot.empty) {
         try {
-          await Promise.all(missingServices.map((service) => setDoc(
+          await Promise.all(siteServices.map((service) => setDoc(
             doc(servicesReference, service.id),
             { ...service, duracao: null, ativo: true, criadoEm: serverTimestamp() }
           )));
@@ -777,10 +687,10 @@ const subscribeToData = () => {
       }
     }
 
-    liveData.services = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
+    services = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }))
       .sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
     loadedCollections.services = true;
-    refreshDataMode();
+    renderAllData();
     await syncAvailabilityIfNeeded();
     if (currentListType === "services" && listDialog.open) renderList("services");
   }, (error) => {
@@ -789,9 +699,9 @@ const subscribeToData = () => {
   });
 
   onSnapshot(reviewsReference, async (snapshot) => {
-    liveData.reviews = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+    reviews = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
     loadedCollections.reviews = true;
-    refreshDataMode();
+    renderAllData();
     await syncAvailabilityIfNeeded();
   }, (error) => {
     setDashboardError("Não foi possível carregar as avaliações. Verifique as regras do Firestore.");
@@ -799,15 +709,36 @@ const subscribeToData = () => {
   });
 
   onSnapshot(occupiedSlotsReference, async (snapshot) => {
-    liveData.blockedSlots = snapshot.docs
+    blockedSlots = snapshot.docs
       .map((item) => ({ id: item.id, ...item.data() }))
-      .filter((slot) => slot.bloqueio === true || slot.status === "bloqueado");
+      .filter((slot) => (slot.bloqueio === true || slot.status === "bloqueado")
+        && (!slot.profissionalUid || slot.profissionalUid === currentUserUid));
     loadedCollections.blockedSlots = true;
-    refreshDataMode();
+    renderAllData();
     await syncAvailabilityIfNeeded();
   }, (error) => {
     setDashboardError("Não foi possível carregar os horários bloqueados.");
     console.error("Falha ao acompanhar horários bloqueados:", error);
+  });
+
+  const professionalFeed = isAdminSession
+    ? professionalsReference
+    : query(professionalsReference, where("ativo", "==", true));
+  onSnapshot(professionalFeed, (snapshot) => {
+    professionals = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+    const ownerUid = Array.isArray(adminUIDs) ? adminUIDs[0] : "";
+    if (ownerUid && !professionals.some((professional) => professional.id === ownerUid)) {
+      professionals.unshift({ id: ownerUid, nome: "Camila", ativo: true, isOwner: true });
+    } else {
+      professionals = professionals.map((professional) => ({
+        ...professional,
+        isOwner: professional.id === ownerUid
+      }));
+    }
+    renderProfessionalsTable();
+  }, (error) => {
+    setDashboardError("Não foi possível carregar as profissionais cadastradas.");
+    console.error("Falha ao acompanhar profissionais:", error);
   });
 };
 
@@ -923,9 +854,167 @@ const renderServicesTable = () => {
     statusCell.append(badgeForStatus(service.ativo === false ? "cancelado" : "confirmado"));
     statusCell.lastElementChild.textContent = service.ativo === false ? "Inativo" : "Ativo";
     row.append(statusCell);
+    const actions = createElement("td", "table-actions");
+    const edit = createElement("button", "", "Editar");
+    edit.type = "button";
+    edit.addEventListener("click", () => openRecordDialog("service", null, service.id));
+    const toggle = createElement("button", "", service.ativo === false ? "Ativar" : "Desativar");
+    toggle.type = "button";
+    toggle.addEventListener("click", async () => {
+      try {
+        await updateDoc(doc(servicesReference, service.id), {
+          ativo: service.ativo === false,
+          atualizadoEm: serverTimestamp()
+        });
+        showToast(service.ativo === false ? "Serviço ativado no site." : "Serviço removido do site.");
+      } catch (error) {
+        showToast("Não foi possível atualizar o serviço.");
+        console.error("Falha ao alterar o status do serviço:", error);
+      }
+    });
+    const remove = createElement("button", "is-danger", "Excluir");
+    remove.type = "button";
+    remove.addEventListener("click", async () => {
+      if (!window.confirm(`Excluir o serviço “${service.nome}”?`)) return;
+      try {
+        await deleteDoc(doc(servicesReference, service.id));
+        showToast("Serviço excluído.");
+      } catch (error) {
+        showToast("Não foi possível excluir o serviço.");
+        console.error("Falha ao excluir serviço:", error);
+      }
+    });
+    actions.append(edit, toggle, remove);
+    row.append(actions);
     body.append(row);
   });
   document.querySelector("#services-table-empty").hidden = services.length > 0;
+};
+
+const renderProfessionalsTable = () => {
+  const body = document.querySelector("#professionals-table-body");
+  if (!body) return;
+  body.replaceChildren();
+  professionals.filter((professional) => !professional.isOwner).forEach((professional) => {
+    const row = document.createElement("tr");
+    appendCell(row, professional.nome || "Profissional");
+    appendCell(row, professional.id);
+    appendCell(row, professional.ativo === false ? "Inativa" : "Ativa");
+    const actions = createElement("td", "table-actions");
+    const toggle = createElement("button", "", professional.ativo === false ? "Ativar" : "Desativar");
+    toggle.type = "button";
+    toggle.addEventListener("click", async () => {
+      try {
+        await updateDoc(doc(professionalsReference, professional.id), {
+          ativo: professional.ativo === false,
+          atualizadoEm: serverTimestamp()
+        });
+        showToast(professional.ativo === false ? "Acesso da profissional ativado." : "Acesso da profissional desativado.");
+      } catch (error) {
+        showToast("Não foi possível atualizar o acesso da profissional.");
+        console.error("Falha ao atualizar profissional:", error);
+      }
+    });
+    const remove = createElement("button", "is-danger", "Excluir");
+    remove.type = "button";
+    remove.addEventListener("click", async () => {
+      if (!window.confirm(`Remover o acesso de ${professional.nome || "esta profissional"}?`)) return;
+      try {
+        await deleteDoc(doc(professionalsReference, professional.id));
+        showToast("Acesso removido. A conta no Firebase permanece intacta.");
+      } catch (error) {
+        showToast("Não foi possível remover o acesso.");
+        console.error("Falha ao remover profissional:", error);
+      }
+    });
+    actions.append(toggle, remove);
+    row.append(actions);
+    body.append(row);
+  });
+  document.querySelector("#professionals-empty").hidden =
+    professionals.every((professional) => professional.isOwner);
+};
+
+const loadOwnerProfile = async () => {
+  const form = document.querySelector("#owner-profile-form");
+  if (!form) return;
+  const snapshot = await getDoc(doc(db, "configuracoes", "perfil_studio"));
+  if (!snapshot.exists()) return;
+  const profile = snapshot.data();
+  form.elements.nome.value = profile.nome || "";
+  form.elements.telefone.value = profile.telefone || "";
+  form.elements.email.value = profile.email || "";
+};
+
+const siteContentFields = {
+  home: [
+    { key: "heroTitleFirst", label: "Título inicial" },
+    { key: "heroTitleSecond", label: "Título complementar" },
+    { key: "heroDescriptionFirst", label: "Descrição (linha 1)" },
+    { key: "heroDescriptionSecond", label: "Descrição (linha 2)" },
+    { key: "nailArtHeading", label: "Título da galeria Nail Art" },
+    { key: "studioHeading", label: "Título do Studio" },
+    { key: "academyHeading", label: "Título da Academy" },
+    { key: "closingHeading", label: "Chamada final" },
+    { key: "artImage02", label: "Imagem Nail Art 02 (URL ou caminho)", type: "url" },
+    { key: "artImage03", label: "Imagem Nail Art 03 (URL ou caminho)", type: "url" },
+    { key: "artImage04", label: "Imagem Nail Art 04 (URL ou caminho)", type: "url" },
+    { key: "artImage05", label: "Imagem Nail Art 05 (URL ou caminho)", type: "url" }
+  ],
+  studio: [
+    { key: "heroTitleFirst", label: "Título (linha 1)" },
+    { key: "heroTitleSecond", label: "Título (linha 2)" },
+    { key: "heroDescription", label: "Descrição do Studio", type: "textarea" },
+    { key: "introTitleFirst", label: "Título da apresentação (linha 1)" },
+    { key: "introTitleSecond", label: "Título da apresentação (linha 2)" },
+    { key: "introDescription", label: "Texto de apresentação", type: "textarea" },
+    { key: "heroImage", label: "Imagem principal (URL ou caminho)", type: "url" }
+  ],
+  academy: [
+    { key: "heroDescription", label: "Descrição principal", type: "textarea" },
+    { key: "coursesHeading", label: "Título da seção de cursos" },
+    { key: "coursesDescription", label: "Descrição dos cursos", type: "textarea" },
+    { key: "worksHeading", label: "Título dos resultados das alunas" },
+    { key: "workImage01", label: "Imagem de resultado 01 (URL ou caminho)", type: "url" },
+    { key: "workImage02", label: "Imagem de resultado 02 (URL ou caminho)", type: "url" },
+    { key: "workImage03", label: "Imagem de resultado 03 (URL ou caminho)", type: "url" },
+    { key: "workImage04", label: "Imagem de resultado 04 (URL ou caminho)", type: "url" },
+    { key: "workImage05", label: "Imagem de resultado 05 (URL ou caminho)", type: "url" },
+    { key: "workImage06", label: "Imagem de resultado 06 (URL ou caminho)", type: "url" }
+  ],
+  sobre: [
+    { key: "heroDescription", label: "Apresentação da marca", type: "textarea" },
+    { key: "founderDescription", label: "Texto sobre a fundadora", type: "textarea" },
+    { key: "founderImage", label: "Imagem da fundadora (URL ou caminho)", type: "url" }
+  ],
+  contato: [
+    { key: "heroDescription", label: "Descrição de contato", type: "textarea" },
+    { key: "address", label: "Endereço", type: "textarea" },
+    { key: "instagramUrl", label: "Link do Instagram", type: "url" },
+    { key: "heroImage", label: "Imagem principal (URL ou caminho)", type: "url" }
+  ]
+};
+
+const loadSiteContentEditor = async () => {
+  const page = document.querySelector("#site-content-page").value;
+  const fields = document.querySelector("#site-content-fields");
+  const snapshot = await getDoc(doc(db, "conteudo_site", page));
+  const values = snapshot.exists() ? snapshot.data() : {};
+  fields.replaceChildren();
+  (siteContentFields[page] || []).forEach((field) => {
+    const label = document.createElement("label");
+    label.className = `dialog-field${field.type === "textarea" ? " is-wide" : ""}`;
+    const title = createElement("span", "", field.label);
+    const control = document.createElement(field.type === "textarea" ? "textarea" : "input");
+    control.name = field.key;
+    control.value = typeof values[field.key] === "string" ? values[field.key] : "";
+    if (control instanceof HTMLInputElement) {
+      control.type = "text";
+      if (field.type === "url") control.placeholder = "https://... ou assets/images/arquivo.jpg";
+    }
+    label.append(title, control);
+    fields.append(label);
+  });
 };
 
 const renderFinanceTable = () => {
@@ -1073,13 +1162,16 @@ const renderList = (type, options = {}) => {
   source.forEach((item) => {
     const row = createElement("article", "dialog-list-item");
     const details = document.createElement("div");
+    const servicePrice = typeof item.valor === "number" && Number.isFinite(item.valor)
+      ? currency(item.valor)
+      : "Sob consulta";
     const title = createElement("strong", "", type === "appointments"
       ? item.nome || "Cliente" : item.nome || "Sem nome");
     const description = createElement("p", "", type === "appointments"
       ? `${item.procedimento || "Serviço"} · ${item.data || "Sem data"} · ${item.horario || "Sem horário"} · ${statusLabel(item.status)}`
       : type === "clients"
         ? `${item.telefone || "Sem telefone"}${item.email ? ` · ${item.email}` : ""}${item.ativo === false ? " · Inativa" : ""}`
-        : `${item.descricao || "Sem descrição"} · ${item.duracao ? `${item.duracao} min` : "Duração não informada"} · ${currency(Number(item.valor) || 0)}`);
+        : `${item.descricao || "Sem descrição"} · ${item.duracao ? `${item.duracao} min` : "Duração não informada"} · ${servicePrice}`);
     details.append(title, description);
     if (type === "appointments" && item.codigoConsulta) {
       details.append(createElement("p", "", `Código da reserva: ${item.codigoConsulta}`));
@@ -1124,18 +1216,9 @@ const openList = (type, options = {}) => {
 };
 
 const updateBookingStatus = async (booking, status) => {
-  if (isDemoMode) {
-    const demoBooking = bookings.find((item) => item.id === booking.id);
-    if (!demoBooking) throw new Error("Este agendamento não existe mais.");
-    demoBooking.status = status;
-    demoBooking.atualizadoEm = new Date();
-    renderAllData();
-    return;
-  }
-
   const bookingReference = doc(db, "agendamentos", booking.id);
   const slotId = booking.slotId || (booking.data && booking.horario
-    ? slotDocumentId(booking.data, booking.horario)
+    ? slotDocumentId(booking.data, booking.horario, booking.profissionalUid)
     : "");
   const slotReference = slotId ? doc(db, "horarios_ocupados", slotId) : null;
   const lookupReference = booking.codigoConsulta
@@ -1162,28 +1245,52 @@ const updateBookingStatus = async (booking, status) => {
   });
 };
 
+const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+}[character]));
+
 const fieldMarkup = ({ label, name, type = "text", required = false, wide = false, placeholder = "", value = "", options = "", min = "", step = "" }) => {
   const classes = `dialog-field${wide ? " is-wide" : ""}`;
   const requiredAttribute = required ? "required" : "";
   const minAttribute = min ? `min="${min}"` : "";
   const stepAttribute = step ? `step="${step}"` : "";
   if (type === "select") {
-    return `<label class="${classes}"><span>${label}</span><select name="${name}" ${requiredAttribute}>${options}</select></label>`;
+    return `<label class="${classes}"><span>${escapeHtml(label)}</span><select name="${escapeHtml(name)}" ${requiredAttribute}>${options}</select></label>`;
   }
   if (type === "textarea") {
-    return `<label class="${classes}"><span>${label}</span><textarea name="${name}" placeholder="${placeholder}" ${requiredAttribute}></textarea></label>`;
+    return `<label class="${classes}"><span>${escapeHtml(label)}</span><textarea name="${escapeHtml(name)}" placeholder="${escapeHtml(placeholder)}" ${requiredAttribute}></textarea></label>`;
   }
-  return `<label class="${classes}"><span>${label}</span><input name="${name}" type="${type}" value="${value}" placeholder="${placeholder}" ${requiredAttribute} ${minAttribute} ${stepAttribute}></label>`;
+  return `<label class="${classes}"><span>${escapeHtml(label)}</span><input name="${escapeHtml(name)}" type="${type}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" ${requiredAttribute} ${minAttribute} ${stepAttribute}></label>`;
 };
 
-const openRecordDialog = (type, bookingId = null) => {
+const professionalOptions = (selectedUid = "") => {
+  const available = professionals.filter((professional) =>
+    professional.ativo !== false && (isAdminSession || professional.id === currentUserUid));
+  if (!available.length && currentUserUid) {
+    available.push({ id: currentUserUid, nome: currentUserName || "Profissional", ativo: true });
+  }
+  if (selectedUid && !available.some((professional) => professional.id === selectedUid)) {
+    const previous = professionals.find((professional) => professional.id === selectedUid);
+    if (previous) available.push(previous);
+  }
+  return available.map((professional) =>
+    `<option value="${escapeHtml(professional.id)}">${escapeHtml(professional.nome || "Profissional")}</option>`).join("");
+};
+
+const openRecordDialog = (type, bookingId = null, serviceId = null) => {
   currentRecordType = type;
   editingBookingId = bookingId;
+  editingServiceId = serviceId;
   recordFeedback.textContent = "";
   recordFields.replaceChildren();
   const now = new Date();
   const today = localDateIso(now);
   const existingBooking = bookingId ? bookings.find((booking) => booking.id === bookingId) : null;
+  const existingService = serviceId ? services.find((service) => service.id === serviceId) : null;
   const appointmentType = type === "appointment" || type === "reschedule";
   if (type === "reschedule" && !existingBooking) {
     showToast("Este agendamento não está mais disponível para edição.");
@@ -1210,6 +1317,7 @@ const openRecordDialog = (type, bookingId = null) => {
         fieldMarkup({ label: "WhatsApp", name: "telefone", type: "tel", required: true, placeholder: "(31) 99999-9999" }),
         fieldMarkup({ label: "E-mail (opcional)", name: "email", type: "email", placeholder: "cliente@email.com" }),
         fieldMarkup({ label: "Procedimento", name: "procedimento", required: true }),
+        fieldMarkup({ label: "Profissional", name: "profissionalUid", type: "select", required: true, options: professionalOptions(currentUserUid) }),
         fieldMarkup({ label: "Data", name: "data", type: "date", required: true, value: today }),
         fieldMarkup({ label: "Horário", name: "horario", type: "time", required: true }),
         fieldMarkup({ label: "Valor previsto (R$)", name: "valor", type: "number", min: "0", step: "0.01", placeholder: "0,00" }),
@@ -1225,6 +1333,7 @@ const openRecordDialog = (type, bookingId = null) => {
         fieldMarkup({ label: "WhatsApp", name: "telefone", type: "tel", required: true, value: fieldValue("telefone") }),
         fieldMarkup({ label: "E-mail (opcional)", name: "email", type: "email", value: fieldValue("email") }),
         fieldMarkup({ label: "Procedimento", name: "procedimento", required: true, value: fieldValue("procedimento", fieldValue("servico")) }),
+        fieldMarkup({ label: "Profissional", name: "profissionalUid", type: "select", required: true, options: professionalOptions(fieldValue("profissionalUid", currentUserUid)) }),
         fieldMarkup({ label: "Data", name: "data", type: "date", required: true, value: fieldValue("data", today) }),
         fieldMarkup({ label: "Horário", name: "horario", type: "time", required: true, value: fieldValue("horario") }),
         fieldMarkup({ label: "Valor previsto (R$)", name: "valor", type: "number", min: "0", step: "0.01", value: fieldValue("valor") }),
@@ -1243,12 +1352,13 @@ const openRecordDialog = (type, bookingId = null) => {
       ]
     },
     service: {
-      title: "Adicionar serviço",
+      title: existingService ? "Editar serviço" : "Adicionar serviço",
       fields: [
-        fieldMarkup({ label: "Nome do serviço", name: "nome", required: true }),
-        fieldMarkup({ label: "Preço (R$)", name: "valor", type: "number", required: true, min: "0", step: "0.01", placeholder: "0,00" }),
-        fieldMarkup({ label: "Duração (minutos)", name: "duracao", type: "number", min: "0", step: "5", placeholder: "Ex.: 90" }),
-        fieldMarkup({ label: "Descrição", name: "descricao", type: "textarea", wide: true, placeholder: "Descreva brevemente o serviço." })
+        fieldMarkup({ label: "Nome do serviço", name: "nome", required: true, value: existingService?.nome || "" }),
+        fieldMarkup({ label: "Preço (R$) — deixe vazio para orçamento", name: "valor", type: "number", min: "0", step: "0.01", placeholder: "0,00", value: existingService?.valor ?? "" }),
+        fieldMarkup({ label: "Duração (minutos)", name: "duracao", type: "number", min: "0", step: "5", placeholder: "Ex.: 90", value: existingService?.duracao ?? "" }),
+        fieldMarkup({ label: "Descrição", name: "descricao", type: "textarea", wide: true, placeholder: "Descreva brevemente o serviço.", value: existingService?.descricao || "" }),
+        fieldMarkup({ label: "Status", name: "ativo", type: "select", options: `<option value="true"${existingService?.ativo === false ? "" : " selected"}>Ativo no site</option><option value="false"${existingService?.ativo === false ? " selected" : ""}>Inativo</option>` })
       ]
     }
   };
@@ -1258,7 +1368,14 @@ const openRecordDialog = (type, bookingId = null) => {
   if (appointmentType && existingBooking) currentRecordType = type;
   recordTitle.textContent = template.title;
   recordFields.innerHTML = template.fields.join("");
+  recordForm.querySelector(".dialog-submit").textContent = existingService
+    ? "Salvar alterações"
+    : type === "service" ? "Adicionar serviço" : "Salvar";
+  const serviceDescriptionField = recordFields.querySelector('[name="descricao"]');
+  if (serviceDescriptionField && existingService) serviceDescriptionField.value = existingService.descricao || "";
   if (existingBooking) {
+    const professionalField = recordFields.querySelector('[name="profissionalUid"]');
+    if (professionalField) professionalField.value = existingBooking.profissionalUid || currentUserUid;
     const nailArtField = recordFields.querySelector('[name="nailArt"]');
     if (nailArtField) nailArtField.value = String(Boolean(existingHasNailArt));
     const notesField = recordFields.querySelector('[name="observacoes"]');
@@ -1286,6 +1403,13 @@ const saveAppointment = async (values) => {
   const data = String(values.get("data") || "");
   const horario = String(values.get("horario") || "");
   const procedimento = String(values.get("procedimento") || "").trim();
+  const profissionalUid = isAdminSession
+    ? String(values.get("profissionalUid") || currentUserUid)
+    : currentUserUid;
+  const profissional = professionals.find((item) => item.id === profissionalUid);
+  if (!profissionalUid || (!isAdminSession && profissionalUid !== currentUserUid)) {
+    throw new Error("Selecione uma profissional autorizada.");
+  }
   const nailArt = values.get("nailArt") === "true" || /nail\s*art/i.test(procedimento);
   const observacoes = String(values.get("observacoes") || "").trim();
   const status = String(values.get("status") || "pendente");
@@ -1299,47 +1423,17 @@ const saveAppointment = async (values) => {
     : null;
   if (editingBookingId && !originalBooking) throw new Error("Este agendamento não existe mais.");
 
-  if (isDemoMode) {
-    const newSlotId = slotDocumentId(data, horario);
-    if (status !== "cancelado" && (bookings.some((booking) => booking.id !== editingBookingId
-      && booking.slotId === newSlotId && !isCancelled(booking))
-      || blockedSlots.some((slot) => slot.id === newSlotId))) {
-      throw new Error("Este horário já está ocupado. Escolha outro.");
-    }
-    const bookingData = {
-      nome,
-      telefone,
-      email: String(values.get("email") || "").trim() || null,
-      procedimento,
-      data,
-      horario,
-      status,
-      valor,
-      nailArt,
-      observacoes: observacoes || null,
-      slotId: newSlotId,
-      atualizadoEm: new Date()
-    };
-    if (originalBooking) {
-      Object.assign(originalBooking, bookingData);
-    } else {
-      bookings.push({
-        id: `demo-booking-${Date.now()}`,
-        ...bookingData,
-        codigoConsulta: createRandomCode(),
-        criadoEm: new Date()
-      });
-    }
-    renderAllData();
-    return;
-  }
-
   if (originalBooking) {
     const bookingReference = doc(db, "agendamentos", originalBooking.id);
-    const oldSlotId = originalBooking.slotId || slotDocumentId(originalBooking.data, originalBooking.horario);
-    const newSlotId = slotDocumentId(data, horario);
+    const oldSlotId = originalBooking.slotId || slotDocumentId(
+      originalBooking.data,
+      originalBooking.horario,
+      originalBooking.profissionalUid
+    );
+    const newSlotId = slotDocumentId(data, horario, profissionalUid);
     const oldSlotReference = doc(db, "horarios_ocupados", oldSlotId);
     const newSlotReference = doc(db, "horarios_ocupados", newSlotId);
+    const globalSlotReference = doc(db, "horarios_ocupados", slotDocumentId(data, horario));
     const lookupReference = originalBooking.codigoConsulta
       ? doc(db, "consultas_agendamento", originalBooking.codigoConsulta)
       : null;
@@ -1347,6 +1441,9 @@ const saveAppointment = async (values) => {
       const currentBooking = await transaction.get(bookingReference);
       if (!currentBooking.exists()) throw new Error("Este agendamento não existe mais.");
       const targetSlot = await transaction.get(newSlotReference);
+      const globalSlot = newSlotId === slotDocumentId(data, horario)
+        ? targetSlot
+        : await transaction.get(globalSlotReference);
       const previousSlot = oldSlotId === newSlotId
         ? targetSlot
         : await transaction.get(oldSlotReference);
@@ -1355,11 +1452,17 @@ const saveAppointment = async (values) => {
         || targetSlot.data().reservaId !== originalBooking.id)) {
         throw new Error("Este horário já está ocupado. Escolha outro.");
       }
+      if (status !== "cancelado" && globalSlot.exists()
+        && (globalSlot.data().bloqueio === true || !globalSlot.data().profissionalUid)) {
+        throw new Error("Este horário está bloqueado ou ocupado. Escolha outro.");
+      }
       transaction.update(bookingReference, {
         nome,
         telefone,
         email: String(values.get("email") || "").trim() || null,
         procedimento,
+        profissionalUid,
+        profissionalNome: profissional?.nome || "Profissional",
         data,
         horario,
         status,
@@ -1378,6 +1481,7 @@ const saveAppointment = async (values) => {
           data,
           horario,
           status: "ocupado",
+          profissionalUid,
           reservaId: originalBooking.id
         });
       }
@@ -1388,8 +1492,9 @@ const saveAppointment = async (values) => {
     return;
   }
 
-  const slotId = slotDocumentId(data, horario);
+  const slotId = slotDocumentId(data, horario, profissionalUid);
   const slotReference = doc(db, "horarios_ocupados", slotId);
+  const globalSlotReference = doc(db, "horarios_ocupados", slotDocumentId(data, horario));
   const bookingReference = doc(collection(db, "agendamentos"));
   const code = createRandomCode();
   const lookupReference = doc(db, "consultas_agendamento", code);
@@ -1398,6 +1503,8 @@ const saveAppointment = async (values) => {
     telefone,
     email: String(values.get("email") || "").trim() || null,
     procedimento,
+    profissionalUid,
+    profissionalNome: profissional?.nome || "Profissional",
     data,
     horario,
     status,
@@ -1412,8 +1519,15 @@ const saveAppointment = async (values) => {
   await runTransaction(db, async (transaction) => {
     const slot = await transaction.get(slotReference);
     if (slot.exists()) throw new Error("Este horário já está ocupado. Escolha outro.");
+    if (slotId !== slotDocumentId(data, horario)) {
+      const globalSlot = await transaction.get(globalSlotReference);
+      if (globalSlot.exists()
+        && (globalSlot.data().bloqueio === true || !globalSlot.data().profissionalUid)) {
+        throw new Error("Este horário está bloqueado ou ocupado. Escolha outro.");
+      }
+    }
     transaction.set(bookingReference, bookingData);
-    transaction.set(slotReference, { data, horario, status: "ocupado", reservaId: bookingReference.id });
+    transaction.set(slotReference, { data, horario, status: "ocupado", profissionalUid, reservaId: bookingReference.id });
     transaction.set(lookupReference, {
       data,
       horario,
@@ -1427,7 +1541,14 @@ const saveAppointment = async (values) => {
 const openBlockDialog = () => {
   const dateField = blockForm.querySelector('[name="data"]');
   const timeField = blockForm.querySelector('[name="horario"]');
+  const professionalField = blockForm.querySelector('[name="profissionalUid"]');
   blockForm.reset();
+  professionalField.replaceChildren(new Option("Todas as profissionais", ""));
+  professionals.filter((professional) => professional.ativo !== false).forEach((professional) => {
+    professionalField.add(new Option(professional.nome || "Profissional", professional.id));
+  });
+  professionalField.value = isAdminSession ? currentUserUid : currentUserUid;
+  professionalField.disabled = !isAdminSession;
   dateField.value = localDateIso(appointmentsSelectedDate);
   timeField.value = "";
   timeField.required = true;
@@ -1445,6 +1566,9 @@ blockForm.querySelector('[name="diaInteiro"]').addEventListener("change", (event
 const blockSelectedTime = async (values) => {
   const data = String(values.get("data") || "");
   const horario = String(values.get("horario") || "");
+  const professionalUid = isAdminSession
+    ? String(values.get("profissionalUid") || "")
+    : currentUserUid;
   const motivo = String(values.get("motivo") || "").trim();
   const allDay = values.get("diaInteiro") === "on";
   if (!parseDate(data) || (!allDay && !/^([01]\d|2[0-3]):[0-5]\d$/.test(horario))) {
@@ -1452,38 +1576,25 @@ const blockSelectedTime = async (values) => {
   }
   let times = [horario];
   if (allDay) {
-    if (isDemoMode) {
-      times = Array.from({ length: 10 }, (_, index) => `${String(index + 9).padStart(2, "0")}:00`);
-    } else {
-      const agenda = await getDoc(agendaReference);
-      const configuredTimes = agenda.exists() && Array.isArray(agenda.data().horariosPadrao)
-        ? agenda.data().horariosPadrao
-        : [];
-      times = configuredTimes
-        .map((time) => typeof time === "string" ? time : time.hora || time.time || "")
-        .filter((time) => /^([01]\d|2[0-3]):[0-5]\d$/.test(time));
-      if (!times.length) throw new Error("Configure os horários padrão da agenda antes de bloquear o dia inteiro.");
-    }
+    const agenda = await getDoc(agendaReference);
+    const configuredTimes = agenda.exists() && Array.isArray(agenda.data().horariosPadrao)
+      ? agenda.data().horariosPadrao
+      : [];
+    times = configuredTimes
+      .map((time) => typeof time === "string" ? time : time.hora || time.time || "")
+      .filter((time) => /^([01]\d|2[0-3]):[0-5]\d$/.test(time));
+    if (!times.length) throw new Error("Configure os horários padrão da agenda antes de bloquear o dia inteiro.");
   }
-  const slots = times.map((time) => ({ id: slotDocumentId(data, time), time }));
-  const existingAppointments = bookings.filter((booking) => booking.data === data && !isCancelled(booking));
+  const slots = times.map((time) => ({
+    id: slotDocumentId(data, time, professionalUid),
+    time,
+    professionalUid
+  }));
+  const existingAppointments = bookings.filter((booking) => booking.data === data && !isCancelled(booking)
+    && (!professionalUid || !booking.profissionalUid || booking.profissionalUid === professionalUid));
   if (allDay && existingAppointments.length) {
     throw new Error("Há agendamentos neste dia. Reagende ou cancele-os antes de marcar a folga.");
   }
-  if (isDemoMode) {
-    const occupied = slots.filter(({ id }) =>
-      bookings.some((booking) => booking.slotId === id && !isCancelled(booking))
-      || blockedSlots.some((slot) => slot.id === id));
-    if (occupied.length) {
-      throw new Error(`Já existem horários ocupados: ${occupied.map((slot) => slot.time).join(", ")}.`);
-    }
-    blockedSlots.push(...slots.map(({ id, time }) => ({
-      id, data, horario: time, motivo: motivo || (allDay ? "Folga" : ""), status: "bloqueado", bloqueio: true
-    })));
-    renderAppointmentsTable();
-    return;
-  }
-
   const slotReferences = slots.map(({ id }) => doc(db, "horarios_ocupados", id));
   await runTransaction(db, async (transaction) => {
     const snapshots = await Promise.all(slotReferences.map((reference) => transaction.get(reference)));
@@ -1498,6 +1609,7 @@ const blockSelectedTime = async (values) => {
       horario: slots[index].time,
       status: "bloqueado",
       bloqueio: true,
+      profissionalUid: slots[index].professionalUid || null,
       motivo: motivo || (allDay ? "Folga" : null),
       criadoEm: serverTimestamp()
     }));
@@ -1520,13 +1632,8 @@ const saveRecord = async (values) => {
       email: String(values.get("email") || "").trim() || null,
       instagram: String(values.get("instagram") || "").trim() || null,
       ativo: true,
-      criadoEm: isDemoMode ? new Date() : serverTimestamp()
+      criadoEm: serverTimestamp()
     };
-    if (isDemoMode) {
-      clients.push({ id: `demo-client-${Date.now()}`, ...clientData });
-      renderAllData();
-      return "Cliente cadastrada somente nesta demonstração.";
-    }
     await setDoc(doc(clientsReference), {
       ...clientData,
       criadoEm: serverTimestamp()
@@ -1535,24 +1642,30 @@ const saveRecord = async (values) => {
   }
 
   if (currentRecordType === "service") {
+    const rawPrice = String(values.get("valor") || "").trim();
     const serviceData = {
       nome: String(values.get("nome") || "").trim(),
       descricao: String(values.get("descricao") || "").trim(),
-      valor: Number(values.get("valor")) || 0,
+      valor: rawPrice ? Number(rawPrice) : null,
       duracao: Number(values.get("duracao")) || null,
-      ativo: true
+      ativo: values.get("ativo") !== "false"
     };
-    if (isDemoMode) {
-      services.push({ id: `demo-service-${Date.now()}`, ...serviceData });
-      renderAllData();
-      return "Serviço adicionado somente nesta demonstração.";
+    if (!serviceData.nome || (serviceData.valor !== null
+      && (!Number.isFinite(serviceData.valor) || serviceData.valor < 0))) {
+      throw new Error("Informe o nome do serviço e um preço válido ou deixe o preço vazio para orçamento.");
+    }
+    if (editingServiceId) {
+      await updateDoc(doc(servicesReference, editingServiceId), {
+        ...serviceData,
+        atualizadoEm: serverTimestamp()
+      });
+      return "Serviço atualizado no site.";
     }
     await setDoc(doc(servicesReference), {
       ...serviceData,
-      ativo: true,
       criadoEm: serverTimestamp()
     });
-    return "Serviço adicionado.";
+    return "Serviço adicionado ao site.";
   }
 
   throw new Error("Tipo de cadastro inválido.");
@@ -1588,11 +1701,6 @@ const renderAgendaSettings = () => {
 };
 
 const loadAgendaSettings = async () => {
-  if (isDemoMode) {
-    openMonths = new Set([`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`]);
-    renderAgendaSettings();
-    return;
-  }
   const snapshot = await getDoc(agendaReference);
   const months = snapshot.exists() && Array.isArray(snapshot.data().mesesAbertos)
     ? snapshot.data().mesesAbertos
@@ -1608,14 +1716,6 @@ const updateAgendaMonth = async () => {
   const isOpen = openMonths.has(month);
   toggleMonthButton.disabled = true;
   try {
-    if (isDemoMode) {
-      if (isOpen) openMonths.delete(month);
-      else openMonths.add(month);
-      renderAgendaSettings();
-      document.querySelector("#settings-feedback").textContent =
-        `Mês ${isOpen ? "fechado" : "aberto"} somente nesta demonstração.`;
-      return;
-    }
     await setDoc(agendaReference, {
       mesesAbertos: isOpen ? arrayRemove(month) : arrayUnion(month)
     }, { merge: true });
@@ -1697,6 +1797,14 @@ const showView = (view) => {
   if (view === "settings") loadAgendaSettings().catch((error) => {
     console.error("Falha ao carregar configurações da agenda:", error);
   });
+  if (view === "settings" && isAdminSession) loadOwnerProfile().catch((error) => {
+    document.querySelector("#owner-profile-feedback").textContent = "Não foi possível carregar seus dados.";
+    console.error("Falha ao carregar o perfil da administradora:", error);
+  });
+  if (view === "content" && isAdminSession) loadSiteContentEditor().catch((error) => {
+    document.querySelector("#site-content-feedback").textContent = "Não foi possível carregar o conteúdo salvo.";
+    console.error("Falha ao carregar conteúdo do site:", error);
+  });
   document.querySelector("#dashboard").scrollTo({ top: 0, behavior: "smooth" });
 };
 
@@ -1711,16 +1819,6 @@ notificationsButton.addEventListener("click", (event) => {
 document.querySelector("#mark-notifications-read").addEventListener("click", () => {
   getNotifications().forEach((item) => readNotificationIds.add(item.id));
   renderNotifications();
-});
-
-document.querySelectorAll("[data-demo-toggle]").forEach((button) => {
-  button.addEventListener("click", () => {
-    manualDemoOverride = isDemoMode ? false : true;
-    setDemoMode(manualDemoOverride);
-    showToast(isDemoMode
-      ? "Dados de exemplo ativados nesta demonstração."
-      : "Dados reais do Firestore restaurados.");
-  });
 });
 
 document.querySelector("#logout-button").addEventListener("click", async () => {
@@ -1778,7 +1876,7 @@ recordFields.addEventListener("input", (event) => {
 });
 
 document.querySelectorAll("[data-close-dialog]").forEach((button) => {
-  button.addEventListener("click", () => listDialog.close());
+  button.addEventListener("click", () => button.closest("dialog")?.close());
 });
 
 blockDialog.addEventListener("click", (event) => {
@@ -1814,6 +1912,115 @@ recordDialog.addEventListener("click", (event) => {
 notificationsPopover.addEventListener("click", (event) => event.stopPropagation());
 agendaMonthSelect.addEventListener("change", renderAgendaSettings);
 toggleMonthButton.addEventListener("click", updateAgendaMonth);
+
+document.querySelector("#owner-profile-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  if (!form.reportValidity()) return;
+  const feedback = document.querySelector("#owner-profile-feedback");
+  const button = form.querySelector("[type='submit']");
+  const values = new FormData(form);
+  button.disabled = true;
+  feedback.textContent = "Salvando...";
+  try {
+    await setDoc(doc(db, "configuracoes", "perfil_studio"), {
+      nome: String(values.get("nome") || "").trim(),
+      telefone: String(values.get("telefone") || "").trim(),
+      email: String(values.get("email") || "").trim(),
+      atualizadoEm: serverTimestamp()
+    }, { merge: true });
+    document.querySelector("#profile-name").textContent = String(values.get("nome") || "").trim();
+    document.querySelector("#welcome-name").textContent = String(values.get("nome") || "").trim();
+    feedback.textContent = "Seus dados foram salvos.";
+  } catch (error) {
+    feedback.textContent = "Não foi possível salvar seus dados.";
+    console.error("Falha ao salvar perfil da administradora:", error);
+  } finally {
+    button.disabled = false;
+  }
+});
+
+document.querySelector("#professional-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  if (!form.reportValidity()) return;
+  const feedback = document.querySelector("#professional-feedback");
+  const button = form.querySelector("[type='submit']");
+  const values = new FormData(form);
+  const uid = String(values.get("uid") || "").trim();
+  const nome = String(values.get("nome") || "").trim();
+  if (!uid || !nome) return;
+  button.disabled = true;
+  feedback.textContent = "Salvando...";
+  try {
+    const reference = doc(professionalsReference, uid);
+    const existing = await getDoc(reference);
+    await setDoc(reference, {
+      nome,
+      ativo: true,
+      ...(existing.exists() ? {} : { criadoEm: serverTimestamp() }),
+      atualizadoEm: serverTimestamp()
+    }, { merge: true });
+    form.reset();
+    feedback.textContent = "Profissional cadastrada. Ela já pode entrar no painel.";
+  } catch (error) {
+    feedback.textContent = "Não foi possível cadastrar a profissional. Confira o UID e as permissões.";
+    console.error("Falha ao cadastrar profissional:", error);
+  } finally {
+    button.disabled = false;
+  }
+});
+
+document.querySelector("#site-content-page").addEventListener("change", () => {
+  loadSiteContentEditor().catch((error) => {
+    document.querySelector("#site-content-feedback").textContent = "Não foi possível carregar o conteúdo salvo.";
+    console.error("Falha ao trocar a página do editor de conteúdo:", error);
+  });
+});
+
+document.querySelector("#site-content-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!isAdminSession) {
+    document.querySelector("#site-content-feedback").textContent = "Somente a administradora pode publicar conteúdo.";
+    return;
+  }
+  const form = event.currentTarget;
+  if (!form.reportValidity()) return;
+  const page = document.querySelector("#site-content-page").value;
+  const feedback = document.querySelector("#site-content-feedback");
+  const button = form.querySelector("[type='submit']");
+  const values = new FormData(form);
+  const content = {};
+  try {
+    for (const field of siteContentFields[page] || []) {
+      const value = String(values.get(field.key) || "").trim();
+      if (field.type === "url" && value) {
+        const url = new URL(value, `${window.location.origin}/`);
+        if (url.protocol !== "https:" && url.protocol !== "http:") {
+          throw new Error(`O endereço de ${field.label} precisa usar HTTP ou HTTPS.`);
+        }
+      }
+      content[field.key] = value;
+    }
+  } catch (error) {
+    feedback.textContent = error.message || "Confira os endereços informados.";
+    return;
+  }
+  button.disabled = true;
+  feedback.textContent = "Publicando...";
+  try {
+    await setDoc(doc(db, "conteudo_site", page), {
+      ...content,
+      atualizadoEm: serverTimestamp()
+    }, { merge: true });
+    feedback.textContent = "Conteúdo salvo. Atualize a página pública para conferir.";
+  } catch (error) {
+    feedback.textContent = "Não foi possível salvar o conteúdo do site.";
+    console.error("Falha ao salvar conteúdo do site:", error);
+  } finally {
+    button.disabled = false;
+  }
+});
 
 document.addEventListener("click", (event) => {
   if (!notificationsPopover.hidden
@@ -1897,19 +2104,46 @@ onAuthStateChanged(auth, async (user) => {
     window.location.replace("admin.html");
     return;
   }
-  if (!Array.isArray(adminUIDs) || !adminUIDs.includes(user.uid)) {
+  currentUserUid = user.uid;
+  isAdminSession = Array.isArray(adminUIDs) && adminUIDs.includes(user.uid);
+  let professionalProfile = null;
+  if (!isAdminSession) {
     try {
-      await signOut(auth);
+      const profile = await getDoc(doc(professionalsReference, user.uid));
+      if (profile.exists() && profile.data().ativo !== false) {
+        professionalProfile = profile.data();
+      }
     } catch (error) {
-      console.error("Falha ao encerrar sessão sem permissão administrativa:", error);
+      setDashboardError("Não foi possível verificar o acesso da profissional.");
+      console.error("Falha ao verificar perfil profissional:", error);
+      return;
     }
-    window.location.replace("admin.html?error=not-admin");
-    return;
+    if (!professionalProfile) {
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error("Falha ao encerrar sessão sem permissão administrativa:", error);
+      }
+      window.location.replace("admin.html?error=not-admin");
+      return;
+    }
   }
 
-  const name = user.displayName && user.displayName.trim() ? user.displayName.trim() : "Camila";
+  const name = isAdminSession
+    ? user.displayName && user.displayName.trim() ? user.displayName.trim() : "Camila"
+    : professionalProfile.nome || user.displayName || "Profissional";
+  currentUserName = name;
   document.querySelector("#profile-name").textContent = name;
   document.querySelector("#welcome-name").textContent = name;
+  document.querySelector("#profile-role").textContent = isAdminSession ? "Administradora" : "Profissional parceira";
+  document.querySelectorAll("[data-admin-only]").forEach((element) => {
+    element.hidden = !isAdminSession;
+  });
+  if (!isAdminSession) {
+    document.querySelectorAll('[data-create="client"], [data-create="service"]').forEach((button) => {
+      button.hidden = true;
+    });
+  }
   statusMessage.hidden = true;
   app.hidden = false;
   subscribeToData();
