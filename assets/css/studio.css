@@ -750,6 +750,104 @@
   color: var(--coffee);
 }
 
+/* =====================================
+   CUIDADOS COM AS UNHAS
+===================================== */
+
+.studio-care {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(56px, 7vw, 100px) clamp(28px, 9vw, 140px);
+  background: var(--cacao);
+}
+
+.care-heading {
+  max-width: 760px;
+  margin: 0 auto 38px;
+  text-align: center;
+}
+
+.care-label,
+.care-card-label {
+  color: var(--bronze);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+}
+
+.care-heading h2 {
+  margin: 14px 0 16px;
+  color: var(--champagne);
+  font-family: var(--font-title);
+  font-size: clamp(38px, 5vw, 64px);
+  font-weight: 400;
+  line-height: 0.98;
+}
+
+.care-heading h2 em {
+  color: var(--bronze);
+  font-weight: 400;
+}
+
+.care-heading p,
+.care-note {
+  color: var(--champagne-muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.care-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 3vw, 32px);
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.care-card {
+  padding: clamp(24px, 3vw, 38px);
+  border: 1px solid var(--bronze-border);
+  background: var(--coffee);
+}
+
+.care-card h3 {
+  margin: 12px 0 20px;
+  color: var(--champagne);
+  font-family: var(--font-title);
+  font-size: clamp(28px, 3vw, 38px);
+  font-weight: 400;
+}
+
+.care-card ul {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.care-card li {
+  position: relative;
+  padding-left: 18px;
+  color: var(--champagne-muted);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.care-card li::before {
+  position: absolute;
+  left: 0;
+  color: var(--bronze);
+  content: "—";
+}
+
+.care-note {
+  max-width: 760px;
+  margin: 26px auto 0;
+  text-align: center;
+  font-size: 11px;
+}
+
 
 /* =====================================
    05 — AGENDAMENTO
@@ -927,6 +1025,10 @@
     padding: 56px 7%;
   }
 
+  .studio-care {
+    padding: 64px 7%;
+  }
+
   .nailart-content {
     max-width: 620px;
   }
@@ -956,6 +1058,27 @@
   .studio-nailart {
     grid-template-columns: 1fr;
     gap: 28px;
+  }
+
+  .studio-care {
+    padding: 52px 6%;
+  }
+
+  .care-heading {
+    margin-bottom: 26px;
+  }
+
+  .care-heading h2 {
+    font-size: clamp(36px, 9vw, 46px);
+  }
+
+  .care-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .care-card {
+    padding: 24px 20px;
   }
 
   .studio-intro h2,

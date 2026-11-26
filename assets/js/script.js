@@ -1,12 +1,14 @@
 import { auth, db } from "../../firebase-config.js";
-import "./main.js";
+import "./main.js?v=14";
 import {
+  completeCustomerProfile,
   createCustomerAccount,
   customerAuthError,
   normalizePhone,
   signInCustomer
 } from "./customer-auth.js";
 import {
+  signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
@@ -32,17 +34,14 @@ if (schedulingDialog) {
   const feedback = form.querySelector(".form-feedback");
   const nailArtOption = schedulingDialog.querySelector(".nailart-option");
   const submitButton = form.querySelector(".normal-schedule");
-  const bookingCurrency = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 2
-  });
-  const existingForm = schedulingDialog.querySelector(".existing-client-login");
   const accountLoginForm = schedulingDialog.querySelector(".client-account-login");
-  const appointmentsPanel = schedulingDialog.querySelector(".client-appointments");
-  const appointmentsList = schedulingDialog.querySelector(".appointment-list");
-  const appointmentsFeedback = schedulingDialog.querySelector(".appointments-feedback");
   const accountLoginFeedback = schedulingDialog.querySelector(".account-login-feedback");
+  const switchAccountButton = form.querySelector(".booking-switch-account");
+  const accountHelpLink = form.querySelector(".booking-account-help");
+  const bookingFollowUp = form.querySelector(".booking-follow-up");
+  const bookingFollowUpMessage = bookingFollowUp.querySelector(".booking-follow-up-message");
+  const bookingProcedureName = bookingFollowUp.querySelector(".booking-procedure-name");
+  const bookingNextButton = bookingFollowUp.querySelector(".booking-next-button");
   const vipAccessDialog = document.querySelector(".vip-access-dialog");
   const vipContinueButton = vipAccessDialog.querySelector(".vip-continue-button");
   const vipSnoozeButton = vipAccessDialog.querySelector(".vip-snooze-button");
@@ -53,6 +52,11 @@ if (schedulingDialog) {
   let availableTimes = [];
   let currentCustomer = null;
   let resolveVipDecision = null;
+  let resolveInitialAuthState;
+  const initialAuthState = new Promise((resolve) => {
+    resolveInitialAuthState = resolve;
+  });
+  let initialAuthStateResolved = false;
 
   const createRandomCode = () => {
     if (!window.crypto || typeof window.crypto.getRandomValues !== "function") {
@@ -114,10 +118,34 @@ if (schedulingDialog) {
   vipContinueButton.addEventListener("click", () => settleVipPrompt("continue"));
   vipSnoozeButton.addEventListener("click", () => settleVipPrompt("snooze"));
   vipCancelButton.addEventListener("click", () => settleVipPrompt("cancel"));
+  bookingNextButton.addEventListener("click", async () => {
+    schedulingDialog.classList.remove("booking-confirmed");
+    bookingFollowUp.hidden = true;
+    feedback.textContent = "";
+    await prefillCustomerProfile();
+  });
   vipAccessDialog.addEventListener("cancel", (event) => {
     event.preventDefault();
     settleVipPrompt("cancel");
   });
+
+  const prefillCustomerProfile = async () => {
+    const customer = currentCustomer;
+    if (!customer) return;
+
+    try {
+      const profileSnapshot = await getDoc(doc(db, "clientes", customer.uid));
+      if (!profileSnapshot.exists() || auth.currentUser?.uid !== customer.uid) return;
+
+      const profile = profileSnapshot.data();
+      if (!form.elements.name.value.trim()) form.elements.name.value = profile.nome || "";
+      if (!form.elements.phone.value.trim()) form.elements.phone.value = profile.telefone || "";
+      if (!form.elements.email.value.trim()) form.elements.email.value = profile.email || "";
+    } catch (error) {
+      feedback.textContent = "Não foi possível carregar os dados da sua conta. Tente novamente.";
+      console.error("Falha ao carregar o perfil da cliente no agendamento:", error);
+    }
+  };
 
   onAuthStateChanged(auth, (user) => {
     currentCustomer = user;
@@ -126,6 +154,32 @@ if (schedulingDialog) {
       field.classList.toggle("is-hidden", Boolean(user));
       field.querySelector("input").required = !user;
     });
+    if (!user) switchAccountButton.hidden = true;
+
+    if (!initialAuthStateResolved) {
+      initialAuthStateResolved = true;
+      resolveInitialAuthState();
+    }
+  });
+
+  switchAccountButton.addEventListener("click", async () => {
+    switchAccountButton.disabled = true;
+    try {
+      await signOut(auth);
+      currentCustomer = null;
+      accountPasswordNote.hidden = false;
+      passwordFields.forEach((field) => {
+        field.classList.remove("is-hidden");
+        field.querySelector("input").required = true;
+      });
+      switchAccountButton.hidden = true;
+      feedback.textContent = "Você saiu da conta. Continue com o novo telefone; se ele já tiver cadastro, entre em “Já sou cliente”.";
+    } catch (error) {
+      feedback.textContent = customerAuthError(error);
+      console.error("Falha ao trocar a conta usada no agendamento:", error);
+    } finally {
+      switchAccountButton.disabled = false;
+    }
   });
 
   const getMonthKey = (value) => {
@@ -232,7 +286,11 @@ if (schedulingDialog) {
     }
   };
 
-  document.addEventListener("scheduling:open", loadAgendaSettings);
+  document.addEventListener("scheduling:open", async () => {
+    await initialAuthState;
+    await prefillCustomerProfile();
+    await loadAgendaSettings();
+  });
   if (new URLSearchParams(window.location.search).has("agendar")
     || new URLSearchParams(window.location.search).has("consulta")) {
     document.dispatchEvent(new CustomEvent("scheduling:open"));
@@ -316,10 +374,25 @@ if (schedulingDialog) {
       );
       const profile = await getDoc(doc(db, "clientes", credential.user.uid));
       if (profile.exists()) {
-        form.elements.phone.value = profile.data().telefone || "";
-        form.elements.email.value = profile.data().email || "";
+        const data = profile.data();
+        form.elements.name.value = data.nome || "";
+        form.elements.phone.value = data.telefone || "";
+        form.elements.email.value = data.email || "";
+        feedback.textContent = "";
+      } else {
+        const identifier = String(values.get("identifier") || "").trim();
+        const phone = normalizePhone(identifier);
+        if (phone.length === 10 || phone.length === 11) form.elements.phone.value = phone;
+        form.elements.name.value = "";
+        form.elements.email.value = "";
+        feedback.textContent = "Sua conta foi acessada, mas ainda precisa completar o cadastro. Informe seu nome e o mesmo telefone usado na conta para continuar.";
       }
-      accountLoginFeedback.textContent = "Acesso liberado. Você já pode solicitar um novo agendamento.";
+      switchAccountButton.hidden = true;
+      accountHelpLink.hidden = true;
+      bookingFollowUp.hidden = true;
+      accountLoginFeedback.textContent = profile.exists()
+        ? "Acesso liberado. Você já pode solicitar um novo agendamento."
+        : "";
       schedulingDialog.querySelector('.profile-tab[data-profile="new"]').click();
     } catch (error) {
       accountLoginFeedback.textContent = customerAuthError(error);
@@ -331,7 +404,14 @@ if (schedulingDialog) {
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    await initialAuthState;
+    await prefillCustomerProfile();
     if (!form.reportValidity()) return;
+
+    feedback.textContent = "";
+    switchAccountButton.hidden = true;
+    accountHelpLink.hidden = true;
+    bookingFollowUp.hidden = true;
 
     const values = new FormData(form);
     const date = String(values.get("date"));
@@ -399,13 +479,30 @@ if (schedulingDialog) {
 
       const profileReference = doc(db, "clientes", customer.uid);
       const profileSnapshot = await getDoc(profileReference);
-      if (!profileSnapshot.exists() || profileSnapshot.data().telefone !== phone) {
-        throw new Error("O telefone informado precisa ser o mesmo vinculado à sua conta. Entre em “Já sou cliente” para usar seu acesso.");
+      const profile = profileSnapshot.exists()
+        ? profileSnapshot.data()
+        : await completeCustomerProfile({
+          customer,
+          name: String(values.get("name") || ""),
+          phone,
+          email: String(values.get("email") || "")
+        });
+      const accountPhone = String(profile.telefone || "");
+      const linkedPhone = normalizePhone(accountPhone);
+      if (linkedPhone.length < 10 || linkedPhone.length > 11 || accountPhone !== linkedPhone) {
+        accountHelpLink.hidden = false;
+        throw new Error("O telefone vinculado à sua conta precisa ser atualizado pelo Studio antes de solicitar um agendamento.");
+      }
+      if (linkedPhone !== phone) {
+        switchAccountButton.hidden = false;
+        accountHelpLink.hidden = false;
+        feedback.textContent = "Este formulário está conectado a outra conta. Para usar o telefone informado, saia da conta atual pelo botão abaixo; se esse número já tiver cadastro, entre em “Já sou cliente”.";
+        return;
       }
 
       const previousAppointments = await validAppointmentCount(customer);
       const unlocksVip = previousAppointments === 2;
-      const snoozedUntil = Number(profileSnapshot.data().vipAvisoAte || 0);
+      const snoozedUntil = Number(profile.vipAvisoAte || 0);
       if (unlocksVip && snoozedUntil <= Date.now()) {
         const decision = await decideVipPrompt();
         if (decision === "cancel") return;
@@ -455,92 +552,42 @@ if (schedulingDialog) {
         status: appointment.status,
         reservaId: bookingReference.id
       });
-      await batch.commit();
+      try {
+        await batch.commit();
+      } catch (error) {
+        if (error.code === "permission-denied") {
+          feedback.textContent = "O horário pode ter sido reservado enquanto você preenchia o formulário. Escolha outra data e horário ou fale com o Studio.";
+          console.error("A reserva foi recusada pelas regras da agenda:", error);
+          return;
+        }
+        throw error;
+      }
 
-      feedback.textContent = `Pedido enviado! Total: ${bookingCurrency.format(valor)}. Guarde este código para consultar sua reserva: ${consultationCode}. O Studio confirmará seu agendamento.${unlocksVip ? " Parabéns! Você desbloqueou o Acesso VIP da cliente." : ""}`;
-      schedulingDialog.querySelector(".client-access-link").hidden = false;
+      const appointmentDate = new Intl.DateTimeFormat("pt-BR").format(new Date(`${date}T12:00:00`));
+      bookingProcedureName.textContent = appointment.procedimento;
+      bookingFollowUpMessage.textContent =
+        `Recebemos sua solicitação de ${appointment.procedimento} para ${appointmentDate} às ${time}. O Studio verificará a disponibilidade e responderá pelo WhatsApp informado em até 48 horas. O horário só estará confirmado depois da resposta da equipe.${unlocksVip ? " Você também desbloqueou o Acesso VIP da cliente." : ""}`;
+      bookingFollowUp.hidden = false;
+      schedulingDialog.classList.add("booking-confirmed");
       form.reset();
+      form.elements.name.value = appointment.nome;
+      form.elements.phone.value = phone;
+      form.elements.email.value = appointment.email || "";
       procedureInput.dispatchEvent(new Event("input", { bubbles: true }));
       await loadAgendaSettings();
       setOptions(timeSelect, "Selecione uma data primeiro", []);
     } catch (error) {
-      feedback.textContent = error.code === "permission-denied"
-        ? "A agenda pode ter sido alterada ou este horário acabou de ser reservado. Escolha outra data/horário ou fale com o Studio."
-        : customerAuthError(error);
+      if (error.code === "customer/profile-phone-mismatch") {
+        switchAccountButton.hidden = false;
+        accountHelpLink.hidden = false;
+        feedback.textContent = "O telefone informado não corresponde à conta acessada. Saia da conta para cadastrar outro telefone ou entre com a conta vinculada a esse número.";
+      } else {
+        feedback.textContent = customerAuthError(error);
+      }
       console.error("Falha ao salvar agendamento:", error);
     } finally {
       submitButton.disabled = false;
       submitButton.textContent = "Solicitar agendamento";
     }
-  });
-
-  existingForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const code = String(new FormData(existingForm).get("identifier") || "").trim().toLowerCase();
-    if (!/^[a-f0-9]{64}$/.test(code)) {
-      appointmentsFeedback.textContent = "Informe o código de consulta recebido ao solicitar o agendamento.";
-      return;
-    }
-
-    appointmentsFeedback.textContent = "Buscando seus agendamentos...";
-    appointmentsList.replaceChildren();
-
-    try {
-      const snapshot = await getDoc(doc(db, "consultas_agendamento", code));
-      if (!snapshot.exists()) {
-        appointmentsFeedback.textContent = "Não encontramos uma reserva para esse código.";
-        return;
-      }
-
-      appointmentsFeedback.textContent = "";
-      const booking = snapshot.data();
-      schedulingDialog.querySelector(".client-access-link").hidden = false;
-      const date = new Date(`${booking.data}T12:00:00`);
-      const status = String(booking.status || "pendente").toLowerCase();
-      const card = document.createElement("article");
-      card.className = "appointment-card";
-      card.innerHTML = `
-        <time datetime="${booking.data}T${booking.horario || "00:00"}">
-          <strong></strong>
-          <span></span>
-        </time>
-        <div>
-          <h4></h4>
-          <p></p>
-        </div>
-        <span class="appointment-status"></span>
-      `;
-      card.querySelector("time strong").textContent = String(date.getDate()).padStart(2, "0");
-      card.querySelector("time span").textContent = new Intl.DateTimeFormat("pt-BR", {
-        month: "short"
-      }).format(date).replace(".", "").toUpperCase();
-      card.querySelector("h4").textContent = booking.procedimento || "Procedimento";
-      card.querySelector("p").textContent =
-        `${booking.horario || "Horário a confirmar"} · ${new Intl.DateTimeFormat("pt-BR").format(date)}`;
-      const statusElement = card.querySelector(".appointment-status");
-      statusElement.textContent = {
-        pendente: "Pendente",
-        confirmado: "Confirmado",
-        concluido: "Concluído",
-        cancelado: "Cancelado"
-      }[status] || "Pendente";
-      statusElement.classList.add(
-        status === "confirmado" ? "is-confirmed" :
-          status === "cancelado" ? "is-cancelled" : "is-completed"
-      );
-      appointmentsPanel.querySelector(".appointments-heading h3").textContent = "Sua reserva";
-      appointmentsList.appendChild(card);
-
-      existingForm.hidden = true;
-      appointmentsPanel.hidden = false;
-    } catch (error) {
-      appointmentsFeedback.textContent = "Não foi possível consultar os agendamentos. Tente novamente.";
-      console.error("Falha ao consultar reserva pelo código:", error);
-    }
-  });
-
-  schedulingDialog.querySelector(".new-appointment").addEventListener("click", () => {
-    appointmentsPanel.hidden = true;
-    existingForm.hidden = false;
   });
 }

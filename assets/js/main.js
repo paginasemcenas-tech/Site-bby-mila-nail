@@ -113,7 +113,7 @@ schedulingDialog.innerHTML = `
             <input name="confirmPassword" type="password" autocomplete="new-password" minlength="6" required placeholder="Digite a senha novamente">
           </label>
 
-          <p class="booking-code-hint account-password-note">Seu primeiro agendamento cria sua conta. Depois, entre com telefone ou e-mail e esta senha.</p>
+          <p class="account-form-note account-password-note">Seu primeiro agendamento cria sua conta. Depois, entre com telefone ou e-mail e esta senha.</p>
 
           <label class="form-field procedure-field">
             <span>Procedimento</span>
@@ -169,9 +169,54 @@ schedulingDialog.innerHTML = `
 
         <button class="normal-schedule" type="submit">Solicitar agendamento</button>
         <p class="form-feedback" role="status" aria-live="polite"></p>
-        <a class="client-access-link" href="cliente-dashboard.html" hidden>
-          Consulte se você já desbloqueou sua área exclusiva de cliente.
+        <button class="booking-switch-account" type="button" hidden>Sair da conta e cadastrar outro telefone</button>
+        <a
+          class="booking-account-help"
+          href="https://wa.me/553196809579?text=Ol%C3%A1%2C%20preciso%20atualizar%20o%20telefone%20da%20minha%20conta%20sem%20perder%20meu%20hist%C3%B3rico."
+          target="_blank"
+          rel="noopener noreferrer"
+          hidden
+        >
+          Quer manter seu histórico? Peça ao Studio para atualizar o telefone da conta.
         </a>
+
+        <section class="booking-follow-up" hidden aria-labelledby="booking-follow-up-title" aria-live="polite">
+          <span class="booking-follow-up-label">PEDIDO RECEBIDO</span>
+          <h3 id="booking-follow-up-title">Solicitação enviada.</h3>
+          <p class="booking-follow-up-message"></p>
+          <a class="booking-vip-link" href="cliente-dashboard.html">
+            Se você tem Acesso VIP, acompanhe o status pela Área da Cliente.
+          </a>
+          <div class="booking-practices">
+            <h4>Cuidados para <span class="booking-procedure-name"></span></h4>
+            <div class="booking-practices-grid">
+              <div>
+                <strong>Antes</strong>
+                <ul>
+                  <li>Compareça com as mãos limpas e conte à profissional sobre sensibilidades ou desconfortos.</li>
+                  <li>Não tente remover produto ou cutículas em casa antes do atendimento.</li>
+                </ul>
+              </div>
+              <div>
+                <strong>Depois</strong>
+                <ul>
+                  <li>Hidrate as mãos e cutículas; use luvas ao lidar com produtos de limpeza.</li>
+                  <li>Não puxe o produto nem use as unhas como ferramentas. Se houver quebra, descolamento ou desconforto, fale com o Studio.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <a class="booking-care-link" href="studio.html#cuidados">Ver todos os cuidados antes e depois</a>
+          <a
+            class="booking-whatsapp-help"
+            href="https://wa.me/553196809579"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Se não receber retorno em até 48 horas, fale com o Studio pelo WhatsApp.
+          </a>
+          <button class="normal-schedule booking-next-button" type="button">Solicitar outro agendamento</button>
+        </section>
       </form>
     </section>
 
@@ -189,31 +234,8 @@ schedulingDialog.innerHTML = `
         <button class="normal-schedule" type="submit">Entrar na área da cliente</button>
         <a class="client-access-link" href="cliente-dashboard.html">Abrir meu painel da cliente</a>
         <a class="client-access-link" href="https://wa.me/553196809579?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20para%20recuperar%20o%20acesso%20%C3%A0%20minha%20%C3%A1rea%20de%20cliente." target="_blank" rel="noopener noreferrer">Esqueci a senha: solicitar ajuda pelo WhatsApp</a>
-        <p class="booking-code-hint">O telefone e a senha usados no primeiro agendamento também funcionam para entrar com o e-mail informado.</p>
+        <p class="account-form-note">O telefone e a senha usados no primeiro agendamento também funcionam para entrar com o e-mail informado.</p>
       </form>
-
-      <div class="existing-login-divider"><span>ou consulte somente uma reserva</span></div>
-      <form class="existing-client-login">
-        <label class="form-field">
-          <span>Código da reserva</span>
-          <input name="identifier" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="64" pattern="[a-fA-F0-9]{64}" required placeholder="Cole o código recebido">
-        </label>
-        <p class="booking-code-hint">O código aparece após a solicitação do agendamento. Ele protege os dados pessoais da sua reserva.</p>
-        <button class="normal-schedule" type="submit">Consultar reserva</button>
-      </form>
-
-      <div class="client-appointments" hidden>
-        <div class="appointments-heading">
-          <div>
-            <span>CONSULTA DE RESERVA</span>
-            <h3>Sua reserva</h3>
-          </div>
-          <button type="button" class="new-appointment">Novo agendamento</button>
-        </div>
-
-        <p class="appointments-feedback" role="status" aria-live="polite"></p>
-        <div class="appointment-list"></div>
-      </div>
     </section>
   </div>
 `;
@@ -314,16 +336,6 @@ procedureInput.addEventListener("input", () => {
 
 brokenNailInput.addEventListener("change", () => {
   procedureInput.dispatchEvent(new Event("input", { bubbles: true }));
-});
-
-schedulingDialog.querySelector(".new-appointment").addEventListener("click", () => {
-  profileTabs.forEach((tab) => {
-    tab.classList.toggle("is-active", tab.dataset.profile === "new");
-    tab.setAttribute("aria-selected", String(tab.dataset.profile === "new"));
-  });
-  profilePanels.forEach((panel) => {
-    panel.hidden = panel.dataset.panel !== "new";
-  });
 });
 
 const bookingProcedureButtons = document.querySelectorAll("[data-booking-procedure]");

@@ -167,7 +167,7 @@ a {
 .hero-photo-wrapper {
   position: absolute;
   inset: 0 0 0 auto;
-  width: 62%;
+  width: 52%;
   clip-path: ellipse(100% 125% at 100% 50%);
   z-index: 1;
 }
@@ -195,7 +195,9 @@ a {
 .hero-content {
   position: relative;
   z-index: 2;
-  max-width: 520px;
+  max-width: min(520px, 42vw);
+  margin-left: max(28px, calc((100vw - 1200px) / 2 + 28px));
+  margin-right: auto;
 }
 
 .eyebrow-row {
@@ -275,6 +277,14 @@ a {
   transform: translateX(4px);
 }
 
+.hero-decorative-star {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--accent-rose);
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
 /* =========================================================
    2. QUEM ESTÁ POR TRÁS: CAMILA
    ========================================================= */
@@ -324,7 +334,7 @@ a {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 40%;
+  object-position: center 95%;
   filter: saturate(0.82) brightness(0.92);
 }
 
@@ -335,21 +345,22 @@ a {
   border-left: 1px solid rgba(212, 166, 142, 0.46);
 }
 
-.camila-kicker {
-  display: block;
-  font-family: var(--font-serif);
-  font-size: 1.25rem;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
 .camila-name {
   font-family: var(--font-serif);
   font-size: clamp(2.8rem, 4vw, 3.8rem);
   font-weight: 400;
   line-height: 0.95;
   color: var(--accent-rose);
-  margin-bottom: 16px;
+  margin-bottom: 4px;
+}
+
+.camila-role {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--accent-rose);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.19em;
 }
 
 .camila-text {
@@ -375,16 +386,16 @@ a {
 }
 
 /* =========================================================
-   3. NOSSOS PARCEIROS
+   3. EQUIPE E PARCEIROS
    ========================================================= */
 .partners-section {
   background-color: var(--bg-dark);
-  padding: clamp(16px, 2vw, 28px) 0 clamp(18px, 2.4vw, 32px);
+  padding: clamp(36px, 4vw, 52px) 0;
   border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .partners-header {
-  margin-bottom: 10px;
+  margin-bottom: 24px;
 }
 
 .partners-title {
@@ -409,54 +420,147 @@ a {
 }
 
 .partners-subtitle {
-  font-size: 0.78rem;
-  color: var(--text-soft);
-  margin-top: 4px;
+  max-width: 610px;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  margin-top: 10px;
 }
 
-.partner-feature {
+.team-grid {
   display: grid;
-  grid-template-columns: 132px 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  width: min(760px, 100%);
+  margin: 0 auto;
+}
+
+.team-card {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.8fr) 1fr;
   align-items: center;
-  gap: 20px;
-  width: min(460px, 100%);
-  margin: 16px auto 0;
-  padding: 14px;
+  min-width: 0;
+  overflow: hidden;
   border: 1px solid rgba(212, 166, 142, 0.22);
   background: linear-gradient(135deg, rgba(61, 21, 25, 0.55), rgba(33, 16, 12, 0.72));
 }
 
-.partner-feature img {
-  display: block;
-  width: 132px;
-  height: auto;
-  aspect-ratio: 9 / 16;
-  object-fit: contain;
+.team-card img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  object-position: center 35%;
 }
 
-.partner-feature figcaption {
-  display: grid;
-  gap: 6px;
+.team-card-copy {
+  padding: 18px;
 }
 
-.partner-feature figcaption span {
-  color: var(--accent-rose);
-  font-size: 0.58rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-}
-
-.partner-feature figcaption strong {
+.team-card-copy h3,
+.brand-card h4 {
   color: var(--text-cream);
   font-family: var(--font-serif);
-  font-size: 1.8rem;
+  font-size: 1.55rem;
   font-weight: 400;
+  line-height: 1.1;
 }
 
-.partner-feature figcaption small {
-  color: var(--text-soft);
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
+.team-card-copy p,
+.brand-card p {
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.commercial-partners {
+  max-width: 1000px;
+  margin: clamp(28px, 4vw, 40px) auto 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.subsection-title {
+  margin-bottom: 18px;
+  color: var(--text-cream);
+  font-family: var(--font-serif);
+  font-size: 1.65rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+.brand-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.brand-card {
+  display: flex;
+  min-width: 0;
+  min-height: 220px;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 166, 142, 0.22);
+  background: linear-gradient(145deg, rgba(61, 21, 25, 0.58), rgba(33, 16, 12, 0.78));
+  text-align: center;
+}
+
+.brand-card-image {
+  display: flex;
+  width: min(100%, 160px);
+  height: 150px;
+  flex: 0 0 150px;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  margin-bottom: 10px;
+  overflow: hidden;
+  padding: 8px;
+  border: 1px solid rgba(212, 166, 142, 0.16);
+  background: rgba(26, 12, 9, 0.54);
+}
+
+.brand-card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.brand-card--product .brand-card-image img {
+  object-fit: cover;
+}
+
+.brand-card h4 {
+  font-size: 1.25rem;
+}
+
+.brand-card p {
+  margin-top: 4px;
+}
+
+.brand-card--person {
+  min-height: 220px;
+}
+
+.partner-monogram {
+  display: grid;
+  width: 96px;
+  height: 96px;
+  place-items: center;
+  margin-bottom: 18px;
+  border: 1px solid rgba(212, 166, 142, 0.44);
+  border-radius: 50%;
+  color: var(--accent-rose);
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
 }
 
 /* =========================================================
@@ -483,7 +587,7 @@ a {
 
 .botanical-sketch {
   position: absolute;
-  left: 16px;
+  right: 16px;
   bottom: 10px;
   width: 170px;
   height: 170px;
@@ -495,9 +599,45 @@ a {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
+  grid-template-columns: 1.1fr 0.9fr;
   align-items: stretch;
   gap: 30px;
+}
+
+.location-photo-box {
+  position: relative;
+  min-height: 360px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(116, 44, 49, 0.3), transparent 54%),
+    linear-gradient(145deg, #28120f, #180c09 72%);
+}
+
+.location-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  object-fit: cover;
+  border: 0;
+  outline: 0;
+  transform: scale(1.1);
+}
+
+.location-video[hidden],
+.location-photo-placeholder[hidden] {
+  display: none !important;
+}
+
+.location-photo-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-align: center;
 }
 
 .location-info {
@@ -544,80 +684,6 @@ a {
   font-size: 0.85rem;
   color: var(--text-muted);
   line-height: 1.5;
-}
-
-.location-card {
-  display: grid;
-  position: relative;
-  place-items: center;
-  overflow: hidden;
-  border: 1px solid rgba(212, 166, 142, 0.3);
-  border-radius: 3px;
-  background:
-    radial-gradient(ellipse at 50% 45%, rgba(116, 44, 49, 0.3), transparent 54%),
-    linear-gradient(145deg, #28120f, #180c09 72%);
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
-  height: clamp(240px, 31.4vw, 430px);
-}
-
-.location-card::before,
-.location-card::after {
-  position: absolute;
-  width: 72%;
-  aspect-ratio: 1;
-  border: 1px solid rgba(212, 166, 142, 0.16);
-  border-radius: 50%;
-  content: "";
-}
-
-.location-card::after {
-  width: 52%;
-  border-color: rgba(212, 166, 142, 0.1);
-}
-
-.location-card-content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding: 28px;
-  text-align: center;
-}
-
-.location-card-kicker,
-.location-card-subtitle {
-  color: var(--accent-rose);
-  font-size: 0.58rem;
-  letter-spacing: 0.19em;
-}
-
-.location-card-content strong {
-  margin: 15px 0 2px;
-  color: var(--text-cream);
-  font-family: var(--font-serif);
-  font-size: clamp(2.8rem, 5vw, 4.5rem);
-  font-weight: 400;
-  letter-spacing: -0.04em;
-  line-height: 0.95;
-}
-
-.location-card-content strong em {
-  color: var(--accent-rose);
-  font-weight: 400;
-}
-
-.location-card-line {
-  width: 48px;
-  height: 1px;
-  margin: 22px 0 17px;
-  background: rgba(212, 166, 142, 0.62);
-}
-
-.location-card-address {
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  line-height: 1.7;
 }
 
 /* =========================================================
@@ -687,7 +753,7 @@ a {
    ========================================================= */
 @media (max-width: 960px) {
   .hero-content {
-    max-width: 470px;
+    max-width: 42vw;
   }
 
   .camila-grid {
@@ -716,7 +782,7 @@ a {
   }
 
   .location-grid {
-    grid-template-columns: 0.9fr 1.1fr;
+    grid-template-columns: 1.05fr 0.95fr;
     gap: 24px;
   }
 
@@ -729,7 +795,7 @@ a {
   }
 
   .partners-section {
-    padding: 14px 0 17px;
+    padding: 30px 0;
   }
 
   .site-header .brand span {
@@ -786,7 +852,7 @@ a {
 
 @media (max-width: 768px) {
   .hero-content {
-    max-width: 440px;
+    max-width: 42vw;
   }
 
   .footer-top {
@@ -796,22 +862,30 @@ a {
 
 @media (max-width: 680px) {
   .sobre-hero {
-    min-height: 520px;
-    padding: 44px 0;
+    min-height: auto;
+    align-items: stretch;
+    flex-direction: column;
+    padding: 0;
   }
 
   .hero-photo-wrapper {
+    position: relative;
+    inset: auto;
+    order: 1;
     width: 100%;
+    height: clamp(280px, 85vw, 390px);
     clip-path: none;
   }
 
   .hero-gradient-overlay {
-    background: linear-gradient(
-      90deg,
-      rgba(26, 12, 9, 0.94) 0%,
-      rgba(26, 12, 9, 0.82) 45%,
-      rgba(33, 16, 12, 0.24) 100%
-    ), linear-gradient(0deg, rgba(26, 12, 9, 0.72), transparent 70%);
+    background: linear-gradient(0deg, rgba(26, 12, 9, 0.18), transparent 48%);
+  }
+
+  .hero-content {
+    order: -1;
+    max-width: none;
+    margin: 0;
+    padding: 42px 28px 28px;
   }
 
   .hero-title {
@@ -839,34 +913,41 @@ a {
   }
 
   .partners-section {
-    padding: 22px 0 26px;
+    padding: 36px 0;
   }
 
-  .partners-header {
-    margin-bottom: 14px;
+  .team-grid {
+    gap: 12px;
   }
 
-  .partner-feature {
-    grid-template-columns: 112px 1fr;
-    max-width: 380px;
+  .team-card {
+    grid-template-columns: 1fr;
   }
 
-  .partner-feature img {
-    width: 112px;
-    height: auto;
+  .team-card img {
+    height: 220px;
+  }
+
+  .team-card-copy {
+    padding: 14px;
+  }
+
+  .brand-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .location-photo-box,
+  .location-video {
+    min-height: min(82vw, 380px);
   }
 
   .location-grid {
+    grid-template-columns: 1fr;
     gap: 26px;
   }
 
   .location-section {
     padding: 34px 0 42px;
-  }
-
-  .location-card {
-    aspect-ratio: 4 / 3;
-    height: auto;
   }
 
   .footer-top {
@@ -882,6 +963,18 @@ a {
     padding: 0;
     border: 0;
   }
+
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .team-card {
+    grid-template-columns: minmax(120px, 0.8fr) 1fr;
+  }
+
+  .team-card img {
+    height: 170px;
+  }
 }
 
 @media (max-width: 420px) {
@@ -889,13 +982,13 @@ a {
     font-size: clamp(2.3rem, 10.5vw, 2.8rem);
   }
 
-  .location-title {
-    font-size: 2.15rem;
-  }
-
   .footer-contacts {
     flex-wrap: wrap;
     gap: 16px;
+  }
+
+  .brand-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

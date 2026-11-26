@@ -34,6 +34,66 @@ export const customerLoginEmail = async (phone) => {
 export const loginAliasReference = (kind, identifier) =>
   doc(db, "cliente_login_aliases", `${kind}_${identifier}`);
 
+const saveCustomerProfile = async ({ uid, loginEmail, name, phone, email }) => {
+  const normalizedPhone = normalizePhone(phone);
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  const profileReference = doc(db, "clientes", uid);
+  const emailAlias = normalizedEmail ? loginAliasReference("email", normalizedEmail) : null;
+  const alias = emailAlias ? await getDoc(emailAlias) : null;
+
+  if (alias?.exists() && alias.data().uid !== uid) {
+    throw new Error("Este e-mail já está associado a uma conta. Acesse “Já sou cliente” para entrar.");
+  }
+
+  const profile = {
+    nome: String(name || "").trim(),
+    telefone: normalizedPhone,
+    email: normalizedEmail || null,
+    instagram: "",
+    loginEmail,
+    vipAvisoAte: 0,
+    criadoEm: serverTimestamp()
+  };
+  const batch = writeBatch(db);
+  batch.set(profileReference, profile);
+  if (emailAlias && !alias.exists()) {
+    batch.set(emailAlias, {
+      uid,
+      kind: "email",
+      identifier: normalizedEmail,
+      loginEmail
+    });
+  }
+  await batch.commit();
+  return profile;
+};
+
+export const completeCustomerProfile = async ({ customer, name, phone, email }) => {
+  const normalizedPhone = normalizePhone(phone);
+  if (normalizedPhone.length !== 10 && normalizedPhone.length !== 11) {
+    throw new Error("Informe um telefone com DDD válido.");
+  }
+
+  const expectedLoginEmail = await customerLoginEmail(normalizedPhone);
+  if (customer.email !== expectedLoginEmail || auth.currentUser?.uid !== customer.uid) {
+    const error = new Error("Esta conta não está vinculada ao telefone informado.");
+    error.code = "customer/profile-phone-mismatch";
+    throw error;
+  }
+
+  const profileReference = doc(db, "clientes", customer.uid);
+  const profileSnapshot = await getDoc(profileReference);
+  if (profileSnapshot.exists()) return profileSnapshot.data();
+
+  return saveCustomerProfile({
+    uid: customer.uid,
+    loginEmail: customer.email,
+    name,
+    phone: normalizedPhone,
+    email
+  });
+};
+
 export const signInCustomer = async (identifier, password) => {
   const normalized = String(identifier || "").trim();
   const isEmail = normalized.includes("@");
@@ -71,28 +131,15 @@ export const createCustomerAccount = async ({ name, phone, email, password }) =>
 
   const loginEmail = await customerLoginEmail(normalizedPhone);
   const credential = await createUserWithEmailAndPassword(auth, loginEmail, password);
-  const profileReference = doc(db, "clientes", credential.user.uid);
-  const batch = writeBatch(db);
-  batch.set(profileReference, {
-    nome: String(name || "").trim(),
-    telefone: normalizedPhone,
-    email: normalizedEmail || null,
-    instagram: "",
-    loginEmail,
-    vipAvisoAte: 0,
-    criadoEm: serverTimestamp()
-  });
-  if (emailAlias) {
-    batch.set(emailAlias, {
-      uid: credential.user.uid,
-      kind: "email",
-      identifier: normalizedEmail,
-      loginEmail
-    });
-  }
 
   try {
-    await batch.commit();
+    await saveCustomerProfile({
+      uid: credential.user.uid,
+      loginEmail,
+      name,
+      phone: normalizedPhone,
+      email: normalizedEmail
+    });
   } catch (error) {
     try {
       await deleteUser(credential.user);
@@ -126,6 +173,9 @@ export const customerAuthError = (error) => {
   }
   if (error.code === "auth/network-request-failed") {
     return "Sem conexão. Verifique a internet e tente novamente.";
+  }
+  if (error.code === "permission-denied") {
+    return "Não foi possível salvar os dados da conta. Tente novamente e, se o problema continuar, fale com o Studio.";
   }
   return error.message || "Não foi possível concluir. Tente novamente ou fale com o Studio.";
 };

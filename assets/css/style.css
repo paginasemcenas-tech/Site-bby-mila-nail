@@ -342,6 +342,12 @@ a {
   backdrop-filter: blur(5px);
 }
 
+.scheduling-dialog.booking-confirmed .profile-tabs,
+.scheduling-dialog.booking-confirmed .profile-panel[data-panel="existing"],
+.scheduling-dialog.booking-confirmed .new-client-form > :not(.booking-follow-up) {
+  display: none;
+}
+
 .scheduling-drawer {
   position: relative;
   max-height: calc(100vh - 24px);
@@ -369,8 +375,7 @@ a {
   margin-bottom: 26px;
 }
 
-.scheduling-header > span,
-.appointments-heading > div > span {
+.scheduling-header > span {
   color: var(--bronze);
   font-size: 9px;
   letter-spacing: 0.24em;
@@ -454,8 +459,7 @@ a {
 }
 
 .normal-schedule,
-.whatsapp-schedule,
-.new-appointment {
+.whatsapp-schedule {
   min-height: 46px;
   border: 1px solid var(--bronze);
   border-radius: 999px;
@@ -557,23 +561,6 @@ a {
 
 .account-password-field.is-hidden {
   display: none;
-}
-
-.existing-login-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 26px 0 20px;
-  color: var(--champagne-muted);
-  font-size: 9px;
-}
-
-.existing-login-divider::before,
-.existing-login-divider::after {
-  height: 1px;
-  flex: 1;
-  background: var(--champagne-line);
-  content: "";
 }
 
 .account-login-feedback {
@@ -691,108 +678,125 @@ a {
   text-align: center;
 }
 
-.existing-client-login {
-  display: grid;
-  gap: 16px;
-}
-
-.booking-code-hint {
+.account-form-note {
   margin: -8px 0 0;
   color: var(--champagne-muted);
   font-size: 10px;
   line-height: 1.5;
 }
 
-.appointments-heading {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin: 8px 0 18px;
-}
-
-.appointments-heading h3 {
-  margin: 4px 0 0;
-  font-family: var(--font-title);
-  font-size: 30px;
-  font-weight: 500;
-}
-
-.new-appointment {
-  min-height: 38px;
-  padding: 0 14px;
+.booking-switch-account {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--bronze-border);
+  border-radius: 999px;
   background: transparent;
   color: var(--bronze);
-  white-space: nowrap;
+  font-family: var(--font-body);
+  font-size: 10px;
+  cursor: pointer;
 }
 
-.appointment-card {
+.booking-switch-account[hidden],
+.booking-account-help[hidden],
+.booking-follow-up[hidden] {
+  display: none;
+}
+
+.booking-account-help {
+  display: block;
+  margin-top: 10px;
+  color: var(--champagne-muted);
+  font-size: 10px;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.booking-follow-up {
   display: grid;
-  grid-template-columns: 58px minmax(0, 1fr) auto;
-  align-items: center;
   gap: 12px;
-  margin-bottom: 10px;
-  padding: 12px;
-  border: 1px solid var(--champagne-line);
-  border-radius: 8px;
-  background: rgba(243, 231, 217, 0.025);
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid var(--bronze-border);
+  border-radius: 10px;
+  background: rgba(56, 22, 25, 0.42);
 }
 
-.appointment-card time {
-  display: flex;
-  height: 58px;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  border-radius: 6px;
-  background: var(--cacao);
+.booking-follow-up-label {
+  color: var(--bronze);
+  font-size: 9px;
+  letter-spacing: 0.18em;
 }
 
-.appointment-card time strong {
+.booking-follow-up h3,
+.booking-practices h4 {
+  margin: 0;
   font-family: var(--font-title);
   font-size: 25px;
-  line-height: 0.9;
-}
-
-.appointment-card time span {
-  margin-top: 5px;
-  color: var(--bronze);
-  font-size: 8px;
-  letter-spacing: 0.12em;
-}
-
-.appointment-card h4 {
-  margin: 0 0 4px;
-  font-family: var(--font-title);
-  font-size: 19px;
   font-weight: 500;
 }
 
-.appointment-card p {
+.booking-follow-up-message,
+.booking-practices li {
   margin: 0;
   color: var(--champagne-muted);
   font-size: 11px;
+  line-height: 1.65;
 }
 
-.appointment-status {
-  padding: 6px 8px;
-  border-radius: 999px;
-  font-size: 8px;
-  letter-spacing: 0.04em;
-}
-
-.appointment-status.is-confirmed {
-  background: rgba(197, 161, 93, 0.16);
+.booking-vip-link,
+.booking-care-link,
+.booking-whatsapp-help {
   color: var(--bronze);
+  font-size: 10px;
+  line-height: 1.6;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.appointment-status.is-completed {
-  background: rgba(243, 231, 217, 0.08);
+.booking-whatsapp-help {
   color: var(--champagne-muted);
 }
 
-.appointment-status.is-cancelled {
-  background: rgba(150, 45, 50, 0.16);
-  color: #d78c89;
+.booking-practices {
+  display: grid;
+  gap: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--champagne-line);
+}
+
+.booking-practices h4 {
+  font-size: 22px;
+}
+
+.booking-practices-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.booking-practices-grid strong {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--champagne);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.booking-practices ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 16px;
+}
+
+.booking-practices li::marker {
+  color: var(--bronze);
 }
 
 @media (max-width: 560px) {
@@ -826,17 +830,8 @@ a {
     grid-column: auto;
   }
 
-  .appointments-heading {
-    align-items: flex-start;
-  }
-
-  .appointment-card {
-    grid-template-columns: 52px minmax(0, 1fr);
-  }
-
-  .appointment-status {
-    grid-column: 2;
-    justify-self: start;
+  .booking-practices-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -863,6 +858,7 @@ a {
 }
 
 .home-hero-content {
+  position: relative;
   z-index: 2;
   width: 100%;
   padding: 3.5rem 2rem 3.5rem max(56px, calc((100vw - 1440px) / 2));
@@ -977,26 +973,56 @@ a {
   transform: translateX(5px);
 }
 
-.home-hero-visual {
+.home-hero-media {
   position: absolute;
-  z-index: -1;
-  inset: 0 0 0 42%;
+  z-index: 0;
+  inset: 0 0 0 auto;
+  width: min(66%, 980px);
+  margin: 0;
   overflow: hidden;
+  clip-path: ellipse(100% 130% at 100% 50%);
+  background:
+    radial-gradient(ellipse at 68% 50%, rgba(92, 26, 34, 0.62), transparent 58%),
+    linear-gradient(110deg, transparent, rgba(59, 21, 25, 0.66));
 }
 
-.home-hero-visual::before {
+.home-hero-media::after {
   position: absolute;
   z-index: 1;
   inset: 0;
-  background: radial-gradient(ellipse 34% 50% at 3% 15%, rgba(92, 26, 34, 0.45), transparent 100%), linear-gradient(90deg, #1e0e0b 0%, #24110d 18%, rgba(36, 17, 13, 0.35) 62%, rgba(36, 17, 13, 0.05) 100%);
+  background:
+    linear-gradient(90deg, #1e0e0b 0%, rgba(30, 14, 11, 0.78) 18%, rgba(30, 14, 11, 0.12) 78%),
+    linear-gradient(0deg, rgba(30, 14, 11, 0.28), transparent 36%);
   content: "";
+  pointer-events: none;
 }
 
-.home-hero-visual img {
+.home-hero-video-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+.home-hero-video-frame::before {
+  position: absolute;
+  z-index: 1;
+  inset: auto 0 0;
+  height: 22%;
+  background: linear-gradient(transparent, rgba(24, 12, 9, 0.52));
+  content: "";
+  pointer-events: none;
+}
+
+.home-hero-video {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: right center;
+  object-position: center 42%;
+  filter: brightness(0.78) saturate(0.82);
+  transform: scale(1.1);
 }
 
 .nail-art-section {
@@ -1044,7 +1070,7 @@ a {
 
 .nail-art-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -1060,6 +1086,41 @@ a {
   color: var(--champagne);
   text-align: left;
   cursor: pointer;
+}
+
+.art-card--placeholder {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+  padding: 20px;
+  border: 1px dashed rgba(197, 161, 93, 0.45);
+  background: radial-gradient(circle at 50% 35%, rgba(114, 47, 66, 0.34), var(--cacao) 72%);
+  cursor: default;
+  text-align: center;
+}
+
+.art-card--placeholder::after {
+  display: none;
+}
+
+.art-card-placeholder-number {
+  color: var(--bronze);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+}
+
+.art-card--placeholder strong {
+  font-family: var(--font-title);
+  font-size: clamp(1.2rem, 1.75vw, 1.8rem);
+  font-weight: 500;
+}
+
+.art-card--placeholder code {
+  color: var(--champagne-muted);
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  overflow-wrap: anywhere;
 }
 
 .art-card::after {
@@ -1437,29 +1498,6 @@ a {
     width: calc(100% - 40px);
   }
 
-  .home-hero {
-    min-height: clamp(540px, 85svh, 620px);
-    grid-template-columns: 1fr;
-    align-items: end;
-  }
-
-  .home-hero-visual {
-    inset: 0;
-  }
-
-  .home-hero-visual::before {
-    background: radial-gradient(ellipse 38% 38% at 48% 30%, rgba(92, 26, 34, 0.42), transparent 100%), linear-gradient(90deg, rgba(30, 14, 11, 0.88) 0%, rgba(36, 17, 13, 0.62) 46%, rgba(36, 17, 13, 0.08) 100%), linear-gradient(0deg, #1e0e0b 0%, rgba(30, 14, 11, 0.78) 33%, transparent 82%);
-  }
-
-  .home-hero-content {
-    width: 100%;
-    padding: 0 32px 3.5rem;
-  }
-
-  .home-hero h1 {
-    font-size: clamp(2.6rem, 7vw, 3.8rem);
-  }
-
   .nail-art-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem;
@@ -1519,13 +1557,60 @@ a {
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 760px) {
   .home-hero {
-    min-height: clamp(540px, 86svh, 600px);
+    display: flex;
+    min-height: auto;
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .home-hero-content {
-    padding: 0 22px 3rem;
+    width: min(1200px, calc(100% - 56px));
+    margin-inline: auto;
+    padding: 52px 0 16px;
+  }
+
+  .home-hero-media {
+    position: relative;
+    inset: auto;
+    display: grid;
+    width: 100%;
+    height: auto;
+    padding: 8px 0 44px;
+    place-items: center;
+    clip-path: none;
+    background: radial-gradient(ellipse at center, rgba(92, 26, 34, 0.4), transparent 70%);
+  }
+
+  .home-hero-media::after {
+    content: none;
+  }
+
+  .home-hero-video-frame {
+    width: min(300px, calc(100vw - 72px));
+    height: auto;
+    aspect-ratio: 9 / 16;
+    border: 1px solid rgba(212, 166, 142, 0.45);
+    border-radius: 24px;
+    background: #180c09;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38), 0 0 50px rgba(212, 166, 142, 0.12);
+  }
+
+  .home-hero-video {
+    aspect-ratio: 9 / 16;
+    filter: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .home-hero {
+    min-height: auto;
+  }
+
+  .home-hero-content {
+    width: calc(100% - 44px);
+    padding: 42px 0 16px;
   }
 
   .home-hero h1 {

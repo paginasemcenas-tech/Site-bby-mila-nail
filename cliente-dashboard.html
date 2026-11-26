@@ -12,9 +12,9 @@
   <link rel="stylesheet" href="assets/css/cliente-dashboard.css">
 </head>
 <body class="dashboard-page customer-dashboard-page">
-  <p id="customer-status" class="dashboard-status" role="status" aria-live="polite">Verificando seu acesso...</p>
+  <p id="customer-status" class="dashboard-status" role="status" aria-live="polite" hidden>Verificando seu acesso...</p>
 
-  <main id="customer-auth-view" class="customer-auth-wrap" hidden>
+  <main id="customer-auth-view" class="customer-auth-wrap">
     <section class="customer-auth-card" aria-labelledby="customer-auth-title">
       <a class="customer-brand" href="index.html"><span>Bby Mila</span><small>NAILS</small></a>
       <p class="section-eyebrow">ÁREA EXCLUSIVA DA CLIENTE</p>
@@ -104,7 +104,7 @@
         <p>Você tem <strong id="customer-remaining-bookings">3</strong> agendamento(s) válido(s) na janela dos últimos 12 meses. Faltam <strong id="customer-bookings-needed">3</strong> para desbloquear o painel completo.</p>
         <div class="customer-locked-actions">
           <a class="primary-action" href="index.html?agendar=1">Agendar meu próximo cuidado</a>
-          <a class="secondary-action" href="index.html?consulta=1">Consultar reserva pelo código</a>
+          <a class="secondary-action" href="https://wa.me/553196809579?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20sobre%20a%20confirma%C3%A7%C3%A3o%20do%20meu%20agendamento." target="_blank" rel="noopener noreferrer">Dúvidas sobre a confirmação? Fale com o Studio</a>
         </div>
         <small>Contamos reservas não canceladas feitas nos últimos 365 dias e vinculadas à sua conta. Reservas antigas sem vínculo à conta ou e-mail verificado não são associadas somente pelo telefone; fale com o Studio pelo WhatsApp para solicitar uma análise.</small>
       </section>
@@ -136,6 +136,6 @@
       </div>
     </main>
   </div>
-  <script type="module" src="assets/js/cliente-dashboard.js"></script>
+  <script type="module" src="assets/js/cliente-dashboard.js?v=2"></script>
 </body>
 </html>

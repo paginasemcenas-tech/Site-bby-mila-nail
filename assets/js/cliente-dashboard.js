@@ -435,6 +435,8 @@ onAuthStateChanged(auth, async (user) => {
     showAuth();
     return;
   }
+  authView.hidden = true;
+  customerApp.hidden = true;
   if (adminUIDs.includes(user.uid)) {
     setCustomerStatus("Esta conta pertence à administração. Acesse o painel do Studio.");
     authView.hidden = true;

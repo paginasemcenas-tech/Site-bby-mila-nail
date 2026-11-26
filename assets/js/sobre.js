@@ -2,6 +2,19 @@ const initializeAboutPage = () => {
   const revealElements = [...document.querySelectorAll(".reveal")];
   const heroContent = document.querySelector(".sobre-hero .reveal");
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const studioVideo = document.querySelector(".location-video");
+  const studioVideoPlaceholder = document.querySelector(".location-photo-placeholder");
+
+  if (studioVideo && studioVideoPlaceholder) {
+    const showStudioVideoPlaceholder = () => {
+      studioVideo.hidden = true;
+      studioVideoPlaceholder.hidden = false;
+    };
+
+    studioVideo.addEventListener("error", showStudioVideoPlaceholder, { once: true });
+    if (studioVideo.error) showStudioVideoPlaceholder();
+    if (prefersReducedMotion) studioVideo.pause();
+  }
 
   if (heroContent) heroContent.classList.add("is-visible");
 
@@ -54,22 +67,6 @@ const initializeAboutPage = () => {
     });
   });
 
-  const scheduleButton = document.querySelector(".site-header [data-open-scheduling]");
-  if (scheduleButton) {
-    scheduleButton.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      openWhatsApp("Olá! Gostaria de agendar um horário com a Bby Mila Nails.");
-
-      const menuToggle = document.querySelector(".menu-toggle");
-      const mainNavigation = document.querySelector("#main-navigation");
-      if (menuToggle && mainNavigation && window.matchMedia("(max-width: 680px)").matches) {
-        menuToggle.setAttribute("aria-expanded", "false");
-        menuToggle.setAttribute("aria-label", "Abrir menu");
-        mainNavigation.hidden = true;
-      }
-    }, true);
-  }
 };
 
 if (document.readyState === "loading") {

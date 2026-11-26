@@ -1,0 +1,109 @@
+.global-site-footer {
+  padding: 18px max(32px, calc((100vw - 1440px) / 2));
+  background: #160a08;
+  color: #f4ece6;
+}
+
+.global-footer-main {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(220px, 1.5fr) minmax(150px, 1fr) minmax(140px, 1fr) minmax(135px, 1fr);
+  align-items: center;
+  gap: 20px;
+  min-height: 76px;
+  padding-bottom: 16px;
+}
+
+.global-footer-brand {
+  display: inline-flex;
+  width: max-content;
+  flex-direction: column;
+  color: #f4ece6;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 2rem;
+  line-height: 0.78;
+}
+
+.global-footer-brand small {
+  align-self: flex-end;
+  margin-top: 6px;
+  font-family: "Manrope", Arial, sans-serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+}
+
+.global-footer-detail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #c2aba0;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  transition: color 180ms ease;
+}
+
+.global-footer-detail:hover,
+.global-footer-detail:focus-visible {
+  color: #f4ece6;
+}
+
+.global-footer-detail svg {
+  width: 21px;
+  height: 21px;
+  flex: 0 0 auto;
+  color: #d4a68e;
+}
+
+.global-footer-tagline {
+  margin: 0;
+  padding-left: 18px;
+  border-left: 1px solid rgba(245, 236, 230, 0.2);
+  color: #c2aba0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.global-footer-bottom {
+  padding-top: 14px;
+  border-top: 1px solid rgba(245, 236, 230, 0.08);
+  color: #9d8479;
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  text-align: center;
+}
+
+@media (max-width: 1000px) {
+  .global-footer-main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 28px;
+  }
+
+  .global-footer-tagline {
+    padding-left: 0;
+    border-left: 0;
+    text-align: left;
+  }
+}
+
+@media (max-width: 560px) {
+  .global-site-footer {
+    padding: 24px;
+  }
+
+  .global-footer-main {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .global-footer-tagline {
+    padding-top: 14px;
+    border-top: 1px solid rgba(245, 236, 230, 0.12);
+  }
+
+  .global-footer-bottom {
+    font-size: 0.48rem;
+    line-height: 1.6;
+  }
+}
